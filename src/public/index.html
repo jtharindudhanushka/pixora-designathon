@@ -141,6 +141,21 @@
           <div class="res-title" id="scanAlertTitle">Access Granted</div>
           <div class="res-sub" id="scanAlertSub">Turnstile 1 unlocked. Solenoid energized for 8s.</div>
         </div>
+
+        <!-- Hardware MQTT Telemetry Log -->
+        <div class="mqtt-hud-strip">
+          <div class="mqtt-hud-label">
+            <span>MQTT EVENT BUS · PORT 1883</span>
+            <span class="packet-rate" id="mqttRate">REALTIME</span>
+          </div>
+          <div class="mqtt-hud-feed" id="mqttHudFeed">
+            <div class="feed-entry">
+              <span class="time">00:00:00</span>
+              <span class="topic">trizen/tower-1/system</span>
+              <span class="payload">HAL initialized. 891 residential units mapped to Mitsubishi elevator core.</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Quick Issue Pass Button -->
@@ -193,20 +208,6 @@
           <div class="overlay-stage-desc" id="overlayStageDesc">Awaiting cryptographic token verification at Union Place turnstile...</div>
         </div>
       </div>
-
-      <!-- Hardware MQTT Telemetry Mini-Log -->
-      <div class="mqtt-hud-strip">
-        <div class="mqtt-hud-label">
-          <span>MQTT EVENT BUS</span>
-          <span class="packet-rate" id="mqttRate">PORT 1883 · REALTIME</span>
-        </div>
-        <div class="mqtt-hud-feed" id="mqttHudFeed">
-          <div class="feed-entry">
-            <span class="time">00:00:00</span>
-            <span class="topic">trizen/tower-1/system</span>
-            <span class="payload">HAL initialized. 891 residential units mapped to Mitsubishi elevator core.</span>
-          </div>
-        </div>
       </div>
     </section>
 
