@@ -180,7 +180,7 @@ function renderActivePass(pass) {
   if (emptyCard) emptyCard.classList.add('hidden');
 
   const countPill = document.getElementById('mPassCountPill');
-  if (countPill) countPill.innerText = '1 pass';
+  if (countPill) countPill.innerText = '1 active';
 
   const deliverySection = document.getElementById('deliverySection');
   if (deliverySection) {
@@ -238,7 +238,7 @@ function renderIdleState() {
   if (emptyCard) emptyCard.classList.remove('hidden');
 
   const countPill = document.getElementById('mPassCountPill');
-  if (countPill) countPill.innerText = '0 passes';
+  if (countPill) countPill.innerText = '0 active';
 
   const deliverySection = document.getElementById('deliverySection');
   if (deliverySection) deliverySection.classList.add('hidden');

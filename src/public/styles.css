@@ -1041,34 +1041,32 @@ body {
   font-weight: 600;
 }
 
-.st-node.state-done .st-circle,
-.st-node.state-current .st-circle {
-  background: #111111;
-  color: #FFFFFF;
+.st-node.state-done .st-circle {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35) !important;
 }
 
 .st-node.state-current .st-circle {
-  border: 2px solid var(--accent-blue);
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25), 0 2px 8px rgba(2, 132, 199, 0.4) !important;
 }
 
-.st-node.state-done span,
+.st-node.state-done span {
+  color: #10B981 !important;
+  font-weight: 700 !important;
+}
+
 .st-node.state-current span {
-  color: #111111;
-  font-weight: 700;
+  color: #0284C7 !important;
+  font-weight: 700 !important;
 }
 
-.st-connector {
-  flex: 1;
-  padding-top: 13px;
+.st-bar.completed {
+  background: #10B981 !important;
+  height: 3px !important;
 }
-
-.st-bar {
-  height: 2px;
-  background: #E5E7EB;
-  transition: background 0.3s;
-}
-
-.st-bar.completed { background: #111111; }
 
 .dt-eta {
   font-size: 11.5px;
@@ -1954,7 +1952,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   background: #FFFFFF;
   border: 1px dashed #D1D5DB;
   border-radius: 16px;
-  padding: 18px 16px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -1962,8 +1960,8 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 }
 
 .mea-icon {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 12px;
   background: #F3F4F6;
   color: #6B7280;
@@ -1976,7 +1974,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 .mea-text-wrap {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .mea-title {
@@ -1995,10 +1993,21 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   width: 100%;
 }
 
-#deliverySection .live-delivery-card {
-  width: 100%;
-  min-width: 100%;
-  box-sizing: border-box;
+.pass-carousel-card.live-delivery-card {
+  width: 100% !important;
+  min-width: 100% !important;
+  height: auto !important;
+  min-height: unset !important;
+  box-sizing: border-box !important;
+  padding: 16px 16px 18px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  background: #FFFFFF !important;
+  border: 1px solid #DCDDE1 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+  overflow: visible !important;
 }
 
 .pass-carousel-card {

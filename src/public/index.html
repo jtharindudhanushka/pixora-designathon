@@ -272,13 +272,12 @@
           <!-- Section: EXPECTED TONIGHT (Exact Figma Component node 47:81) -->
           <div class="m-section-header">
             <div class="m-section-title-wrap">
-              <span class="m-eyebrow">EXPECTED TONIGHT</span>
-              <span class="m-count-pill" id="mPassCountPill">0 passes</span>
+              <span class="m-eyebrow">ACTIVE PASSES</span>
+              <span class="m-count-pill" id="mPassCountPill">0 active</span>
             </div>
-            <span class="m-link" onclick="openPassModal()">+ Issue pass</span>
           </div>
 
-          <!-- Horizontal Pass Cards Carousel / Empty State -->
+          <!-- Active Passes Container -->
           <div class="m-cards-carousel">
             <!-- Empty State Card (shown when idle) -->
             <div class="m-empty-arrivals" id="mEmptyArrivals">
@@ -298,20 +297,20 @@
             </div>
 
             <!-- When active: shows live tracker card -->
-            <div id="deliverySection" class="hidden">
+            <div id="deliverySection" class="hidden" style="width: 100%;">
               <div class="pass-carousel-card live-delivery-card" id="deliveryTrackerCard">
                 <div class="pcc-head">
                   <div class="pcc-avatar-circle delivery-active">🚚</div>
                   <div class="pcc-title-col">
                     <div class="pcc-title" id="resDeliveryTitle">Keells Super Express</div>
-                    <div class="pcc-sub" id="courierOrderId">Main gate · Lift · Unit 1204</div>
+                    <div class="pcc-sub" id="courierOrderId">Main gate · Lift · Unit 1402</div>
                   </div>
                   <span class="pcc-badge en-route" id="dtBadge">
-                    <span class="pcc-dot blue"></span> En route
+                    <span class="pcc-dot blue"></span> Live
                   </span>
                 </div>
 
-                <div class="dt-subtext" id="dtSubtext">Heading to Tower 2 · Keells order</div>
+                <div class="dt-subtext" id="dtSubtext">Heading to Tower 1 · Grocery order</div>
 
                 <!-- 4-Stage Stepper -->
                 <div class="dt-stepper">
@@ -335,9 +334,6 @@
                     <span>Door</span>
                   </div>
                 </div>
-
-                <div class="dt-eta" id="dtEta">~6 min away</div>
-                <button class="pcc-btn-confirm" onclick="triggerHandshakeScan()">Confirm handover</button>
               </div>
 
               <!-- Delivery successful — shown briefly, then auto-dismissed -->
