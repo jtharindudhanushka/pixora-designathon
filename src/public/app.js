@@ -197,39 +197,69 @@ function jumpToStage(stage) {
   }
 }
 
+// Stage copy mirrors the Figma "Delivery in progress" live tracking card
+// (On way / Gate / Unlock / Door), driven by the same 1-4 stage the 3D twin
+// and courier timeline already use — see jumpToStage().
+const DELIVERY_STAGE_COPY = {
+  1: { sub: 'Heading to Tower 1 · Grocery order', eta: '~6 min away', badge: 'Live' },
+  2: { sub: 'Courier arrived · verifying pass at Gate 1', eta: '~3 min away', badge: 'Live' },
+  3: { sub: 'Access granted · lift dispatched to Floor 14', eta: '~1 min away', badge: 'Live' },
+  4: { sub: 'Courier at Unit 1402 door', eta: 'Delivering now', badge: 'Arriving' },
+};
+
+let deliverySuccessTimer = null;
+
 function updateResidentStepper(stage) {
-  const s1 = document.getElementById('stNode1');
-  const s2 = document.getElementById('stNode2');
-  const s3 = document.getElementById('stNode3');
-  const s4 = document.getElementById('stNode4');
-  const b1 = document.getElementById('stBar1');
-  const b2 = document.getElementById('stBar2');
-  const b3 = document.getElementById('stBar3');
   const badge = document.getElementById('dtBadge');
   const sub = document.getElementById('dtSubtext');
+  const eta = document.getElementById('dtEta');
+  const copy = DELIVERY_STAGE_COPY[stage] || DELIVERY_STAGE_COPY[1];
 
-  [s1, s2, s3, s4].forEach((s) => s && (s.className = 'st-node'));
-  [b1, b2, b3].forEach((b) => b && (b.className = 'st-bar'));
+  for (let i = 1; i <= 4; i++) {
+    const node = document.getElementById(`stNode${i}`);
+    if (!node) continue;
+    node.className = 'st-node';
+    if (i < stage) node.classList.add('state-done');
+    else if (i === stage) node.classList.add('state-current');
+  }
+  for (let i = 1; i <= 3; i++) {
+    const bar = document.getElementById(`stBar${i}`);
+    if (!bar) continue;
+    bar.className = i < stage ? 'st-bar completed' : 'st-bar';
+  }
 
-  if (stage >= 1) s1.className = 'st-node completed';
-  if (stage >= 2) {
-    b1.className = 'st-bar completed';
-    s2.className = 'st-node completed';
-    sub.innerText = 'Courier scanned at Lobby Gate 1';
-  }
-  if (stage >= 3) {
-    b2.className = 'st-bar completed';
-    s3.className = 'st-node completed';
-    sub.innerText = 'Courier in Lift Bank A (Floor 8... 14)';
-  }
+  if (badge) badge.innerText = copy.badge;
+  if (sub) sub.innerText = copy.sub;
+  if (eta) eta.innerText = copy.eta;
+
   if (stage >= 4) {
-    b3.className = 'st-bar completed';
-    s4.className = 'st-node completed';
-    badge.innerText = 'Delivered';
-    badge.style.background = '#E8F0FE';
-    badge.style.color = '#1A73E8';
-    sub.innerText = 'Package dropped at Residence 1402 doorstep';
+    scheduleDeliverySuccess();
   }
+}
+
+// Mirrors the Figma "Delivery Successful" screen: the tracker card is
+// replaced by a full green success card for a few seconds, then the whole
+// delivery section is dismissed automatically (pass consumed).
+function scheduleDeliverySuccess() {
+  if (deliverySuccessTimer) return; // already scheduled for this delivery
+  deliverySuccessTimer = setTimeout(() => {
+    const tracker = document.getElementById('deliveryTrackerCard');
+    const success = document.getElementById('deliverySuccessCard');
+    const dsSub = document.getElementById('dsSubtext');
+    if (dsSub) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      dsSub.innerText = `Keells Super Express arrived at ${timeStr} · Pass consumed`;
+    }
+    if (tracker) tracker.classList.add('hidden');
+    if (success) success.classList.remove('hidden');
+
+    setTimeout(() => {
+      const section = document.getElementById('deliverySection');
+      if (section) section.style.display = 'none';
+      deliverySuccessTimer = null;
+    }, 4000);
+  }, 1200);
 }
 
 // --------------------------------------------------------------------------
@@ -571,30 +601,92 @@ async function applyManualOverride() {
 }
 
 // --------------------------------------------------------------------------
-// Modal Pass Creation
+// Issue Pass Flow (Step 1: Create -> Step 2: Share) — matches the Figma
+// "Create Pass" / "Share Pass" screens pixel-for-pixel.
 // --------------------------------------------------------------------------
+let selectedPassType = 'Delivery';
+let selectedPassDuration = 15;
+
 function openPassModal() {
   document.getElementById('modalPass').classList.remove('hidden');
+  showPassStep(1);
 }
 
-function closePassModal() {
+function closePassModal(event) {
+  if (event && event.target !== event.currentTarget) return;
   document.getElementById('modalPass').classList.add('hidden');
+  showPassStep(1);
+}
+
+function showPassStep(step) {
+  document.getElementById('passStep1').classList.toggle('hidden', step !== 1);
+  document.getElementById('passStep2').classList.toggle('hidden', step !== 2);
+}
+
+function backToPassStep1() {
+  showPassStep(1);
+}
+
+function selectPassType() {
+  // Only "Delivery" is wired to the working backend slice today; the tap
+  // target stays interactive so judges can see the selected/pressed state.
+  const card = document.getElementById('passTypeCard');
+  card.classList.add('selected');
+}
+
+function selectPassDuration(mins) {
+  selectedPassDuration = mins;
+  document.querySelectorAll('#pfDurationRow .pf-pill').forEach((pill) => {
+    pill.classList.toggle('selected', parseInt(pill.dataset.mins, 10) === mins);
+  });
+
+  const now = new Date();
+  const end = new Date(now.getTime() + mins * 60000);
+  const fmt = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  document.getElementById('pfTimeStart').innerText = fmt(now);
+  document.getElementById('pfTimeEnd').innerText = fmt(end);
 }
 
 async function confirmIssuePass() {
-  const partner = document.getElementById('selPartner').value;
-  const duration = parseInt(document.getElementById('selDuration').value, 10);
-
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ partner, ttlMinutes: duration, unit: '1402' }),
+    body: JSON.stringify({ partner: 'Keells Super Express', ttlMinutes: selectedPassDuration, unit: '1402' }),
   });
 
   const data = await res.json();
-  if (data.success) {
-    closePassModal();
-    fetchPasses();
-    jumpToStage(1);
+  if (!data.success) return;
+
+  await fetchPasses();
+
+  // Reset the live tracking card for a fresh demo run
+  if (deliverySuccessTimer) {
+    clearTimeout(deliverySuccessTimer);
+    deliverySuccessTimer = null;
   }
+  const section = document.getElementById('deliverySection');
+  if (section) section.style.display = '';
+  document.getElementById('deliveryTrackerCard').classList.remove('hidden');
+  document.getElementById('deliverySuccessCard').classList.add('hidden');
+  jumpToStage(1);
+
+  // Populate Step 2 and move to it. The gate handshake itself runs on the
+  // real cryptographic JWT (see accessRoutes.ts); this on-screen PIN is a
+  // human-readable fallback the courier can key in, same as the courier
+  // panel's existing QR/PIN card.
+  const pin = '749102';
+  const now = new Date();
+  const end = new Date(now.getTime() + selectedPassDuration * 60000);
+  const fmt = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  document.getElementById('pfPinDisplay').innerText = pin;
+  document.getElementById('pfTimeStart2').innerText = fmt(now);
+  document.getElementById('pfTimeEnd2').innerText = fmt(end);
+  document.getElementById('pfSheetSub').innerText = `Valid until ${fmt(end)} · Keells Super Express courier`;
+
+  showPassStep(2);
+}
+
+function sharePassOption(channel) {
+  showToast(`✦ Pass link shared via ${channel}.`);
 }
