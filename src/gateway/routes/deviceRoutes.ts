@@ -30,7 +30,7 @@ export function createDeviceRouter(
       if (state !== undefined) hardwareDaemon.unitDevices.livingRoomAc.state = state;
       if (temp !== undefined) hardwareDaemon.unitDevices.livingRoomAc.temp = Math.max(18, Math.min(28, temp));
       hardwareDaemon.broadcastUnitDeviceState('living-ac', hardwareDaemon.unitDevices.livingRoomAc);
-      broadcastWs('DEVICE_STATE_CHANGED', { id, ...hardwareDaemon.unitDevices.livingRoomAc });
+      broadcastWs('DEVICE_STATE_CHANGED', { ...hardwareDaemon.unitDevices.livingRoomAc });
       return res.json({ success: true, device: hardwareDaemon.unitDevices.livingRoomAc });
     }
 
@@ -40,14 +40,14 @@ export function createDeviceRouter(
         hardwareDaemon.lockTelemetry.setLockState(state);
       }
       hardwareDaemon.broadcastUnitDeviceState('front-door', hardwareDaemon.unitDevices.frontDoor);
-      broadcastWs('DEVICE_STATE_CHANGED', { id, ...hardwareDaemon.unitDevices.frontDoor });
+      broadcastWs('DEVICE_STATE_CHANGED', { ...hardwareDaemon.unitDevices.frontDoor });
       return res.json({ success: true, device: hardwareDaemon.unitDevices.frontDoor });
     }
 
     if (id === 'guest-lights') {
       if (state !== undefined) hardwareDaemon.unitDevices.guestRoomLights.state = state;
       hardwareDaemon.broadcastUnitDeviceState('guest-lights', hardwareDaemon.unitDevices.guestRoomLights);
-      broadcastWs('DEVICE_STATE_CHANGED', { id, ...hardwareDaemon.unitDevices.guestRoomLights });
+      broadcastWs('DEVICE_STATE_CHANGED', { ...hardwareDaemon.unitDevices.guestRoomLights });
       return res.json({ success: true, device: hardwareDaemon.unitDevices.guestRoomLights });
     }
 
@@ -55,7 +55,7 @@ export function createDeviceRouter(
       if (state !== undefined) hardwareDaemon.unitDevices.guestRoomAc.state = state;
       if (temp !== undefined) hardwareDaemon.unitDevices.guestRoomAc.temp = Math.max(18, Math.min(28, temp));
       hardwareDaemon.broadcastUnitDeviceState('guest-ac', hardwareDaemon.unitDevices.guestRoomAc);
-      broadcastWs('DEVICE_STATE_CHANGED', { id, ...hardwareDaemon.unitDevices.guestRoomAc });
+      broadcastWs('DEVICE_STATE_CHANGED', { ...hardwareDaemon.unitDevices.guestRoomAc });
       return res.json({ success: true, device: hardwareDaemon.unitDevices.guestRoomAc });
     }
 
