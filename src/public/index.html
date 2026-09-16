@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRI-ZEN OS | John Keells Properties</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top Navigation & View Mode Switcher -->
+  <header class="top-nav-bar">
+    <div class="brand-block">
+      <div class="brand-logo-pill">JKH</div>
+      <div class="brand-title">
+        <span class="product-name">TRI-ZEN OS</span>
+        <span class="product-sub">John Keells Properties · Colombo 02</span>
+      </div>
+    </div>
+
+    <!-- Dual Mode Switcher -->
+    <div class="view-mode-selector">
+      <button id="btnViewResident" class="mode-pill active" onclick="switchView('resident')">
+        <span class="icon">📱</span> Resident App
+      </button>
+      <button id="btnViewOperator" class="mode-pill" onclick="switchView('operator')">
+        <span class="icon">🏢</span> Tower Edge & AI Engine
+      </button>
+    </div>
+
+    <div class="live-status-pill">
+      <span class="status-dot pulse-green"></span>
+      <span id="systemStatusText">MQTT Broker Active · Port 1883</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: RESIDENT MOBILE APP (Strictly DESIGN_SYSTEM.md)           -->
+    <!-- ================================================================= -->
+    <section id="viewResident" class="view-panel active">
+      <div class="phone-frame">
+        <!-- Phone Status Bar -->
+        <div class="phone-top-bar">
+          <div class="status-bar-chip">
+            <span class="chip-dot"></span>
+            <span class="chip-text">Tower 1 · 1402</span>
+          </div>
+          <div class="phone-top-actions">
+            <button class="icon-circle-btn" title="Notifications">
+              <span class="bell-icon">🔔</span>
+              <span class="unread-dot"></span>
+            </button>
+            <div class="avatar-circle">MS</div>
+          </div>
+        </div>
+
+        <div class="phone-scroll-content">
+          <!-- Hero Header -->
+          <div class="hero-header-card">
+            <div class="hero-greeting">Good evening, Maya</div>
+            <div class="hero-subtext">All systems optimal in Residence 1402</div>
+
+            <!-- 3 Stat Chips -->
+            <div class="stat-chips-row">
+              <div class="stat-chip">
+                <span class="stat-icon">🌡️</span>
+                <div class="stat-meta">
+                  <span class="stat-label">INSIDE</span>
+                  <span class="stat-val" id="statInsideTemp">23°C</span>
+                </div>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-icon">🔒</span>
+                <div class="stat-meta">
+                  <span class="stat-label">FRONT DOOR</span>
+                  <span class="stat-val" id="statDoorState">Locked</span>
+                </div>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-icon">⚡</span>
+                <div class="stat-meta">
+                  <span class="stat-label">ACTIVE</span>
+                  <span class="stat-val" id="statActiveCount">2 Devices</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Natural Language Input Bar -->
+          <div class="ai-search-bar">
+            <span class="sparkle-icon">✨</span>
+            <input type="text" id="aiCommandInput" placeholder="Tell your home what you need…" onkeydown="handleAiInputKey(event)">
+            <button class="ai-submit-btn" onclick="submitAiCommand()">➔</button>
+          </div>
+          <div id="aiResponseToast" class="ai-response-toast hidden"></div>
+
+          <!-- SECTION: EXPECTED TONIGHT (Passes) -->
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <span class="section-eyebrow">EXPECTED TONIGHT</span>
+              <span class="count-pill" id="passCountPill">1 pass</span>
+            </div>
+            <button class="see-all-link" onclick="openNewPassModal()">+ Issue Pass</button>
+          </div>
+
+          <!-- Pass Card (Horizontal scroll container) -->
+          <div class="passes-container" id="passesList">
+            <!-- Dynamically populated pass cards -->
+          </div>
+
+          <!-- SECTION: QUICK CONTROLS (2x2 Grid) -->
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <span class="section-eyebrow">QUICK CONTROLS</span>
+            </div>
+            <span class="section-subtitle">Unit 1402 Presets</span>
+          </div>
+
+          <div class="quick-controls-grid">
+            <!-- 1. Front Door (Lock tile) -->
+            <div id="tileFrontDoor" class="device-tile tile-dark" onclick="toggleFrontDoor()">
+              <div class="tile-top-row">
+                <span class="tile-icon">🔐</span>
+                <span class="state-pill success-pill" id="pillFrontDoor">Locked</span>
+              </div>
+              <div class="tile-bottom">
+                <div class="tile-title">Front door</div>
+                <div class="tile-sub" id="subFrontDoor">Yale Smart Deadbolt</div>
+              </div>
+            </div>
+
+            <!-- 2. Living Room AC (Thermostat with stepper) -->
+            <div id="tileLivingAc" class="device-tile tile-dark">
+              <div class="tile-top-row">
+                <span class="tile-icon">❄️</span>
+                <div class="stepper-wrap" onclick="event.stopPropagation()">
+                  <button class="stepper-btn" onclick="stepTemp('living-ac', -1)">−</button>
+                  <span class="stepper-value" id="valLivingTemp">23°C</span>
+                  <button class="stepper-btn" onclick="stepTemp('living-ac', 1)">+</button>
+                </div>
+              </div>
+              <div class="tile-bottom" onclick="toggleDevice('living-ac')">
+                <div class="tile-title">Living room AC</div>
+                <div class="tile-sub" id="subLivingAc">Cool · Eco Mode</div>
+              </div>
+            </div>
+
+            <!-- 3. Guest Room Lights (Light switch) -->
+            <div id="tileGuestLights" class="device-tile tile-light" onclick="toggleDevice('guest-lights')">
+              <div class="tile-top-row">
+                <span class="tile-icon">💡</span>
+                <div class="ios-switch">
+                  <input type="checkbox" id="switchGuestLights" onchange="event.stopPropagation(); toggleDevice('guest-lights')">
+                  <span class="switch-slider"></span>
+                </div>
+              </div>
+              <div class="tile-bottom">
+                <div class="tile-title">Guest room lights</div>
+                <div class="tile-sub" id="subGuestLights">Off</div>
+              </div>
+            </div>
+
+            <!-- 4. Guest Room AC -->
+            <div id="tileGuestAc" class="device-tile tile-light" onclick="toggleDevice('guest-ac')">
+              <div class="tile-top-row">
+                <span class="tile-icon">💨</span>
+                <div class="ios-switch">
+                  <input type="checkbox" id="switchGuestAc" onchange="event.stopPropagation(); toggleDevice('guest-ac')">
+                  <span class="switch-slider"></span>
+                </div>
+              </div>
+              <div class="tile-bottom">
+                <div class="tile-title">Guest room AC</div>
+                <div class="tile-sub" id="subGuestAc">Off</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating 5-Tab Bottom Navigation -->
+        <nav class="bottom-nav-bar">
+          <button class="nav-tab active">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Home</span>
+          </button>
+          <button class="nav-tab" onclick="openNewPassModal()">
+            <span class="tab-icon">🎟️</span>
+            <span class="tab-label">Passes</span>
+          </button>
+          <button class="nav-tab nav-tab-ai" onclick="focusAiBar()">
+            <div class="ai-fab">✨</div>
+          </button>
+          <button class="nav-tab" onclick="switchView('operator')">
+            <span class="tab-icon">⚡</span>
+            <span class="tab-label">Activity</span>
+          </button>
+          <button class="nav-tab" onclick="openRbacModal()">
+            <span class="tab-icon">👤</span>
+            <span class="tab-label">Profile</span>
+          </button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: TOWER EDGE, MQTT & AI PREDICTIVE OPERATOR CONSOLE         -->
+    <!-- ================================================================= -->
+    <section id="viewOperator" class="view-panel">
+      <div class="operator-grid">
+
+        <!-- Column 1: Hardware Abstraction & Relay Actuation (Turnstile & Lift) -->
+        <div class="operator-card">
+          <div class="card-header">
+            <span class="eyebrow">PHYSICAL EDGE LAYER</span>
+            <h2>Tower 1 Hardware Emulation</h2>
+          </div>
+
+          <!-- Turnstile 1 Relay Simulator -->
+          <div class="hardware-box">
+            <div class="hardware-title-row">
+              <div class="hw-name">
+                <span class="hw-icon">🚪</span>
+                <strong>Lobby Turnstile 1 Relay</strong>
+              </div>
+              <span class="status-badge" id="badgeTurnstile">LOCKED</span>
+            </div>
+            <div class="hw-indicators">
+              <div class="indicator-item">
+                <span class="led" id="ledTurnstileRelay"></span>
+                <span class="led-label">12V Solenoid Coil</span>
+              </div>
+              <div class="indicator-item">
+                <span class="led" id="ledOpticalSensor"></span>
+                <span class="led-label">Optical Rotation Beam</span>
+              </div>
+            </div>
+            <div class="hw-log-msg" id="msgTurnstile">Turnstile locked. Awaiting valid cryptographic pass.</div>
+            <button class="hw-action-btn" onclick="testTurnstilePulse()">⚡ Manual Relay Pulse (Security Override)</button>
+          </div>
+
+          <!-- Mitsubishi Elevator Controller -->
+          <div class="hardware-box">
+            <div class="hardware-title-row">
+              <div class="hw-name">
+                <span class="hw-icon">🛗</span>
+                <strong>Mitsubishi Core Lift Bank A</strong>
+              </div>
+              <span class="status-badge" id="badgeElevator">IDLE</span>
+            </div>
+            <div class="elevator-shaft-visual">
+              <div class="shaft-track">
+                <div class="elevator-cabin" id="elevatorCabin">
+                  <span class="cabin-icon">🛗</span>
+                  <span class="cabin-floor" id="cabinFloorLabel">FL 0</span>
+                </div>
+              </div>
+              <div class="shaft-markers">
+                <span>FL 14 (Unit 1402)</span>
+                <span>FL 7</span>
+                <span>GROUND (Lobby)</span>
+              </div>
+            </div>
+            <div class="hw-log-msg" id="msgElevator">Elevator parked at Ground. Standby.</div>
+            <button class="hw-action-btn" onclick="testElevatorDispatch()">🛗 Dispatch Cabin to Floor 14</button>
+          </div>
+        </div>
+
+        <!-- Column 2: AI Anomaly & Predictive Health Center -->
+        <div class="operator-card ai-center-card">
+          <div class="card-header">
+            <div class="eyebrow">AI TELEMETRY ENGINE (15 MARKS TIE-BREAKER)</div>
+            <h2>Predictive Health & Anomaly Triage</h2>
+          </div>
+
+          <!-- Live Battery Voltage Decay Readout -->
+          <div class="telemetry-readout-card">
+            <div class="telemetry-stats-row">
+              <div class="t-stat">
+                <span class="t-label">CURRENT VOLTAGE</span>
+                <span class="t-val" id="aiVoltageMv">5480 mV</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-label">DROP RATE (κ)</span>
+                <span class="t-val" id="aiDropRate">12.1 mV/act</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-label">Z-SCORE (σ)</span>
+                <span class="t-val" id="aiZscore">0.34 σ</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-label">STATUS</span>
+                <span class="t-val-status status-green" id="aiHealthStatus">OPTIMAL</span>
+              </div>
+            </div>
+
+            <!-- Voltage Bar -->
+            <div class="voltage-progress-wrap">
+              <div class="voltage-progress-bar" id="voltageBar" style="width: 84%;"></div>
+            </div>
+          </div>
+
+          <!-- Anomaly Testing Controls -->
+          <div class="anomaly-controls-box">
+            <div class="box-subtitle">Live Judge Testbed Controls:</div>
+            <div class="btn-group">
+              <button id="btnInjectAnomaly" class="action-btn btn-warning" onclick="toggleAnomalyInjection()">
+                ⚠️ Inject Battery Anomaly (Cell Short-Circuit)
+              </button>
+              <button id="btnManualOverride" class="action-btn btn-outline" onclick="applyManualOverride()">
+                🛡️ 1-Tap Override (Dismiss / Heavy Usage)
+              </button>
+            </div>
+          </div>
+
+          <!-- Explainable AI Diagnostic Alert Card -->
+          <div id="aiAlertCard" class="ai-alert-card state-normal">
+            <div class="alert-top">
+              <span class="alert-icon" id="aiAlertIcon">✅</span>
+              <div>
+                <strong id="aiAlertHeadline">Health Optimal: Lock #1402</strong>
+                <div class="alert-sub" id="aiAlertSub">Telemetry adhering to 14-day rolling statistical baseline.</div>
+              </div>
+            </div>
+            <div class="alert-body" id="aiAlertExplainability">
+              Device health optimal. Voltage degradation is within 1.1σ of 14-day rolling baseline (12.2 mV/actuation).
+            </div>
+
+            <!-- Auto-routed Work Order Box -->
+            <div id="workOrderBox" class="work-order-box hidden">
+              <div class="wo-header">
+                <span>🎫 Auto-Routed Work Order</span>
+                <span class="wo-id" id="woTicketId">WO-JKH-8492</span>
+              </div>
+              <div class="wo-details">
+                <div><strong>Assigned:</strong> John Keells Facilities - Electrical Engineering</div>
+                <div><strong>Target Device:</strong> Yale Smart Deadbolt #1402 (Tower 1)</div>
+                <div><strong>Commercial ROI:</strong> LKR 13,500 Saved (Emergency truck-roll avoided)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3: Raw MQTT Broker & Cryptographic RBAC Inspector -->
+        <div class="operator-card">
+          <div class="card-header">
+            <span class="eyebrow">ENTERPRISE SECURITY & BUS</span>
+            <h2>MQTT Inspector & RBAC Tokens</h2>
+          </div>
+
+          <!-- RBAC Token Claims Decoder -->
+          <div class="token-decoder-box">
+            <div class="decoder-title">Active Token Verification (Zero-Trust)</div>
+            <div class="token-claims-table" id="tokenClaimsView">
+              <div><span class="key">Role:</span> <span class="val" id="claimRole">COURIER_PASS</span></div>
+              <div><span class="key">Partner:</span> <span class="val" id="claimPartner">Keells Super Express</span></div>
+              <div><span class="key">Scope:</span> <span class="val">[lobby:turnstile_enter, elevator:floor_14]</span></div>
+              <div><span class="key">Single-Use:</span> <span class="val text-success" id="claimSingleUse">NONCE_VALID (Unconsumed)</span></div>
+            </div>
+            <button class="action-btn btn-sm" onclick="simulateLobbyScan()">🎟️ Simulate Courier Tap at Lobby Turnstile</button>
+          </div>
+
+          <!-- Raw MQTT Packet Stream -->
+          <div class="mqtt-terminal-box">
+            <div class="terminal-title-bar">
+              <span>Raw MQTT Packet Stream (port 1883)</span>
+              <button class="clear-btn" onclick="clearMqttLog()">Clear</button>
+            </div>
+            <div class="terminal-feed" id="mqttFeed">
+              <!-- Streaming packet lines -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Issue New Pass -->
+  <div id="modalNewPass" class="modal-overlay hidden" onclick="closeNewPassModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Issue Time-Bounded Delivery Pass</h3>
+        <button class="modal-close-btn" onclick="closeNewPassModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Service / Courier Partner</label>
+        <select id="selectPartner" class="form-input">
+          <option value="Keells Super Express">Keells Super Express (Grocery)</option>
+          <option value="PickMe Food">PickMe Food</option>
+          <option value="Uber Eats">Uber Eats</option>
+          <option value="DHL Keells">DHL Keells Logistics</option>
+          <option value="Guest / Visitor">Guest / Visitor</option>
+        </select>
+
+        <label class="form-label">Destination Unit</label>
+        <input type="text" id="inputUnit" class="form-input" value="1402" readonly>
+
+        <label class="form-label">Pass Window Duration</label>
+        <select id="selectDuration" class="form-input">
+          <option value="15">15 Minutes (Standard Delivery)</option>
+          <option value="30">30 Minutes</option>
+          <option value="60">60 Minutes</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="action-btn btn-outline" onclick="closeNewPassModal()">Cancel</button>
+        <button class="action-btn btn-primary" onclick="confirmIssuePass()">Generate Pass</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
