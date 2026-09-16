@@ -273,58 +273,28 @@
           <div class="m-section-header">
             <div class="m-section-title-wrap">
               <span class="m-eyebrow">EXPECTED TONIGHT</span>
-              <span class="m-count-pill" id="mPassCountPill">2 passes</span>
+              <span class="m-count-pill" id="mPassCountPill">0 passes</span>
             </div>
-            <span class="m-link" onclick="openPassModal()">See all</span>
+            <span class="m-link" onclick="openPassModal()">+ Issue pass</span>
           </div>
 
-          <!-- Horizontal Pass Cards Carousel (Figma 47:81) -->
+          <!-- Horizontal Pass Cards Carousel / Empty State -->
           <div class="m-cards-carousel">
-            <!-- Card 1: Family Pass (Amma & Thaththa) -->
-            <div class="pass-carousel-card">
-              <div class="pcc-head">
-                <div class="pcc-avatar-circle">AT</div>
-                <div class="pcc-title-col">
-                  <div class="pcc-title">Amma &amp; Thaththa</div>
-                  <div class="pcc-sub">Main gate · Lift · Unit 1204</div>
-                </div>
-                <span class="pcc-badge active">
-                  <span class="pcc-dot"></span> Active
+            <!-- Empty State Card (shown when idle) -->
+            <div class="m-empty-arrivals" id="mEmptyArrivals">
+              <div class="mea-icon">
+                <span class="icon icon-md">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 14h3m-3 3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
                 </span>
               </div>
-              <div class="pcc-time-row">
-                <div class="pcc-time-labels">
-                  <span>6:00 PM</span>
-                  <span>10:00 PM</span>
-                </div>
-                <div class="pcc-progress-bar">
-                  <div class="pcc-progress-fill" style="width: 44%;"></div>
-                </div>
+              <div class="mea-text-wrap">
+                <div class="mea-title">No upcoming arrivals</div>
+                <div class="mea-sub">No visitor or courier passes active tonight. Passes will appear here when issued.</div>
               </div>
-              <button class="pcc-btn-share" onclick="alert('Digital pass link copied to clipboard for Amma &amp; Thaththa!')">Share pass</button>
-            </div>
-
-            <!-- Card 2: Delivery Pass / Live Tracker Card -->
-            <!-- When idle: shows scheduled delivery pass or issue prompt -->
-            <div id="deliveryIdleCard" class="pass-carousel-card action-card" onclick="openPassModal()">
-              <div class="pcc-head">
-                <div class="pcc-avatar-circle delivery-icon">📦</div>
-                <div class="pcc-title-col">
-                  <div class="pcc-title">Delivery Pass</div>
-                  <div class="pcc-sub">Single-use Nonce · Gate 1</div>
-                </div>
-                <span class="pcc-badge idle">Idle</span>
-              </div>
-              <div class="pcc-time-row">
-                <div class="pcc-time-labels">
-                  <span>One-time PIN</span>
-                  <span id="courierPinMini">— · —</span>
-                </div>
-                <div class="pcc-progress-bar">
-                  <div class="pcc-progress-fill" style="width: 0%;"></div>
-                </div>
-              </div>
-              <button class="pcc-btn-action">+ Issue Pass</button>
             </div>
 
             <!-- When active: shows live tracker card -->
@@ -333,7 +303,7 @@
                 <div class="pcc-head">
                   <div class="pcc-avatar-circle delivery-active">🚚</div>
                   <div class="pcc-title-col">
-                    <div class="pcc-title" id="courierBrandTitle">Uber Delivery</div>
+                    <div class="pcc-title" id="resDeliveryTitle">Keells Super Express</div>
                     <div class="pcc-sub" id="courierOrderId">Main gate · Lift · Unit 1204</div>
                   </div>
                   <span class="pcc-badge en-route" id="dtBadge">

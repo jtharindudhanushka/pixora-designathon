@@ -153,8 +153,12 @@ function renderActivePass(pass) {
     statusEl.style.color = '';
   }
 
+  const brandName = pass.name || pass.partner || 'Keells Super Express';
   const brandEl = document.getElementById('courierBrandTitle');
-  if (brandEl) brandEl.innerText = pass.name || pass.partner || 'Keells Super Express';
+  if (brandEl) brandEl.innerText = brandName;
+
+  const resTitle = document.getElementById('resDeliveryTitle');
+  if (resTitle) resTitle.innerText = brandName;
 
   const orderEl = document.getElementById('courierOrderId');
   if (orderEl) orderEl.innerText = 'Order #JKH-5021 · Grocery';
@@ -168,14 +172,20 @@ function renderActivePass(pass) {
   const qrBox = document.getElementById('courierQrBox');
   if (qrBox) qrBox.style.opacity = '1';
 
-  // Resident App UI
-  const idleCard = document.getElementById('deliveryIdleCard');
-  if (idleCard) idleCard.classList.add('hidden');
+  // In simulation: Bring resident mobile app to home screen immediately
+  goToScreen('screenHome');
+
+  // Resident App UI: Switch from Empty State to Active Delivery Tracker
+  const emptyCard = document.getElementById('mEmptyArrivals');
+  if (emptyCard) emptyCard.classList.add('hidden');
+
+  const countPill = document.getElementById('mPassCountPill');
+  if (countPill) countPill.innerText = '1 pass';
 
   const deliverySection = document.getElementById('deliverySection');
   if (deliverySection) {
     deliverySection.classList.remove('hidden');
-    deliverySection.style.display = '';
+    deliverySection.style.display = 'block';
   }
 
   const trackerCard = document.getElementById('deliveryTrackerCard');
@@ -220,12 +230,24 @@ function renderIdleState() {
   const alertBox = document.getElementById('scanResultAlert');
   if (alertBox) alertBox.classList.add('hidden');
 
-  // Resident App UI
-  const idleCard = document.getElementById('deliveryIdleCard');
-  if (idleCard) idleCard.classList.remove('hidden');
+  // Bring to Resident App Home screen
+  goToScreen('screenHome');
+
+  // Resident App UI: Show Empty State of Arrivals
+  const emptyCard = document.getElementById('mEmptyArrivals');
+  if (emptyCard) emptyCard.classList.remove('hidden');
+
+  const countPill = document.getElementById('mPassCountPill');
+  if (countPill) countPill.innerText = '0 passes';
 
   const deliverySection = document.getElementById('deliverySection');
   if (deliverySection) deliverySection.classList.add('hidden');
+
+  const trackerCard = document.getElementById('deliveryTrackerCard');
+  if (trackerCard) trackerCard.classList.add('hidden');
+
+  const successCard = document.getElementById('deliverySuccessCard');
+  if (successCard) successCard.classList.add('hidden');
 
   jumpToStage(0);
 }
@@ -826,19 +848,12 @@ async function confirmIssuePass(options) {
 
   renderActivePass(data.pass);
 
+  // In simulation: Bring to Home screen so the resident immediately sees the active pass
+  goToScreen('screenHome');
+
   if (silent) return;
 
-  const pin = '749102';
-  const now = new Date();
-  const end = new Date(now.getTime() + selectedPassDuration * 60000);
-  const fmt = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
-  document.getElementById('pfPinDisplay').innerText = pin;
-  document.getElementById('pfTimeStart2').innerText = fmt(now);
-  document.getElementById('pfTimeEnd2').innerText = fmt(end);
-  document.getElementById('pfSheetSub').innerText = `Valid until ${fmt(end)} · ${data.pass.name || 'Keells Super Express'} courier`;
-
-  showPassStep(2);
+  showToast(`✦ Pass generated: ${data.pass.name || 'Keells Super Express'} · Live on Home`);
 }
 
 function sharePassOption(channel) {

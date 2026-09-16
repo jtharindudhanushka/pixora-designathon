@@ -1947,6 +1947,60 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   display: none;
 }
 
+/* Empty State for Arrivals in Resident App */
+.m-empty-arrivals {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px dashed #D1D5DB;
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.mea-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #F3F4F6;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mea-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mea-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.mea-sub {
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+#deliverySection {
+  width: 100%;
+}
+
+#deliverySection .live-delivery-card {
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
 .pass-carousel-card {
   width: 275px;
   min-width: 275px;
