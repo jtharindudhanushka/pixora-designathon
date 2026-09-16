@@ -1,43 +1,22 @@
 // ==========================================================================
-// TRI-ZEN OS — Integrated Smart Living Platform Frontend Logic
-// Real-Time WebSocket Client, Dual View Switcher, and Device Synchronizer
+// TRI-ZEN OS — 3-Pane Digital Twin Simulation Logic
+// Seamless physical-digital coordination across Rider, Blueprint, and Resident
 // ==========================================================================
 
 let ws;
-let currentPasses = [];
+let activePasses = [];
 let unitDevices = {};
 let latestAiReport = null;
-let currentToken = null;
+let currentPassId = null;
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initWebSocket();
   fetchInitialData();
-  startPassProgressTicker();
+  startRiderCountdownTicker();
 });
 
-// View Mode Switcher
-function switchView(mode) {
-  const btnResident = document.getElementById('btnViewResident');
-  const btnOperator = document.getElementById('btnViewOperator');
-  const viewResident = document.getElementById('viewResident');
-  const viewOperator = document.getElementById('viewOperator');
-
-  if (mode === 'resident') {
-    btnResident.classList.add('active');
-    btnOperator.classList.remove('active');
-    viewResident.classList.add('active');
-    viewOperator.classList.remove('active');
-  } else {
-    btnOperator.classList.add('active');
-    btnResident.classList.remove('active');
-    viewOperator.classList.add('active');
-    viewResident.classList.remove('active');
-  }
-}
-
 // --------------------------------------------------------------------------
-// WebSocket Connection
+// WebSocket Real-Time Event Bus
 // --------------------------------------------------------------------------
 function initWebSocket() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -46,37 +25,37 @@ function initWebSocket() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    console.log('[WebSocket] Connected to TRI-ZEN real-time stream.');
-    document.getElementById('systemStatusText').innerText = 'MQTT Broker & Realtime Bus: CONNECTED';
+    console.log('[WebSocket] Connected to TRI-ZEN real-time hardware stream.');
+    document.getElementById('mqttStatusLabel').innerText = 'MQTT Bus: Port 1883 Active';
   };
 
   ws.onmessage = (event) => {
     try {
       const packet = JSON.parse(event.data);
-      handleRealtimeEvent(packet);
+      handleLiveHardwareEvent(packet);
     } catch (err) {
-      console.error('[WebSocket] Parse error:', err);
+      console.error('[WebSocket] Event parse error:', err);
     }
   };
 
   ws.onclose = () => {
-    document.getElementById('systemStatusText').innerText = 'Bus Reconnecting...';
+    document.getElementById('mqttStatusLabel').innerText = 'Reconnecting to Bus...';
     setTimeout(initWebSocket, 2000);
   };
 }
 
-function handleRealtimeEvent(packet) {
+function handleLiveHardwareEvent(packet) {
   const { type, data } = packet;
 
   switch (type) {
     case 'TURNSTILE_STATE':
-      updateTurnstileUI(data);
+      updateBlueprintTurnstile(data);
       break;
     case 'ELEVATOR_STATE':
-      updateElevatorUI(data);
+      updateBlueprintElevator(data);
       break;
     case 'LOCK_TELEMETRY':
-      updateTelemetryReadout(data);
+      updateAiTelemetryUI(data);
       break;
     case 'AI_ALERT':
       updateAiAlertUI(data);
@@ -89,13 +68,13 @@ function handleRealtimeEvent(packet) {
       fetchDevices();
       break;
     case 'RAW_MQTT_PACKET':
-      appendMqttPacket(data);
+      appendBlueprintMqttPacket(data);
       break;
   }
 }
 
 // --------------------------------------------------------------------------
-// Initial Data Fetching
+// Data Fetching
 // --------------------------------------------------------------------------
 async function fetchInitialData() {
   await fetchPasses();
@@ -107,12 +86,23 @@ async function fetchPasses() {
   try {
     const res = await fetch('/api/passes/active');
     const data = await res.json();
-    if (data.success) {
-      currentPasses = data.passes;
-      renderPasses();
+    if (data.success && data.passes.length > 0) {
+      activePasses = data.passes;
+      const primaryPass = activePasses.find((p) => p.status === 'ACTIVE') || activePasses[0];
+      currentPassId = primaryPass.passId;
+
+      // Update Rider pane
+      document.getElementById('riderPartnerName').innerText = primaryPass.partner;
+      document.getElementById('resCourierName').innerText = primaryPass.partner;
+
+      if (primaryPass.status === 'USED') {
+        setStepperStage(4);
+      } else {
+        setStepperStage(1);
+      }
     }
   } catch (err) {
-    console.error('Failed to fetch passes:', err);
+    console.error('Pass fetch error:', err);
   }
 }
 
@@ -122,10 +112,10 @@ async function fetchDevices() {
     const data = await res.json();
     if (data.success) {
       unitDevices = data.devices;
-      renderDeviceTiles();
+      renderResidentDevices();
     }
   } catch (err) {
-    console.error('Failed to fetch devices:', err);
+    console.error('Device fetch error:', err);
   }
 }
 
@@ -134,203 +124,250 @@ async function fetchTelemetry() {
     const res = await fetch('/api/telemetry/latest');
     const data = await res.json();
     if (data.success) {
-      updateTelemetryReadout(data.telemetry);
+      updateAiTelemetryUI(data.telemetry);
       updateAiAlertUI(data.aiAnalysis);
     }
   } catch (err) {
-    console.error('Failed to fetch telemetry:', err);
+    console.error('Telemetry fetch error:', err);
   }
 }
 
 // --------------------------------------------------------------------------
-// Pass Management & Dynamic 15-min Countdown Progress Bar
+// PANE 1 & PANE 2: Courier Scan & Blueprint Physical Animation
 // --------------------------------------------------------------------------
-function renderPasses() {
-  const container = document.getElementById('passesList');
-  const countPill = document.getElementById('passCountPill');
-  container.innerHTML = '';
-
-  const activePasses = currentPasses.filter((p) => p.status === 'ACTIVE' || p.status === 'USED');
-  countPill.innerText = `${activePasses.length} ${activePasses.length === 1 ? 'pass' : 'passes'}`;
-
-  if (activePasses.length === 0) {
-    container.innerHTML = `
-      <div style="padding: 16px; color: var(--text-secondary); font-size: 13px; text-align: center; width: 100%;">
-        No active delivery passes. Tap "+ Issue Pass" above.
-      </div>`;
+async function triggerLobbyScan() {
+  if (!currentPassId) {
+    alert('No active delivery pass found. Tap "+ Issue Pass" on Maya\'s app.');
     return;
   }
 
-  activePasses.forEach((pass) => {
-    // Keep first pass as active token for the inspector
-    if (!currentToken && pass.token) {
-      currentToken = pass.token;
-      updateTokenDecoder(pass);
-    }
+  const feedbackBanner = document.getElementById('gateScanFeedback');
+  const feedbackTitle = document.getElementById('feedbackTitle');
+  const feedbackSub = document.getElementById('feedbackSub');
 
-    const card = document.createElement('div');
-    card.className = 'pass-card';
-    card.id = `pass-card-${pass.passId}`;
-
-    const partnerIcon = pass.partner.includes('Keells') ? '🛒' : pass.partner.includes('PickMe') ? '🛵' : '📦';
-    const isUsed = pass.status === 'USED';
-
-    card.innerHTML = `
-      <div class="pass-card-top">
-        <div class="pass-partner">
-          <div class="partner-logo-box">${partnerIcon}</div>
-          <span class="partner-name">${pass.partner}</span>
-        </div>
-        <span class="status-badge" style="${isUsed ? 'background: #E8F0FE; color: #1A73E8;' : ''}">
-          ${isUsed ? 'Arrived / Used' : 'Active'}
-        </span>
-      </div>
-
-      <div class="pass-route">${pass.route}</div>
-
-      <div class="pass-timer-wrap">
-        <div class="pass-timer-meta">
-          <span id="timer-text-${pass.passId}">Calculating window...</span>
-          <span>15-min window</span>
-        </div>
-        <div class="pass-progress-track">
-          <div class="pass-progress-fill" id="timer-bar-${pass.passId}" style="width: 20%;"></div>
-        </div>
-      </div>
-
-      <button class="pass-action-btn" onclick="triggerPassEntry('${pass.passId}')" ${isUsed ? 'disabled style="opacity: 0.5;"' : ''}>
-        ${isUsed ? '✓ Entered Turnstile 1' : 'Simulate Courier Gate Tap'}
-      </button>
-    `;
-
-    container.appendChild(card);
-  });
-
-  updatePassProgress();
-}
-
-function updatePassProgress() {
-  const now = Date.now();
-
-  currentPasses.forEach((pass) => {
-    const textEl = document.getElementById(`timer-text-${pass.passId}`);
-    const barEl = document.getElementById(`timer-bar-${pass.passId}`);
-    if (!textEl || !barEl) return;
-
-    const totalDuration = pass.expiresAt - pass.issuedAt;
-    const elapsed = now - pass.issuedAt;
-    const remainingMs = Math.max(0, pass.expiresAt - now);
-    const remainingMins = Math.ceil(remainingMs / 60000);
-
-    const percentElapsed = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
-
-    barEl.style.width = `${percentElapsed}%`;
-
-    if (pass.status === 'USED') {
-      textEl.innerText = 'Pass consumed at Lobby Turnstile';
-      barEl.style.backgroundColor = '#2ECC71';
-    } else if (remainingMs <= 0) {
-      textEl.innerText = 'Pass window expired';
-      barEl.style.backgroundColor = '#E74C3C';
-    } else {
-      textEl.innerText = `${remainingMins} min remaining`;
-      barEl.style.backgroundColor = 'var(--status-accent)';
-    }
-  });
-}
-
-function startPassProgressTicker() {
-  setInterval(updatePassProgress, 1000);
-}
-
-async function triggerPassEntry(passId) {
   try {
     const res = await fetch('/api/passes/validate-entry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ passId }),
+      body: JSON.stringify({ passId: currentPassId }),
     });
 
     const data = await res.json();
+
+    feedbackBanner.classList.remove('hidden');
+
     if (data.success) {
-      showToast(data.message);
-      fetchPasses();
+      // Success: Turnstile authorized
+      feedbackBanner.className = 'scan-feedback-banner';
+      feedbackTitle.innerText = 'Access Granted (Gate 1)';
+      feedbackSub.innerText = 'Turnstile 1 unlocked. Mitsubishi Lift A dispatched to Floor 14.';
+
+      // Advance Resident Stepper to "At Gate"
+      setStepperStage(2);
+
+      // Trigger Blueprint hardware animations
+      animateBlueprintHandshake();
+
+      document.getElementById('riderPassBadge').innerText = 'CONSUMED';
+      document.getElementById('riderPassBadge').style.background = 'rgba(59, 130, 246, 0.2)';
+      document.getElementById('riderPassBadge').style.color = 'var(--status-accent)';
     } else {
-      alert(`Handshake Rejected: ${data.error}`);
+      // Replay Attack or Expired
+      feedbackBanner.className = 'scan-feedback-banner feedback-rejected';
+      feedbackTitle.innerText = 'Access Denied / Replay Alert';
+      feedbackSub.innerText = data.error || 'Token has already been consumed.';
     }
   } catch (err) {
-    console.error('Handshake error:', err);
+    console.error('Handshake API error:', err);
+  }
+}
+
+function animateBlueprintHandshake() {
+  const armLeft = document.getElementById('armLeft');
+  const armRight = document.getElementById('armRight');
+  const opticalBeam = document.getElementById('opticalBeam');
+  const zoneLobby = document.getElementById('zoneLobby');
+  const bpLedRelay = document.getElementById('bpLedRelay');
+  const bpRelayState = document.getElementById('bpRelayState');
+  const bpCabin = document.getElementById('blueprintCabin');
+  const bpCabinFloor = document.getElementById('bpCabinFloor');
+  const zoneFloor14 = document.getElementById('zoneFloor14');
+
+  // 1. Turnstile Relay Energizes (0s - 3s)
+  zoneLobby.classList.add('zone-active');
+  bpLedRelay.className = 'chip-led led-green';
+  bpRelayState.innerText = 'ENERGIZED (12V)';
+  armLeft.classList.add('retracted');
+  armRight.classList.add('retracted');
+  opticalBeam.classList.add('beam-broken');
+
+  // 2. Courier passes optical sensor, boards elevator (3.5s)
+  setTimeout(() => {
+    bpRelayState.innerText = 'PASSAGE DETECTED';
+    setStepperStage(3); // Elevator Ascending
+    document.getElementById('resDeliveryStatusSub').innerText = 'Courier in Lift Bank A (Floor 4... 14)';
+
+    // Cabin leaves Ground and ascends
+    bpCabin.classList.add('cabin-traveling');
+    bpCabinFloor.innerText = 'ASCENDING (FL 4)';
+    bpCabin.style.bottom = '35%';
+
+    // Relock turnstile
+    setTimeout(() => {
+      armLeft.classList.remove('retracted');
+      armRight.classList.remove('retracted');
+      opticalBeam.classList.remove('beam-broken');
+      zoneLobby.classList.remove('zone-active');
+      bpLedRelay.className = 'chip-led';
+      bpRelayState.innerText = 'LOCKED';
+    }, 2000);
+
+    // 3. Cabin reaches Floor 14 (7s)
+    setTimeout(() => {
+      bpCabin.style.bottom = '78%';
+      bpCabinFloor.innerText = 'FLOOR 14 (DOORS OPEN)';
+      zoneFloor14.classList.add('zone-active');
+      setStepperStage(4); // Doorstep
+      document.getElementById('resDeliveryStatusSub').innerText = 'Courier arrived at Floor 14 corridor';
+
+      setTimeout(() => {
+        bpCabin.classList.remove('cabin-traveling');
+        zoneFloor14.classList.remove('zone-active');
+      }, 5000);
+    }, 3500);
+
+  }, 3500);
+}
+
+function updateBlueprintTurnstile(data) {
+  const bpLedRelay = document.getElementById('bpLedRelay');
+  const bpLedOptical = document.getElementById('bpLedOptical');
+  const bpRelayState = document.getElementById('bpRelayState');
+  const bpOpticalState = document.getElementById('bpOpticalState');
+
+  bpRelayState.innerText = data.relayClosed ? 'ENERGIZED' : 'LOCKED';
+  bpLedRelay.className = data.relayClosed ? 'chip-led led-green' : 'chip-led';
+
+  bpOpticalState.innerText = data.opticalSensorTriggered ? 'BEAM BROKEN' : 'STANDBY';
+  bpLedOptical.className = data.opticalSensorTriggered ? 'chip-led led-blue' : 'chip-led';
+}
+
+function updateBlueprintElevator(data) {
+  const bpCabin = document.getElementById('blueprintCabin');
+  const bpCabinFloor = document.getElementById('bpCabinFloor');
+
+  if (data.status === 'TRANSIT_ASCENDING') {
+    bpCabinFloor.innerText = `ASCENDING (FL ${data.currentFloor})`;
+    bpCabin.classList.add('cabin-traveling');
+  } else if (data.status === 'ARRIVED_DESTINATION') {
+    bpCabinFloor.innerText = `FLOOR ${data.currentFloor} (DOORS OPEN)`;
+    bpCabin.classList.remove('cabin-traveling');
+  } else {
+    bpCabinFloor.innerText = `FLOOR ${data.currentFloor} (${data.status})`;
   }
 }
 
 // --------------------------------------------------------------------------
-// Quick Controls Synchronizer (2x2 Grid)
+// PANE 3: Resident Stepper & Device Controls
 // --------------------------------------------------------------------------
-function renderDeviceTiles() {
+function setStepperStage(stage) {
+  const s1 = document.getElementById('step1');
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  const s4 = document.getElementById('step4');
+  const c1 = document.getElementById('conn1');
+  const c2 = document.getElementById('conn2');
+  const c3 = document.getElementById('conn3');
+
+  // Reset
+  [s1, s2, s3, s4].forEach((s) => (s.className = 'step-node'));
+  [c1, c2, c3].forEach((c) => (c.className = 'step-connector'));
+
+  if (stage >= 1) s1.className = 'step-node completed';
+  if (stage >= 2) {
+    c1.className = 'step-connector completed';
+    s2.className = 'step-node completed';
+  }
+  if (stage >= 3) {
+    c2.className = 'step-connector completed';
+    s3.className = 'step-node completed';
+  }
+  if (stage >= 4) {
+    c3.className = 'step-connector completed';
+    s4.className = 'step-node completed';
+    document.getElementById('resDeliveryBadge').innerText = 'Delivered';
+    document.getElementById('resDeliveryBadge').style.background = '#E8F0FE';
+    document.getElementById('resDeliveryBadge').style.color = '#1A73E8';
+  }
+}
+
+function renderResidentDevices() {
   if (!unitDevices) return;
 
-  // 1. Front Door Tile
+  // Front Door
   const door = unitDevices.frontDoor;
-  const tileDoor = document.getElementById('tileFrontDoor');
-  const pillDoor = document.getElementById('pillFrontDoor');
-  const statDoor = document.getElementById('statDoorState');
+  const tileDoor = document.getElementById('tileDoor');
+  const tagDoor = document.getElementById('tileDoorTag');
+  const statDoor = document.getElementById('resDoorLockState');
+  const bpDoorTag = document.getElementById('bpDoorTag');
 
-  if (door && tileDoor && pillDoor) {
+  if (door && tileDoor && tagDoor) {
     const isLocked = door.state === 'LOCKED';
-    tileDoor.className = `device-tile ${isLocked ? 'tile-dark' : 'tile-light'}`;
-    pillDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
-    pillDoor.className = `state-pill ${isLocked ? 'success-pill' : ''}`;
+    tileDoor.className = `device-tile-card ${isLocked ? 'tile-black' : 'tile-white'}`;
+    tagDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
+    tagDoor.style.color = isLocked ? 'var(--status-success)' : 'var(--status-danger)';
     if (statDoor) statDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
+    if (bpDoorTag) bpDoorTag.innerText = isLocked ? 'DOOR LOCKED' : 'DOOR UNLOCKED';
   }
 
-  // 2. Living Room AC
+  // Living Room AC
   const ac = unitDevices.livingRoomAc;
-  const tileAc = document.getElementById('tileLivingAc');
-  const valAc = document.getElementById('valLivingTemp');
-  const subAc = document.getElementById('subLivingAc');
-  const statTemp = document.getElementById('statInsideTemp');
+  const tileAc = document.getElementById('tileAc');
+  const valAc = document.getElementById('resAcTemp');
+  const subAc = document.getElementById('resAcModeSub');
+  const statTemp = document.getElementById('resInsideTemp');
 
   if (ac && tileAc && valAc) {
     const isOn = ac.state === 'ON';
-    tileAc.className = `device-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
+    tileAc.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
     valAc.innerText = `${ac.temp}°C`;
     subAc.innerText = isOn ? 'Cool · Eco Mode' : 'Off';
     if (statTemp) statTemp.innerText = `${ac.temp}°C`;
   }
 
-  // 3. Guest Lights
+  // Guest Lights
   const lights = unitDevices.guestRoomLights;
-  const switchLights = document.getElementById('switchGuestLights');
-  const tileLights = document.getElementById('tileGuestLights');
-  const subLights = document.getElementById('subGuestLights');
+  const switchLights = document.getElementById('switchLights');
+  const tileLights = document.getElementById('tileLights');
+  const subLights = document.getElementById('resLightsSub');
 
   if (lights && switchLights && tileLights) {
     const isOn = lights.state === 'ON';
     switchLights.checked = isOn;
-    tileLights.className = `device-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
+    tileLights.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
     subLights.innerText = isOn ? 'On · 80%' : 'Off';
   }
 
-  // 4. Guest AC
+  // Guest AC
   const guestAc = unitDevices.guestRoomAc;
   const switchGuestAc = document.getElementById('switchGuestAc');
   const tileGuestAc = document.getElementById('tileGuestAc');
-  const subGuestAc = document.getElementById('subGuestAc');
+  const subGuestAc = document.getElementById('resGuestAcSub');
 
   if (guestAc && switchGuestAc && tileGuestAc) {
     const isOn = guestAc.state === 'ON';
     switchGuestAc.checked = isOn;
-    tileGuestAc.className = `device-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
+    tileGuestAc.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
     subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°C` : 'Off';
   }
 
-  // Active count calculation
-  let activeCount = 0;
-  if (door?.state === 'LOCKED') activeCount++;
-  if (ac?.state === 'ON') activeCount++;
-  if (lights?.state === 'ON') activeCount++;
-  if (guestAc?.state === 'ON') activeCount++;
-  document.getElementById('statActiveCount').innerText = `${activeCount} Devices`;
+  // Count active devices
+  let count = 0;
+  if (door?.state === 'LOCKED') count++;
+  if (ac?.state === 'ON') count++;
+  if (lights?.state === 'ON') count++;
+  if (guestAc?.state === 'ON') count++;
+  document.getElementById('resActiveDevices').innerText = `${count} Devices`;
 }
 
 async function toggleFrontDoor() {
@@ -345,47 +382,57 @@ async function toggleFrontDoor() {
   fetchDevices();
 }
 
-async function stepTemp(deviceId, delta) {
+async function stepAc(delta) {
   const currentTemp = unitDevices.livingRoomAc?.temp || 23;
-  const targetTemp = Math.max(18, Math.min(28, currentTemp + delta));
+  const target = Math.max(18, Math.min(28, currentTemp + delta));
 
-  await fetch(`/api/devices/${deviceId}/control`, {
+  await fetch('/api/devices/living-ac/control', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ temp: targetTemp, state: 'ON' }),
+    body: JSON.stringify({ temp: target, state: 'ON' }),
   });
   fetchDevices();
 }
 
-async function toggleDevice(deviceId) {
-  let newState = 'ON';
-  if (deviceId === 'living-ac') {
-    newState = unitDevices.livingRoomAc?.state === 'ON' ? 'OFF' : 'ON';
-  } else if (deviceId === 'guest-lights') {
-    newState = unitDevices.guestRoomLights?.state === 'ON' ? 'OFF' : 'ON';
-  } else if (deviceId === 'guest-ac') {
-    newState = unitDevices.guestRoomAc?.state === 'ON' ? 'OFF' : 'ON';
-  }
-
-  await fetch(`/api/devices/${deviceId}/control`, {
+async function toggleAc() {
+  const state = unitDevices.livingRoomAc?.state === 'ON' ? 'OFF' : 'ON';
+  await fetch('/api/devices/living-ac/control', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ state: newState }),
+    body: JSON.stringify({ state }),
+  });
+  fetchDevices();
+}
+
+async function toggleLights() {
+  const state = unitDevices.guestRoomLights?.state === 'ON' ? 'OFF' : 'ON';
+  await fetch('/api/devices/guest-lights/control', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state }),
+  });
+  fetchDevices();
+}
+
+async function toggleGuestAc() {
+  const state = unitDevices.guestRoomAc?.state === 'ON' ? 'OFF' : 'ON';
+  await fetch('/api/devices/guest-ac/control', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state }),
   });
   fetchDevices();
 }
 
 // --------------------------------------------------------------------------
-// AI Natural Language Input Bar ("Tell your home what you need…")
+// Natural Language AI Input Bar ("Tell your home what you need…")
 // --------------------------------------------------------------------------
-function handleAiInputKey(e) {
-  if (e.key === 'Enter') {
-    submitAiCommand();
-  }
+function handleResidentAiKey(e) {
+  if (e.key === 'Enter') submitResidentAi();
 }
 
-async function submitAiCommand() {
-  const input = document.getElementById('aiCommandInput');
+async function submitResidentAi() {
+  const input = document.getElementById('residentAiInput');
   const query = input.value.trim();
   if (!query) return;
 
@@ -398,154 +445,137 @@ async function submitAiCommand() {
 
     const data = await res.json();
     if (data.success) {
-      showToast(`✨ ${data.result.responseMessage}`);
+      showResidentToast(`✨ ${data.result.responseMessage}`);
       input.value = '';
       fetchDevices();
       fetchPasses();
     }
   } catch (err) {
-    console.error('Assistant query error:', err);
+    console.error('Assistant error:', err);
   }
 }
 
-function showToast(message) {
-  const toast = document.getElementById('aiResponseToast');
-  toast.innerText = message;
+function showResidentToast(msg) {
+  const toast = document.getElementById('residentAiToast');
+  toast.innerText = msg;
   toast.classList.remove('hidden');
-
-  setTimeout(() => {
-    toast.classList.add('hidden');
-  }, 6000);
+  setTimeout(() => toast.classList.add('hidden'), 5000);
 }
 
-function focusAiBar() {
-  switchView('resident');
-  const bar = document.getElementById('aiCommandInput');
-  bar.focus();
-  bar.placeholder = 'e.g. Issue Keells pass or Turn off all ACs...';
+function focusResidentAi() {
+  const input = document.getElementById('residentAiInput');
+  input.focus();
+  input.placeholder = 'e.g. Prep home for Keells delivery or Turn off ACs...';
 }
 
 // --------------------------------------------------------------------------
-// Hardware & Operator UI Updates
+// PANE 1: Rider Countdown Progress
 // --------------------------------------------------------------------------
-function updateTurnstileUI(data) {
-  const badge = document.getElementById('badgeTurnstile');
-  const ledRelay = document.getElementById('ledTurnstileRelay');
-  const ledSensor = document.getElementById('ledOpticalSensor');
-  const msg = document.getElementById('msgTurnstile');
+function startRiderCountdownTicker() {
+  setInterval(() => {
+    if (activePasses.length === 0) return;
+    const pass = activePasses[0];
+    const now = Date.now();
+    const remainingMs = Math.max(0, pass.expiresAt - now);
+    const mins = Math.floor(remainingMs / 60000);
+    const secs = Math.floor((remainingMs % 60000) / 1000);
 
-  badge.innerText = data.state;
-  badge.className = `status-badge ${data.state === 'ENERGIZED' ? 'status-badge-active' : ''}`;
-  msg.innerText = data.message;
+    const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    document.getElementById('riderRemainingTime').innerText = timeStr;
 
-  if (data.relayClosed) {
-    ledRelay.className = 'led led-green';
-  } else {
-    ledRelay.className = 'led';
-  }
-
-  if (data.opticalSensorTriggered) {
-    ledSensor.className = 'led led-blue';
-  } else {
-    ledSensor.className = 'led';
-  }
+    const total = pass.expiresAt - pass.issuedAt;
+    const elapsed = now - pass.issuedAt;
+    const percent = Math.min(100, Math.max(0, (elapsed / total) * 100));
+    document.getElementById('riderProgressFill').style.width = `${percent}%`;
+  }, 1000);
 }
 
-function updateElevatorUI(data) {
-  const badge = document.getElementById('badgeElevator');
-  const cabin = document.getElementById('elevatorCabin');
-  const floorLabel = document.getElementById('cabinFloorLabel');
-  const msg = document.getElementById('msgElevator');
+// --------------------------------------------------------------------------
+// PANE 2: Live MQTT Packet Stream Terminal
+// --------------------------------------------------------------------------
+function appendBlueprintMqttPacket(packet) {
+  const terminal = document.getElementById('bpMqttTerminal');
+  if (!terminal) return;
 
-  badge.innerText = data.status;
-  floorLabel.innerText = `FL ${data.currentFloor}`;
-  msg.innerText = data.message;
+  const row = document.createElement('div');
+  row.className = 'terminal-row';
 
-  // Calculate bottom offset percentage: 0 to 14 floors
-  const maxFloor = 14;
-  const percent = Math.min(100, Math.max(0, (data.currentFloor / maxFloor) * 80));
-  cabin.style.bottom = `${percent}%`;
+  const d = new Date(packet.timestamp || Date.now());
+  const timeStr = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
 
-  if (data.doorsOpen) {
-    cabin.style.borderColor = 'var(--status-success)';
-  } else {
-    cabin.style.borderColor = '#444444';
+  row.innerHTML = `
+    <span class="term-time">${timeStr}</span>
+    <span class="term-topic">${packet.topic}</span>
+    <span class="term-msg">${packet.rawPayload}</span>
+  `;
+
+  terminal.prepend(row);
+
+  while (terminal.children.length > 40) {
+    terminal.removeChild(terminal.lastChild);
   }
 }
 
-function testTurnstilePulse() {
-  fetch('/api/passes/validate-entry', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ passId: currentPasses[0]?.passId }),
-  });
+// --------------------------------------------------------------------------
+// FACILITIES & AI PREDICTIVE DRAWER
+// --------------------------------------------------------------------------
+function toggleFacilitiesDrawer() {
+  const drawer = document.getElementById('facilitiesDrawer');
+  drawer.classList.toggle('hidden');
 }
 
-function testElevatorDispatch() {
-  fetch('/api/passes/validate-entry', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ passId: currentPasses[0]?.passId }),
-  });
-}
+function updateAiTelemetryUI(telemetry) {
+  const voltEl = document.getElementById('drawerVoltage');
+  const barEl = document.getElementById('drawerVoltsBar');
+  if (voltEl) voltEl.innerText = `${telemetry.voltage_mv} mV`;
 
-// --------------------------------------------------------------------------
-// AI Predictive Health Center
-// --------------------------------------------------------------------------
-function updateTelemetryReadout(telemetry) {
-  document.getElementById('aiVoltageMv').innerText = `${telemetry.voltage_mv} mV`;
-
-  const percent = Math.min(100, Math.max(0, ((telemetry.voltage_mv - 4100) / (6000 - 4100)) * 100));
-  const bar = document.getElementById('voltageBar');
-  bar.style.width = `${percent}%`;
-
-  if (percent < 30) {
-    bar.style.backgroundColor = 'var(--status-danger)';
-  } else if (percent < 60) {
-    bar.style.backgroundColor = 'var(--status-warning)';
-  } else {
-    bar.style.backgroundColor = 'var(--status-success)';
+  if (barEl) {
+    const percent = Math.min(100, Math.max(0, ((telemetry.voltage_mv - 4100) / (6000 - 4100)) * 100));
+    barEl.style.width = `${percent}%`;
   }
 }
 
 function updateAiAlertUI(report) {
   latestAiReport = report;
 
-  const dropRateEl = document.getElementById('aiDropRate');
-  const zScoreEl = document.getElementById('aiZscore');
-  const statusEl = document.getElementById('aiHealthStatus');
-  const card = document.getElementById('aiAlertCard');
-  const iconEl = document.getElementById('aiAlertIcon');
-  const headlineEl = document.getElementById('aiAlertHeadline');
-  const subEl = document.getElementById('aiAlertSub');
-  const bodyEl = document.getElementById('aiAlertExplainability');
-  const woBox = document.getElementById('workOrderBox');
-  const woId = document.getElementById('woTicketId');
-  const btnInject = document.getElementById('btnInjectAnomaly');
+  const dropEl = document.getElementById('drawerDropRate');
+  const zEl = document.getElementById('drawerZscore');
+  const statusEl = document.getElementById('drawerStatusTag');
+  const card = document.getElementById('drawerAlertCard');
+  const icon = document.getElementById('drawerAlertIcon');
+  const title = document.getElementById('drawerAlertTitle');
+  const desc = document.getElementById('drawerAlertDesc');
+  const wo = document.getElementById('drawerWorkOrder');
+  const btnInject = document.getElementById('btnDrawerInject');
+  const pulse = document.getElementById('aiDrawerPulse');
 
-  dropRateEl.innerText = `${report.currentDropRate} mV/act`;
-  zScoreEl.innerText = `${report.zScore} σ`;
+  if (!dropEl) return;
+
+  dropEl.innerText = `${report.currentDropRate} mV/act`;
+  zEl.innerText = `${report.zScore} σ`;
   statusEl.innerText = report.status;
 
   if (report.isAnomaly) {
-    statusEl.className = 't-val-status status-red';
-    card.className = 'ai-alert-card state-anomaly';
-    iconEl.innerText = '⚠️';
-    headlineEl.innerText = `CRITICAL ANOMALY: Cell Short-Circuit Detected`;
-    subEl.innerText = `Deviation: +${report.zScore}σ from rolling baseline. Failure in ~${report.predictedHoursToFailure} hours.`;
-    bodyEl.innerText = report.explainabilityText;
-    woBox.classList.remove('hidden');
-    if (report.workOrder) woId.innerText = report.workOrder.ticketId;
-    btnInject.innerText = '✅ Reset Battery to Healthy State';
+    statusEl.className = 'unit-status-green unit-status-red';
+    card.className = 'explainable-alert-card anomaly-state';
+    icon.innerText = '!';
+    title.innerText = 'CRITICAL ANOMALY: Cell Short-Circuit';
+    desc.innerText = report.explainabilityText;
+    wo.classList.remove('hidden');
+    if (report.workOrder) {
+      document.getElementById('drawerTicketId').innerText = report.workOrder.ticketId;
+    }
+    btnInject.innerText = '✓ Reset Battery to Normal Healthy Baseline';
+    if (pulse) pulse.style.background = 'var(--status-danger)';
   } else {
-    statusEl.className = 't-val-status status-green';
-    card.className = 'ai-alert-card state-normal';
-    iconEl.innerText = '✅';
-    headlineEl.innerText = `Health Optimal: Lock #1402`;
-    subEl.innerText = `Telemetry adhering to 14-day rolling statistical baseline.`;
-    bodyEl.innerText = report.explainabilityText;
-    woBox.classList.add('hidden');
-    btnInject.innerText = '⚠️ Inject Battery Anomaly (Cell Short-Circuit)';
+    statusEl.className = 'unit-status-green';
+    card.className = 'explainable-alert-card normal-state';
+    icon.innerText = '✓';
+    title.innerText = 'Health Optimal: Lock #1402';
+    desc.innerText = report.explainabilityText;
+    wo.classList.add('hidden');
+    btnInject.innerText = '⚠️ Inject Accelerated Battery Short-Circuit (~42 mV/actuation)';
+    if (pulse) pulse.style.background = 'var(--status-success)';
   }
 }
 
@@ -557,7 +587,7 @@ async function toggleAnomalyInjection() {
   });
   const data = await res.json();
   updateAiAlertUI(data.aiAnalysis);
-  updateTelemetryReadout(data.telemetry);
+  updateAiTelemetryUI(data.telemetry);
 }
 
 async function applyManualOverride() {
@@ -568,77 +598,35 @@ async function applyManualOverride() {
   });
   const data = await res.json();
   updateAiAlertUI(data.aiAnalysis);
-  showToast(data.message);
+  alert('1-Tap Override Applied: Tolerance threshold widened without compromising security.');
 }
 
 // --------------------------------------------------------------------------
-// MQTT Inspector Feed
+// Modal Pass Creation
 // --------------------------------------------------------------------------
-function appendMqttPacket(packet) {
-  const feed = document.getElementById('mqttFeed');
-  if (!feed) return;
-
-  const line = document.createElement('div');
-  line.className = 'mqtt-line';
-  line.innerHTML = `
-    <div class="mqtt-line-header">
-      <span>TOPIC: ${packet.topic}</span>
-      <span>QoS ${packet.qos}</span>
-    </div>
-    <div class="mqtt-line-payload">${packet.rawPayload}</div>
-  `;
-
-  feed.prepend(line);
-
-  // Keep max 50 lines
-  while (feed.children.length > 50) {
-    feed.removeChild(feed.lastChild);
-  }
-}
-
-function clearMqttLog() {
-  document.getElementById('mqttFeed').innerHTML = '';
-}
-
-// --------------------------------------------------------------------------
-// Modals & Pass Creation
-// --------------------------------------------------------------------------
-function openNewPassModal() {
+function openPassModal() {
   document.getElementById('modalNewPass').classList.remove('hidden');
 }
 
-function closeNewPassModal() {
+function closePassModal() {
   document.getElementById('modalNewPass').classList.add('hidden');
 }
 
 async function confirmIssuePass() {
-  const partner = document.getElementById('selectPartner').value;
-  const ttl = parseInt(document.getElementById('selectDuration').value, 10);
+  const partner = document.getElementById('selPartner').value;
+  const duration = parseInt(document.getElementById('selDuration').value, 10);
 
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ partner, ttlMinutes: ttl, unit: '1402' }),
+    body: JSON.stringify({ partner, ttlMinutes: duration, unit: '1402' }),
   });
 
   const data = await res.json();
   if (data.success) {
-    closeNewPassModal();
-    showToast(`Issued pass for ${partner} (15m window)`);
+    closePassModal();
     fetchPasses();
+    document.getElementById('riderPartnerName').innerText = partner;
+    document.getElementById('resCourierName').innerText = partner;
   }
-}
-
-function updateTokenDecoder(pass) {
-  document.getElementById('claimPartner').innerText = pass.partner;
-}
-
-function simulateLobbyScan() {
-  if (currentPasses.length > 0) {
-    triggerPassEntry(currentPasses[0].passId);
-  }
-}
-
-function openRbacModal() {
-  switchView('operator');
 }
