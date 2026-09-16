@@ -4,25 +4,29 @@
    ========================================================================== */
 
 :root {
-  --bg-darkest: #05080E;
-  --bg-panel: #0A1018;
-  --bg-panel-subtle: #0E1622;
-  --bg-mobile: #F8F9FA;
-  
-  --text-main: #FFFFFF;
-  --text-cad: #88AACC;
-  --text-cad-dim: #4B6888;
-  --text-dark: #111111;
-  --text-muted: #666666;
+  /* Pixora light-mode surface scale (matches the Figma resident-app tokens:
+     monochrome base, color reserved for status only). The old dark CAD
+     console palette is kept commented alongside for reference during the
+     light-mode migration. */
+  --bg-darkest: #F5F6F7;       /* page background */
+  --bg-panel: #FFFFFF;         /* panel surfaces */
+  --bg-panel-subtle: #FAFAFA;  /* nested/inset surfaces */
+  --bg-mobile: #FFFFFF;
 
-  --border-cad: #19273A;
-  --border-cad-bright: #274063;
+  --text-main: #111111;
+  --text-cad: #4B5563;
+  --text-cad-dim: #8A8F98;
+  --text-dark: #111111;
+  --text-muted: #6B7280;
+
+  --border-cad: #E5E7EB;
+  --border-cad-bright: #D1D5DB;
   --border-light: #EAEAEA;
 
   --accent-blue: #3B82F6;
-  --accent-green: #2ECC71;
-  --accent-amber: #F39C12;
-  --accent-red: #E74C3C;
+  --accent-green: #1E9E52;
+  --accent-amber: #B45309;
+  --accent-red: #DC2626;
 
   --font-sans: 'Inter', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -53,7 +57,7 @@ body {
    Top Executive Navigation Bar (Clean, Constrained & Sleek)
    ========================================================================== */
 .top-nav {
-  background: #080D14;
+  background: #FFFFFF;
   border-bottom: 1px solid var(--border-cad);
   padding: 10px 24px;
   display: flex;
@@ -70,8 +74,8 @@ body {
 }
 
 .jkh-pill {
-  background: #FFFFFF;
-  color: #000000;
+  background: #111111;
+  color: #FFFFFF;
   font-weight: 800;
   font-size: 11px;
   padding: 3px 8px;
@@ -96,9 +100,9 @@ body {
 .tag-blueprint {
   font-family: var(--font-mono);
   font-size: 9px;
-  background: #142032;
+  background: #EFF6FF;
   color: var(--accent-blue);
-  border: 1px solid #233752;
+  border: 1px solid #DBEAFE;
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 600;
@@ -118,7 +122,7 @@ body {
 .playback-bar {
   display: flex;
   align-items: center;
-  background: #0D1624;
+  background: #F3F4F6;
   border: 1px solid var(--border-cad);
   border-radius: var(--radius-pill);
   padding: 4px 6px;
@@ -126,8 +130,8 @@ body {
 }
 
 .btn-playback-play {
-  background: #FFFFFF;
-  color: #000000;
+  background: #111111;
+  color: #FFFFFF;
   border: none;
   padding: 5px 12px;
   border-radius: var(--radius-pill);
@@ -167,8 +171,9 @@ body {
 }
 
 .t-node.active {
-  background: #162438;
-  color: #FFFFFF;
+  background: #FFFFFF;
+  color: #111111;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .t-dot {
@@ -180,13 +185,13 @@ body {
 
 .t-node.active .t-dot {
   background: var(--accent-green);
-  box-shadow: 0 0 6px var(--accent-green);
+  box-shadow: 0 0 6px rgba(30, 158, 82, 0.5);
 }
 
 .t-line {
   width: 14px;
   height: 1px;
-  background: #1A2A3E;
+  background: #D1D5DB;
 }
 
 /* Nav Right */
@@ -197,9 +202,9 @@ body {
 }
 
 .btn-telemetry-pill {
-  background: #101B2B;
+  background: #FFFFFF;
   border: 1px solid var(--border-cad-bright);
-  color: #FFFFFF;
+  color: #111111;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   font-size: 11px;
@@ -212,7 +217,7 @@ body {
 }
 
 .btn-telemetry-pill:hover {
-  background: #16263D;
+  background: #F3F4F6;
 }
 
 .pulse-dot {
@@ -220,7 +225,7 @@ body {
   height: 6px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 0 6px var(--accent-green);
+  box-shadow: 0 0 6px rgba(30, 158, 82, 0.4);
 }
 
 .mqtt-badge {
@@ -230,7 +235,7 @@ body {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-cad);
-  background: #080E17;
+  background: #F9FAFB;
   padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid var(--border-cad);
@@ -286,14 +291,14 @@ body {
    LEFT: COURIER PASS CARD (Refined, Compact, No Comical Buttons)
    ========================================================================== */
 .courier-ticket {
-  background: #0E1624;
+  background: #FFFFFF;
   border: 1px solid var(--border-cad);
   border-radius: var(--radius-card);
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-header {
@@ -311,8 +316,8 @@ body {
 .brand-square {
   width: 26px;
   height: 26px;
-  background: #FFFFFF;
-  color: #000000;
+  background: #111111;
+  color: #FFFFFF;
   font-weight: 800;
   font-size: 11px;
   border-radius: 6px;
@@ -324,7 +329,7 @@ body {
 .courier-title {
   font-size: 12px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #111111;
 }
 
 .order-id {
@@ -333,25 +338,25 @@ body {
 }
 
 .token-status-pill {
-  background: rgba(46, 204, 113, 0.15);
+  background: #EAFBF2;
   color: var(--accent-green);
   font-size: 9px;
   font-family: var(--font-mono);
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  border: 1px solid rgba(46, 204, 113, 0.3);
+  border: 1px solid rgba(30, 158, 82, 0.25);
 }
 
 .route-box {
-  background: #080D15;
+  background: #FAFAFA;
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   font-size: 11px;
-  border: 1px solid #142032;
+  border: 1px solid var(--border-cad);
 }
 
 .route-line {
@@ -360,7 +365,7 @@ body {
 }
 
 .route-line span { color: var(--text-cad-dim); }
-.route-line strong { color: #FFFFFF; font-weight: 600; }
+.route-line strong { color: #111111; font-weight: 600; }
 
 /* QR Box */
 .qr-box {
@@ -406,8 +411,8 @@ body {
 
 /* Scan Trigger Action Button (Sleek, Proportional) */
 .btn-scan-trigger {
-  background: #FFFFFF;
-  color: #000000;
+  background: #111111;
+  color: #FFFFFF;
   border: none;
   border-radius: var(--radius-pill);
   padding: 10px 14px;
@@ -418,16 +423,16 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
 .btn-scan-trigger:hover {
-  background: #E8E8E8;
+  background: #262626;
 }
 
 .scan-result-box {
-  background: rgba(46, 204, 113, 0.12);
-  border: 1px solid rgba(46, 204, 113, 0.35);
+  background: #EAFBF2;
+  border: 1px solid rgba(30, 158, 82, 0.3);
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 11px;
@@ -435,25 +440,25 @@ body {
 }
 
 .scan-result-box.danger {
-  background: rgba(231, 76, 60, 0.12);
-  border-color: rgba(231, 76, 60, 0.35);
+  background: #FEF2F2;
+  border-color: rgba(220, 38, 38, 0.3);
 }
 
 .scan-result-box.hidden { display: none; }
 
 .res-title {
   font-weight: 700;
-  color: #FFFFFF;
+  color: #111111;
 }
 
 .res-sub {
-  color: #C0C8D0;
+  color: #4B5563;
   margin-top: 2px;
 }
 
 .btn-issue-aux {
   background: none;
-  border: 1px dashed var(--border-cad);
+  border: 1px dashed var(--border-cad-bright);
   color: var(--text-cad);
   padding: 8px;
   border-radius: var(--radius-pill);
@@ -464,15 +469,15 @@ body {
 }
 
 .btn-issue-aux:hover {
-  border-color: var(--text-cad);
-  color: #FFFFFF;
+  border-color: #111111;
+  color: #111111;
 }
 
 /* ==========================================================================
    CENTER: 3D DOCUMENTARY ARCHITECTURAL CANVAS STAGE
    ========================================================================== */
 .blueprint-center-stage {
-  background: #090E16;
+  background: #FFFFFF;
   border: 1px solid var(--border-cad);
   border-radius: var(--radius-card);
   padding: 14px;
@@ -480,7 +485,7 @@ body {
   flex-direction: column;
   gap: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
 }
 
 .canvas-header-bar {
@@ -526,17 +531,19 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #111111;
 }
 
 .hud-green { color: var(--accent-green); }
 
-/* Canvas Container */
+/* Canvas Container — kept as a dark "viewport" surface (deliberate contrast
+   surface, like a code editor or map view sitting inside a light shell) so
+   the 3D architectural render keeps legible depth cues. */
 .blueprint-canvas-container {
   position: relative;
-  background: #05080E;
+  background: #0B0F14;
   border-radius: 10px;
-  border: 1px solid #142032;
+  border: 1px solid var(--border-cad);
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -575,8 +582,8 @@ body {
 
 /* Hardware MQTT Terminal */
 .mqtt-hud-strip {
-  background: #060A10;
-  border: 1px solid #142032;
+  background: #0B0F14;
+  border: 1px solid #1F2937;
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
@@ -1074,13 +1081,13 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   width: 440px;
   max-width: 90%;
   height: 100%;
-  background: #0B111A;
+  background: #FFFFFF;
   border-left: 1px solid var(--border-cad);
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
   animation: slideInRight 0.25s ease;
 }
 
@@ -1107,12 +1114,13 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   font-size: 15px;
   font-weight: 700;
   margin-top: 2px;
+  color: #111111;
 }
 
 .btn-drawer-close {
   background: none;
   border: none;
-  color: #777777;
+  color: #6B7280;
   font-size: 16px;
   cursor: pointer;
 }
@@ -1126,7 +1134,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 }
 
 .drawer-card {
-  background: #111A27;
+  background: #FAFAFA;
   border: 1px solid var(--border-cad);
   border-radius: 12px;
   padding: 14px;
@@ -1138,6 +1146,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 .card-title-sm {
   font-size: 12px;
   font-weight: 700;
+  color: #111111;
 }
 
 .card-note {
@@ -1165,6 +1174,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 .metric-item strong {
   font-family: var(--font-mono);
   font-size: 12px;
+  color: #111111;
 }
 
 .tag-status-green {
@@ -1185,7 +1195,7 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 
 .volts-track {
   height: 5px;
-  background: #1E2D42;
+  background: #E5E7EB;
   border-radius: var(--radius-pill);
   overflow: hidden;
 }
@@ -1215,8 +1225,8 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 
 .btn-override-trigger {
   background: transparent;
-  border: 1px solid #3B5578;
-  color: #FFFFFF;
+  border: 1px solid var(--border-cad-bright);
+  color: #111111;
   padding: 8px 12px;
   border-radius: var(--radius-pill);
   font-size: 11px;
@@ -1232,13 +1242,13 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 }
 
 .alert-box-card.normal {
-  background: #0E1A18;
-  border: 1px solid rgba(46, 204, 113, 0.3);
+  background: #EAFBF2;
+  border: 1px solid rgba(30, 158, 82, 0.3);
 }
 
 .alert-box-card.anomaly {
-  background: #251214;
-  border: 1px solid rgba(231, 76, 60, 0.5);
+  background: #FEF2F2;
+  border: 1px solid rgba(220, 38, 38, 0.35);
 }
 
 .alert-box-head {
@@ -1264,18 +1274,18 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 
 .alert-subtext {
   font-size: 10px;
-  color: #888888;
+  color: #6B7280;
 }
 
 .alert-body-text {
   font-size: 11px;
   line-height: 1.4;
-  color: #D0D8E0;
+  color: #374151;
 }
 
 .work-order-ticket {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   padding: 10px;
   font-size: 10px;
