@@ -3,599 +3,437 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TRI-ZEN OS | Frictionless Delivery & Smart Living Platform</title>
+  <title>TRI-ZEN OS | Architectural Digital Twin & Frictionless Handshake</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Top Executive Header -->
-  <header class="app-header">
-    <div class="header-left">
-      <div class="jkh-badge">JKH</div>
-      <div class="header-titles">
-        <h1>TRI-ZEN OS <span class="version-tag">ENTERPRISE v1.0</span></h1>
-        <p class="subtitle">John Keells Properties · Union Place, Colombo 02 · 891 Units</p>
+  <!-- Top Executive Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <div class="jkh-pill">JKH</div>
+      <div class="nav-title-group">
+        <div class="nav-title">
+          <span>TRI-ZEN OS</span>
+          <span class="tag-blueprint">3D ARCHITECTURAL TWIN</span>
+        </div>
+        <div class="nav-sub">John Keells Properties · Union Place, Colombo 02 · Tower 1 (53 Storeys)</div>
       </div>
     </div>
 
-    <!-- Live System Connection & Facilities Drawer Trigger -->
-    <div class="header-right">
-      <button class="facilities-toggle-btn" onclick="toggleFacilitiesDrawer()">
-        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
-        </svg>
-        <span>AI Predictive Health & Edge Telemetry</span>
-        <span class="pulse-indicator" id="aiDrawerPulse"></span>
-      </button>
+    <div class="nav-center">
+      <!-- Cinematic Timeline Stepper -->
+      <div class="playback-bar">
+        <button id="btnPlaySequence" class="btn-playback-play" onclick="togglePlaySequence()">
+          <span id="playIcon">▶</span>
+          <span id="playLabel">Play Simulation</span>
+        </button>
+        <div class="timeline-nodes">
+          <button class="t-node active" id="tNode1" onclick="jumpToStage(1)">
+            <span class="t-dot"></span>
+            <span class="t-txt">1. Gate Arrival</span>
+          </button>
+          <div class="t-line" id="tLine1"></div>
+          <button class="t-node" id="tNode2" onclick="jumpToStage(2)">
+            <span class="t-dot"></span>
+            <span class="t-txt">2. Relay Unlock</span>
+          </button>
+          <div class="t-line" id="tLine2"></div>
+          <button class="t-node" id="tNode3" onclick="jumpToStage(3)">
+            <span class="t-dot"></span>
+            <span class="t-txt">3. Lift Transit</span>
+          </button>
+          <div class="t-line" id="tLine3"></div>
+          <button class="t-node" id="tNode4" onclick="jumpToStage(4)">
+            <span class="t-dot"></span>
+            <span class="t-txt">4. Unit 1402</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <div class="connection-status-pill">
-        <span class="status-dot pulse-green"></span>
-        <span id="mqttStatusLabel">MQTT Bus: Port 1883 Active</span>
+    <div class="nav-right">
+      <button class="btn-telemetry-pill" onclick="toggleAiDrawer()">
+        <span class="pulse-dot"></span>
+        <span>AI Predictive Health</span>
+      </button>
+      <div class="mqtt-badge">
+        <span class="status-indicator"></span>
+        <span>MQTT: 1883</span>
       </div>
     </div>
   </header>
 
-  <!-- Main 3-Pane Digital Twin Workspace -->
-  <main class="three-pane-stage">
+  <!-- Stage Workspace -->
+  <main class="viewport-stage">
 
-    <!-- ================================================================= -->
-    <!-- PANE 1 (LEFT): RIDER MOBILE APP (Keells Super / PickMe Courier)   -->
-    <!-- ================================================================= -->
-    <section class="pane-column rider-pane">
-      <div class="pane-header-label">
-        <span class="pane-eyebrow">PERSPECTIVE 1: THE VISITOR</span>
-        <h2>Courier Mobile Pass</h2>
-      </div>
-
-      <div class="rider-phone-card">
-        <!-- Courier App Header -->
-        <div class="rider-app-nav">
-          <div class="partner-brand">
-            <svg class="svg-icon-partner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="9" cy="21" r="1"/>
-              <circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
+    <!-- LEFT PANEL: Courier Pass (Refined & Compact) -->
+    <aside class="panel-card courier-panel">
+      <div class="panel-tag">PERSPECTIVE: THE COURIER</div>
+      
+      <div class="courier-ticket">
+        <div class="ticket-header">
+          <div class="courier-brand">
+            <div class="brand-square">KS</div>
             <div>
-              <div class="partner-title" id="riderPartnerName">Keells Super Express</div>
-              <div class="partner-tag">Order #JKH-5021 · Grocery Delivery</div>
+              <div class="courier-title">Keells Super Express</div>
+              <div class="order-id">Order #JKH-5021 · Grocery</div>
             </div>
           </div>
-          <span class="badge-active" id="riderPassBadge">PASS ACTIVE</span>
+          <span class="token-status-pill" id="courierPassStatus">VALID</span>
         </div>
 
-        <!-- Destination Details -->
-        <div class="rider-meta-box">
-          <div class="meta-row">
-            <span class="meta-label">Destination</span>
-            <span class="meta-val">TRI-ZEN Tower 1 · Residence 1402</span>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Resident</span>
-            <span class="meta-val">Maya Senanayake</span>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Authorized Route</span>
-            <span class="meta-val">Lobby Turnstile 1 → Lift Bank A → Floor 14</span>
-          </div>
+        <div class="route-box">
+          <div class="route-line"><span>Target:</span> <strong>Residence 1402 (Fl 14)</strong></div>
+          <div class="route-line"><span>Resident:</span> <strong>Maya Senanayake</strong></div>
+          <div class="route-line"><span>TTL:</span> <strong id="passCountdownVal">14:58 min remaining</strong></div>
         </div>
 
-        <!-- Dynamic QR Code & Time-Window Countdown -->
-        <div class="qr-presentation-card">
-          <div class="qr-canvas-wrap">
-            <!-- Cryptographic QR Code Visual -->
-            <svg class="qr-svg" viewBox="0 0 120 120">
-              <rect width="120" height="120" fill="#FFFFFF"/>
-              <!-- Standard QR Finder Patterns -->
-              <rect x="10" y="10" width="30" height="30" fill="#0A0A0A" rx="4"/>
-              <rect x="16" y="16" width="18" height="18" fill="#FFFFFF" rx="2"/>
-              <rect x="20" y="20" width="10" height="10" fill="#0A0A0A" rx="1"/>
-
-              <rect x="80" y="10" width="30" height="30" fill="#0A0A0A" rx="4"/>
-              <rect x="86" y="16" width="18" height="18" fill="#FFFFFF" rx="2"/>
-              <rect x="90" y="20" width="10" height="10" fill="#0A0A0A" rx="1"/>
-
-              <rect x="10" y="80" width="30" height="30" fill="#0A0A0A" rx="4"/>
-              <rect x="16" y="86" width="18" height="18" fill="#FFFFFF" rx="2"/>
-              <rect x="20" y="90" width="10" height="10" fill="#0A0A0A" rx="1"/>
-
-              <!-- Procedural Data Matrix Dots -->
-              <circle cx="50" cy="20" r="3" fill="#0A0A0A"/>
-              <circle cx="62" cy="20" r="3" fill="#0A0A0A"/>
-              <circle cx="50" cy="32" r="3" fill="#0A0A0A"/>
-              <circle cx="70" cy="32" r="3" fill="#0A0A0A"/>
-              <circle cx="20" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="35" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="50" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="65" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="85" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="100" cy="55" r="3" fill="#0A0A0A"/>
-              <circle cx="50" cy="70" r="3" fill="#0A0A0A"/>
-              <circle cx="70" cy="70" r="3" fill="#0A0A0A"/>
-              <circle cx="90" cy="70" r="3" fill="#0A0A0A"/>
-              <circle cx="50" cy="90" r="3" fill="#0A0A0A"/>
-              <circle cx="65" cy="95" r="3" fill="#0A0A0A"/>
-              <circle cx="85" cy="95" r="3" fill="#0A0A0A"/>
-              <circle cx="100" cy="95" r="3" fill="#0A0A0A"/>
+        <!-- Clean Compact QR Card -->
+        <div class="qr-box">
+          <div class="qr-frame">
+            <svg class="qr-vector" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#FFFFFF"/>
+              <!-- Finder 1 -->
+              <rect x="8" y="8" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="13" y="13" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="17" y="17" width="8" height="8" fill="#000"/>
+              <!-- Finder 2 -->
+              <rect x="66" y="8" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="71" y="13" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="75" y="17" width="8" height="8" fill="#000"/>
+              <!-- Finder 3 -->
+              <rect x="8" y="66" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="13" y="71" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="17" y="75" width="8" height="8" fill="#000"/>
+              <!-- Matrix -->
+              <rect x="42" y="12" width="6" height="6" fill="#000"/>
+              <rect x="52" y="12" width="6" height="6" fill="#000"/>
+              <rect x="42" y="24" width="6" height="6" fill="#000"/>
+              <rect x="52" y="32" width="6" height="6" fill="#000"/>
+              <rect x="12" y="44" width="6" height="6" fill="#000"/>
+              <rect x="28" y="44" width="6" height="6" fill="#000"/>
+              <rect x="44" y="44" width="6" height="6" fill="#000"/>
+              <rect x="60" y="44" width="6" height="6" fill="#000"/>
+              <rect x="76" y="44" width="6" height="6" fill="#000"/>
+              <rect x="44" y="60" width="6" height="6" fill="#000"/>
+              <rect x="60" y="68" width="6" height="6" fill="#000"/>
+              <rect x="76" y="68" width="6" height="6" fill="#000"/>
+              <rect x="44" y="76" width="6" height="6" fill="#000"/>
+              <rect x="84" y="84" width="6" height="6" fill="#000"/>
             </svg>
           </div>
-
-          <div class="pin-display">
-            <span class="pin-label">ONE-TIME ACCESS PIN</span>
-            <span class="pin-code" id="riderPinCode">749 · 102</span>
-          </div>
-
-          <!-- Countdown Progress Bar -->
-          <div class="rider-countdown-box">
-            <div class="countdown-text-row">
-              <span id="riderCountdownLabel">15 min window active</span>
-              <span class="time-elapsed-meta" id="riderRemainingTime">14:52</span>
-            </div>
-            <div class="countdown-track">
-              <div class="countdown-fill" id="riderProgressFill" style="width: 15%;"></div>
-            </div>
+          <div class="pin-text">
+            <span>ONE-TIME DIGITAL PIN</span>
+            <strong>749 · 102</strong>
           </div>
         </div>
 
-        <!-- Primary Action: Tap at Gate -->
-        <div class="rider-action-block">
-          <button id="btnScanGate" class="rider-primary-btn" onclick="triggerLobbyScan()">
-            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-              <polyline points="10 17 15 12 10 7"/>
-              <line x1="15" y1="12" x2="3" y2="12"/>
-            </svg>
-            <span>Scan QR at Union Place Lobby Gate</span>
-          </button>
+        <!-- Scan Trigger Action -->
+        <button id="btnScanPass" class="btn-scan-trigger" onclick="triggerHandshakeScan()">
+          <span>Tap Gate 1 Turnstile Reader</span>
+        </button>
 
-          <!-- Security Status Feedback Banner -->
-          <div id="gateScanFeedback" class="scan-feedback-banner hidden">
-            <div class="feedback-icon" id="feedbackIcon">✓</div>
-            <div class="feedback-text">
-              <strong id="feedbackTitle">Access Granted</strong>
-              <div id="feedbackSub">Turnstile 1 relay energized. Solenoid released.</div>
-            </div>
+        <div id="scanResultAlert" class="scan-result-box hidden">
+          <div class="res-title" id="scanAlertTitle">Access Granted</div>
+          <div class="res-sub" id="scanAlertSub">Turnstile 1 unlocked. Solenoid energized for 8s.</div>
+        </div>
+      </div>
+
+      <!-- Quick Issue Pass Button -->
+      <button class="btn-issue-aux" onclick="openPassModal()">+ Issue Another Delivery Pass</button>
+    </aside>
+
+    <!-- CENTER PANEL: 3D DOCUMENTARY ARCHITECTURAL CANVAS -->
+    <section class="blueprint-center-stage">
+      <div class="canvas-header-bar">
+        <div class="canvas-title-wrap">
+          <span class="hud-eyebrow">TOWER 1 VERTICAL SLICE SCHEMATIC</span>
+          <div class="hud-coords">COLOMBO 02 · 6.9182° N, 79.8543° E · ELEV: 168m</div>
+        </div>
+        <div class="hud-telemetry-readouts">
+          <div class="hud-val-box">
+            <span class="hud-label">TURNSTILE RELAY</span>
+            <span class="hud-value" id="hudRelay">LOCKED (0V)</span>
+          </div>
+          <div class="hud-val-box">
+            <span class="hud-label">LIFT A ELEVATION</span>
+            <span class="hud-value" id="hudLift">FL 00 (LOBBY)</span>
+          </div>
+          <div class="hud-val-box">
+            <span class="hud-label">FLOOR 14 LOCK</span>
+            <span class="hud-value hud-green" id="hudDoor">SECURED</span>
           </div>
         </div>
+      </div>
 
+      <!-- Canvas Viewport for 3D Documentary Rendering -->
+      <div class="blueprint-canvas-container">
+        <canvas id="twinCanvas" width="900" height="620"></canvas>
+        <div class="canvas-overlay-guide" id="canvasOverlayGuide">
+          <div class="overlay-stage-tag" id="overlayStageTag">STAGE 1: COURIER ARRIVAL AT LOBBY PERIMETER</div>
+          <div class="overlay-stage-desc" id="overlayStageDesc">Awaiting cryptographic token verification at Union Place turnstile...</div>
+        </div>
+      </div>
+
+      <!-- Hardware MQTT Telemetry Mini-Log -->
+      <div class="mqtt-hud-strip">
+        <div class="mqtt-hud-label">
+          <span>MQTT EVENT BUS</span>
+          <span class="packet-rate" id="mqttRate">PORT 1883 · REALTIME</span>
+        </div>
+        <div class="mqtt-hud-feed" id="mqttHudFeed">
+          <div class="feed-entry">
+            <span class="time">00:00:00</span>
+            <span class="topic">trizen/tower-1/system</span>
+            <span class="payload">HAL initialized. 891 residential units mapped to Mitsubishi elevator core.</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ================================================================= -->
-    <!-- PANE 2 (CENTER): ARCHITECTURAL BLUEPRINT (TRI-ZEN Tower 1)        -->
-    <!-- ================================================================= -->
-    <section class="pane-column blueprint-pane">
-      <div class="pane-header-label">
-        <span class="pane-eyebrow">PHYSICAL EDGE SIMULATION</span>
-        <h2>TRI-ZEN Tower 1 Blueprint</h2>
-      </div>
+    <!-- RIGHT PANEL: Maya's Living App (Strictly DESIGN_SYSTEM.md) -->
+    <aside class="panel-card resident-panel">
+      <div class="panel-tag">PERSPECTIVE: THE RESIDENT</div>
 
-      <div class="blueprint-canvas">
-        <!-- Blueprint Grid Background overlay -->
-        <div class="blueprint-grid-overlay"></div>
-
-        <!-- Cross-Section Graphic -->
-        <div class="tower-cutaway">
-
-          <!-- TOP ZONE: Floor 14 (Residence 1402) -->
-          <div class="blueprint-zone floor-14-zone" id="zoneFloor14">
-            <div class="zone-label-pill">
-              <span class="zone-dot"></span>
-              <span>FLOOR 14 · RESIDENCE 1402</span>
-            </div>
-            <div class="zone-corridor">
-              <div class="unit-door-visual" id="blueprintDoor">
-                <svg class="svg-icon-door" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
-                  <circle cx="15" cy="12" r="1.5" fill="currentColor"/>
-                </svg>
-                <div class="door-status-tag" id="bpDoorTag">DOOR LOCKED</div>
-              </div>
-              <div class="corridor-ambient">Drop-off Zone</div>
-            </div>
-          </div>
-
-          <!-- VERTICAL ELEVATOR SHAFT (Floor 0 to 14) -->
-          <div class="blueprint-shaft-wrap">
-            <div class="shaft-rails">
-              <!-- Elevator Cabin (Travels up and down) -->
-              <div class="blueprint-cabin" id="blueprintCabin">
-                <div class="cabin-indicator">
-                  <span class="cabin-icon-svg">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="4" y="2" width="16" height="20" rx="2"/>
-                      <line x1="12" y1="2" x2="12" y2="22"/>
-                    </svg>
-                  </span>
-                  <div class="cabin-text">
-                    <div class="cabin-name">MITSUBISHI CORE LIFT A</div>
-                    <div class="cabin-live-floor" id="bpCabinFloor">GROUND LOBBY</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="shaft-level-labels">
-              <span>FL 14 · Unit 1402</span>
-              <span>FL 10 · Mid-Rise</span>
-              <span>FL 05 · Podium</span>
-              <span>FL 00 · Main Lobby</span>
-            </div>
-          </div>
-
-          <!-- BOTTOM ZONE: Ground Lobby & Turnstile Barrier -->
-          <div class="blueprint-zone lobby-zone" id="zoneLobby">
-            <div class="zone-label-pill">
-              <span class="zone-dot" id="lobbyZoneDot"></span>
-              <span>GROUND FLOOR · LOBBY ACCESS PERIMETER</span>
-            </div>
-
-            <div class="turnstile-visual-card" id="bpTurnstileCard">
-              <div class="turnstile-schematic">
-                <div class="barrier-arm-left" id="armLeft"></div>
-                <div class="optical-beam" id="opticalBeam"></div>
-                <div class="barrier-arm-right" id="armRight"></div>
-              </div>
-
-              <div class="turnstile-telemetry-row">
-                <div class="hw-chip">
-                  <span class="chip-led" id="bpLedRelay"></span>
-                  <span>12V Relay: <strong id="bpRelayState">LOCKED</strong></span>
-                </div>
-                <div class="hw-chip">
-                  <span class="chip-led" id="bpLedOptical"></span>
-                  <span>Optical Sensor: <strong id="bpOpticalState">STANDBY</strong></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Bottom Mini-Console: Live MQTT Event Stream -->
-        <div class="blueprint-mqtt-stream">
-          <div class="mqtt-header-row">
-            <span class="mqtt-title">HARDWARE MQTT BUS (PORT 1883)</span>
-            <span class="mqtt-packet-count" id="mqttPacketCount">LIVE STREAM</span>
-          </div>
-          <div class="mqtt-packet-terminal" id="bpMqttTerminal">
-            <div class="terminal-row sys">
-              <span class="term-time">SYS</span>
-              <span class="term-topic">trizen/tower-1/system</span>
-              <span class="term-msg">Hardware Abstraction Layer connected. Subscribing to tower topics...</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ================================================================= -->
-    <!-- PANE 3 (RIGHT): RESIDENT MOBILE APP (Figma-Ready Container)       -->
-    <!-- ================================================================= -->
-    <section class="pane-column resident-pane">
-      <div class="pane-header-label">
-        <span class="pane-eyebrow">PERSPECTIVE 2: THE RESIDENT</span>
-        <h2>Maya's Living App</h2>
-      </div>
-
-      <div class="resident-phone-shell">
-        <!-- Top Status Bar -->
-        <div class="phone-top-bar">
-          <div class="unit-location-chip">
-            <span class="chip-dot"></span>
+      <div class="resident-mobile-shell">
+        <!-- Phone Top Bar -->
+        <div class="m-top-bar">
+          <div class="m-unit-pill">
+            <span class="dot-live"></span>
             <span>Tower 1 · 1402</span>
           </div>
-          <div class="top-nav-actions">
-            <button class="nav-icon-circle" title="Notifications">
-              <svg class="svg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-              </svg>
-              <span class="unread-dot"></span>
-            </button>
-            <div class="avatar-circle">MS</div>
+          <div class="m-user-avatar">MS</div>
+        </div>
+
+        <!-- Scrollable Mobile Body -->
+        <div class="m-scroll-content">
+          <!-- Hero Card (Monochrome Inverse) -->
+          <div class="m-hero-card">
+            <div class="m-hero-greeting">Good evening, Maya</div>
+            <div class="m-hero-sub">All systems optimal in Residence 1402</div>
+
+            <div class="m-stat-row">
+              <div class="m-stat-tile">
+                <span class="s-label">INSIDE</span>
+                <span class="s-val" id="resInsideTemp">23°C</span>
+              </div>
+              <div class="m-stat-tile">
+                <span class="s-label">FRONT DOOR</span>
+                <span class="s-val" id="resDoorState">Locked</span>
+              </div>
+              <div class="m-stat-tile">
+                <span class="s-label">ACTIVE</span>
+                <span class="s-val" id="resActiveCount">2 Devices</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Natural Language Input -->
+          <div class="m-ai-input-wrap">
+            <span class="sparkle-glyph">✦</span>
+            <input type="text" id="mAiInput" placeholder="Tell your home what you need…" onkeydown="handleAiInputKey(event)">
+            <button class="btn-ai-send" onclick="sendAiCommand()">➔</button>
+          </div>
+          <div id="mAiToast" class="m-ai-toast hidden"></div>
+
+          <!-- Section: Expected Delivery (Live Stepper) -->
+          <div class="m-section-header">
+            <span class="m-eyebrow">EXPECTED TONIGHT</span>
+            <span class="m-pill">1 Pass</span>
+          </div>
+
+          <div class="delivery-tracker-card">
+            <div class="dt-header">
+              <div class="dt-courier-title">Keells Super Express</div>
+              <span class="dt-status-pill" id="dtBadge">In Transit</span>
+            </div>
+            <div class="dt-subtext" id="dtSubtext">Delivery in progress · 15m window</div>
+
+            <!-- 4-Stage Stepper -->
+            <div class="dt-stepper">
+              <div class="st-node active" id="stNode1">
+                <div class="st-circle">1</div>
+                <span>Issued</span>
+              </div>
+              <div class="st-bar" id="stBar1"></div>
+              <div class="st-node" id="stNode2">
+                <div class="st-circle">2</div>
+                <span>Gate</span>
+              </div>
+              <div class="st-bar" id="stBar2"></div>
+              <div class="st-node" id="stNode3">
+                <div class="st-circle">3</div>
+                <span>Lift</span>
+              </div>
+              <div class="st-bar" id="stBar3"></div>
+              <div class="st-node" id="stNode4">
+                <div class="st-circle">4</div>
+                <span>Door</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Quick Controls (2x2 Grid per DESIGN_SYSTEM.md) -->
+          <div class="m-section-header">
+            <span class="m-eyebrow">QUICK CONTROLS</span>
+            <span class="m-subtext">Unit 1402</span>
+          </div>
+
+          <div class="m-grid-2x2">
+            <!-- Front Door Lock -->
+            <div id="mTileDoor" class="m-tile tile-dark" onclick="toggleFrontDoor()">
+              <div class="m-tile-head">
+                <span class="tile-icon-glyph">⚿</span>
+                <span class="m-tile-tag" id="mDoorTag">Locked</span>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Front Door</div>
+                <div class="m-tile-sub">Yale Deadbolt</div>
+              </div>
+            </div>
+
+            <!-- Living AC with Stepper -->
+            <div id="mTileAc" class="m-tile tile-dark">
+              <div class="m-tile-head">
+                <span class="tile-icon-glyph">❄</span>
+                <div class="stepper-mini" onclick="event.stopPropagation()">
+                  <button onclick="stepAcTemp(-1)">−</button>
+                  <span id="mAcVal">23°C</span>
+                  <button onclick="stepAcTemp(1)">+</button>
+                </div>
+              </div>
+              <div class="m-tile-foot" onclick="toggleAc()">
+                <div class="m-tile-title">Living AC</div>
+                <div class="m-tile-sub" id="mAcSub">Cool · Eco</div>
+              </div>
+            </div>
+
+            <!-- Guest Lights Switch -->
+            <div id="mTileLights" class="m-tile tile-light" onclick="toggleLights()">
+              <div class="m-tile-head">
+                <span class="tile-icon-glyph">☼</span>
+                <div class="ios-toggle">
+                  <input type="checkbox" id="mSwitchLights" onchange="event.stopPropagation(); toggleLights()">
+                  <span class="ios-slider"></span>
+                </div>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Guest Lights</div>
+                <div class="m-tile-sub" id="mLightsSub">Off</div>
+              </div>
+            </div>
+
+            <!-- Guest AC -->
+            <div id="mTileGuestAc" class="m-tile tile-light" onclick="toggleGuestAc()">
+              <div class="m-tile-head">
+                <span class="tile-icon-glyph">༄</span>
+                <div class="ios-toggle">
+                  <input type="checkbox" id="mSwitchGuestAc" onchange="event.stopPropagation(); toggleGuestAc()">
+                  <span class="ios-slider"></span>
+                </div>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Guest AC</div>
+                <div class="m-tile-sub" id="mGuestAcSub">Off</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Scrollable Resident Content -->
-        <div class="resident-scroll-body">
-
-          <!-- Hero Greeting Card (Monochrome Inverse) -->
-          <div class="resident-hero-card">
-            <div class="hero-title">Good evening, Maya</div>
-            <div class="hero-sub">All systems secure in Residence 1402</div>
-
-            <!-- 3 Stat Chips strictly per DESIGN_SYSTEM.md -->
-            <div class="hero-stat-grid">
-              <div class="stat-chip-box">
-                <svg class="svg-chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                </svg>
-                <span class="stat-lbl">INSIDE</span>
-                <span class="stat-num" id="resInsideTemp">23°C</span>
-              </div>
-              <div class="stat-chip-box">
-                <svg class="svg-chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <span class="stat-lbl">FRONT DOOR</span>
-                <span class="stat-num" id="resDoorLockState">Locked</span>
-              </div>
-              <div class="stat-chip-box">
-                <svg class="svg-chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                <span class="stat-lbl">ACTIVE</span>
-                <span class="stat-num" id="resActiveDevices">2 Devices</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Natural Language AI Search Bar -->
-          <div class="resident-ai-bar">
-            <svg class="svg-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-            </svg>
-            <input type="text" id="residentAiInput" placeholder="Tell your home what you need…" onkeydown="handleResidentAiKey(event)">
-            <button class="ai-send-pill" onclick="submitResidentAi()">➔</button>
-          </div>
-          <div id="residentAiToast" class="ai-toast hidden"></div>
-
-          <!-- SECTION: EXPECTED TONIGHT & LIVE DELIVERY TRACKER -->
-          <div class="section-title-bar">
-            <div class="title-with-pill">
-              <span class="sec-eyebrow">EXPECTED TONIGHT</span>
-              <span class="sec-pill">1 Pass</span>
-            </div>
-            <button class="btn-text-action" onclick="openPassModal()">+ Issue Pass</button>
-          </div>
-
-          <!-- Live Delivery Journey Stepper Card -->
-          <div class="delivery-journey-card">
-            <div class="journey-top-row">
-              <div class="journey-courier-info">
-                <div class="courier-badge-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="journey-name" id="resCourierName">Keells Super Express</div>
-                  <div class="journey-sub" id="resDeliveryStatusSub">Delivery in progress · 15m window</div>
-                </div>
-              </div>
-              <span class="status-pill-green" id="resDeliveryBadge">Active</span>
-            </div>
-
-            <!-- 4-Step Visual Stepper -->
-            <div class="stepper-horizontal">
-              <div class="step-node active" id="step1">
-                <div class="node-circle">1</div>
-                <span class="node-label">Issued</span>
-              </div>
-              <div class="step-connector" id="conn1"></div>
-              <div class="step-node" id="step2">
-                <div class="node-circle">2</div>
-                <span class="node-label">At Gate</span>
-              </div>
-              <div class="step-connector" id="conn2"></div>
-              <div class="step-node" id="step3">
-                <div class="node-circle">3</div>
-                <span class="node-label">Elevator</span>
-              </div>
-              <div class="step-connector" id="conn3"></div>
-              <div class="step-node" id="step4">
-                <div class="node-circle">4</div>
-                <span class="node-label">Doorstep</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION: QUICK CONTROLS (2x2 Grid) -->
-          <div class="section-title-bar">
-            <span class="sec-eyebrow">QUICK CONTROLS</span>
-            <span class="sec-sublabel">Unit 1402 Presets</span>
-          </div>
-
-          <div class="device-grid-2x2">
-            <!-- Front Door Lock Tile -->
-            <div id="tileDoor" class="device-tile-card tile-black" onclick="toggleFrontDoor()">
-              <div class="tile-header">
-                <svg class="tile-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <span class="tile-status-tag" id="tileDoorTag">Locked</span>
-              </div>
-              <div class="tile-footer">
-                <div class="tile-heading">Front Door</div>
-                <div class="tile-subheading">Yale Smart Deadbolt</div>
-              </div>
-            </div>
-
-            <!-- Living Room AC Tile with Stepper -->
-            <div id="tileAc" class="device-tile-card tile-black">
-              <div class="tile-header">
-                <svg class="tile-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
-                <div class="ac-stepper" onclick="event.stopPropagation()">
-                  <button class="step-btn" onclick="stepAc(-1)">−</button>
-                  <span class="step-val" id="resAcTemp">23°C</span>
-                  <button class="step-btn" onclick="stepAc(1)">+</button>
-                </div>
-              </div>
-              <div class="tile-footer" onclick="toggleAc()">
-                <div class="tile-heading">Living Room AC</div>
-                <div class="tile-subheading" id="resAcModeSub">Cool · Eco Mode</div>
-              </div>
-            </div>
-
-            <!-- Guest Lights Tile -->
-            <div id="tileLights" class="device-tile-card tile-white" onclick="toggleLights()">
-              <div class="tile-header">
-                <svg class="tile-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
-                </svg>
-                <div class="ios-switch">
-                  <input type="checkbox" id="switchLights" onchange="event.stopPropagation(); toggleLights()">
-                  <span class="switch-slider"></span>
-                </div>
-              </div>
-              <div class="tile-footer">
-                <div class="tile-heading">Guest Lights</div>
-                <div class="tile-subheading" id="resLightsSub">Off</div>
-              </div>
-            </div>
-
-            <!-- Guest AC Tile -->
-            <div id="tileGuestAc" class="device-tile-card tile-white" onclick="toggleGuestAc()">
-              <div class="tile-header">
-                <svg class="tile-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M12 3v18m9-9H3"/>
-                </svg>
-                <div class="ios-switch">
-                  <input type="checkbox" id="switchGuestAc" onchange="event.stopPropagation(); toggleGuestAc()">
-                  <span class="switch-slider"></span>
-                </div>
-              </div>
-              <div class="tile-footer">
-                <div class="tile-heading">Guest AC</div>
-                <div class="tile-subheading" id="resGuestAcSub">Off</div>
-              </div>
-            </div>
-          </div>
-
+        <!-- Floating Bottom Nav Bar -->
+        <div class="m-bottom-nav">
+          <button class="nav-item active">Home</button>
+          <button class="nav-item" onclick="openPassModal()">Passes</button>
+          <div class="fab-ai" onclick="focusAiInput()">✦</div>
+          <button class="nav-item" onclick="toggleAiDrawer()">Activity</button>
+          <button class="nav-item">Profile</button>
         </div>
-
-        <!-- Floating 5-Tab Navigation Bar -->
-        <nav class="resident-bottom-nav">
-          <button class="b-tab active">
-            <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            </svg>
-            <span>Home</span>
-          </button>
-          <button class="b-tab" onclick="openPassModal()">
-            <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <line x1="7" y1="8" x2="17" y2="8"/>
-              <line x1="7" y1="12" x2="17" y2="12"/>
-            </svg>
-            <span>Passes</span>
-          </button>
-          <button class="b-tab tab-raised" onclick="focusResidentAi()">
-            <div class="fab-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-              </svg>
-            </div>
-          </button>
-          <button class="b-tab" onclick="toggleFacilitiesDrawer()">
-            <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
-            </svg>
-            <span>Activity</span>
-          </button>
-          <button class="b-tab">
-            <svg class="b-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span>Profile</span>
-          </button>
-        </nav>
       </div>
-    </section>
+    </aside>
 
   </main>
 
   <!-- ================================================================= -->
   <!-- FACILITIES & AI ANOMALY PREDICTIVE DRAWER (SLIDE-OVER)             -->
   <!-- ================================================================= -->
-  <div id="facilitiesDrawer" class="facilities-drawer-overlay hidden" onclick="toggleFacilitiesDrawer(event)">
-    <div class="drawer-panel" onclick="event.stopPropagation()">
-      <div class="drawer-top-bar">
-        <div class="drawer-title-wrap">
-          <span class="drawer-eyebrow">HACKATHON TIE-BREAKER (15 MARKS)</span>
-          <h2>Predictive Hardware Health & Anomaly Triage</h2>
+  <div id="aiDrawer" class="drawer-backdrop hidden" onclick="toggleAiDrawer(event)">
+    <div class="drawer-modal" onclick="event.stopPropagation()">
+      <div class="drawer-head">
+        <div>
+          <span class="badge-tiebreaker">HACKATHON TIE-BREAKER (15 MARKS)</span>
+          <h3>Predictive Hardware Health & Anomaly Triage</h3>
         </div>
-        <button class="drawer-close-btn" onclick="toggleFacilitiesDrawer()">✕</button>
+        <button class="btn-drawer-close" onclick="toggleAiDrawer()">✕</button>
       </div>
 
-      <div class="drawer-content-scroll">
-        <div class="drawer-section-card">
-          <div class="card-heading">Yale Smart Deadbolt #1402 Telemetry</div>
-          <div class="telemetry-stat-row">
-            <div class="stat-unit">
-              <span class="unit-lbl">TERMINAL VOLTAGE</span>
-              <span class="unit-val" id="drawerVoltage">5480 mV</span>
+      <div class="drawer-scroll">
+        <!-- Telemetry Card -->
+        <div class="drawer-card">
+          <div class="card-title-sm">Yale Smart Lock #1402 Telemetry</div>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="lbl">VOLTAGE</span>
+              <strong id="drVoltage">5480 mV</strong>
             </div>
-            <div class="stat-unit">
-              <span class="unit-lbl">DROP RATE (κ)</span>
-              <span class="unit-val" id="drawerDropRate">12.1 mV/act</span>
+            <div class="metric-item">
+              <span class="lbl">DECAY RATE (κ)</span>
+              <strong id="drDropRate">12.1 mV/act</strong>
             </div>
-            <div class="stat-unit">
-              <span class="unit-lbl">Z-SCORE (σ)</span>
-              <span class="unit-val" id="drawerZscore">0.24 σ</span>
+            <div class="metric-item">
+              <span class="lbl">Z-SCORE (σ)</span>
+              <strong id="drZscore">0.24 σ</strong>
             </div>
-            <div class="stat-unit">
-              <span class="unit-lbl">STATUS</span>
-              <span class="unit-status-green" id="drawerStatusTag">OPTIMAL</span>
+            <div class="metric-item">
+              <span class="lbl">STATUS</span>
+              <span class="tag-status-green" id="drStatusTag">OPTIMAL</span>
             </div>
           </div>
-          <div class="drawer-volts-track">
-            <div class="drawer-volts-bar" id="drawerVoltsBar" style="width: 82%;"></div>
-          </div>
-        </div>
-
-        <!-- Live Anomaly Injection Controls -->
-        <div class="drawer-section-card">
-          <div class="card-heading">Live Demonstration Controls</div>
-          <p class="card-subtext">Inject sudden electrical cell degradation to test autonomous triage and work-order dispatch.</p>
-          <div class="drawer-btn-stack">
-            <button id="btnDrawerInject" class="drawer-action-btn btn-danger" onclick="toggleAnomalyInjection()">
-              ⚠️ Inject Accelerated Battery Short-Circuit (~42 mV/actuation)
-            </button>
-            <button id="btnDrawerOverride" class="drawer-action-btn btn-secondary" onclick="applyManualOverride()">
-              🛡️ 1-Tap Manual Override (Dismiss / Heavy Usage)
-            </button>
+          <div class="volts-track">
+            <div class="volts-bar" id="drVoltsBar" style="width: 82%;"></div>
           </div>
         </div>
 
-        <!-- Explainable AI Diagnostic Card -->
-        <div id="drawerAlertCard" class="explainable-alert-card normal-state">
-          <div class="alert-header">
-            <span class="alert-icon-svg" id="drawerAlertIcon">✓</span>
+        <!-- Live Demonstration Actions -->
+        <div class="drawer-card">
+          <div class="card-title-sm">Live Judge Evaluation Controls</div>
+          <p class="card-note">Simulate accelerated internal battery cell failure to observe automatic work-order routing.</p>
+          <div class="btn-stack">
+            <button id="btnDrawerInject" class="btn-anomaly-trigger" onclick="toggleAnomalyInjection()">
+              ⚠️ Inject Battery Cell Degradation (~42 mV/actuation)
+            </button>
+            <button class="btn-override-trigger" onclick="applyManualOverride()">
+              🛡️ 1-Tap Override (Dismiss / Heavy Usage)
+            </button>
+          </div>
+        </div>
+
+        <!-- Explainable AI Alert Card -->
+        <div id="drAlertCard" class="alert-box-card normal">
+          <div class="alert-box-head">
+            <span class="status-symbol" id="drAlertIcon">✓</span>
             <div>
-              <strong id="drawerAlertTitle">Health Optimal: Lock #1402</strong>
-              <div class="alert-sub" id="drawerAlertSub">Adhering to 14-day rolling statistical baseline.</div>
+              <strong id="drAlertTitle">Health Optimal: Lock #1402</strong>
+              <div class="alert-subtext" id="drAlertSub">Operating within 1.1σ of 14-day rolling statistical baseline.</div>
             </div>
           </div>
-          <div class="alert-description" id="drawerAlertDesc">
-            Device health optimal. Voltage degradation is within 1.1σ of 14-day rolling baseline (12.2 mV/actuation).
+          <div class="alert-body-text" id="drAlertDesc">
+            Device health optimal. Voltage degradation is normal (12.2 mV/actuation).
           </div>
 
-          <!-- Auto-Routed JKH Facilities Work Order -->
-          <div id="drawerWorkOrder" class="work-order-ticket hidden">
-            <div class="ticket-header">
+          <!-- Auto-Generated Work Order -->
+          <div id="drWorkOrder" class="work-order-ticket hidden">
+            <div class="wo-title-row">
               <span>🎫 AUTO-ROUTED FACILITIES WORK ORDER</span>
-              <span class="ticket-id" id="drawerTicketId">WO-JKH-8492</span>
+              <span class="wo-id" id="drTicketId">WO-JKH-8492</span>
             </div>
-            <div class="ticket-body">
-              <div><strong>Assigned:</strong> JKH Facilities - Electrical & Access Engineering</div>
-              <div><strong>Target Device:</strong> Yale Smart Deadbolt #1402 (Tower 1)</div>
-              <div><strong>Priority:</strong> <span class="priority-urgent">HIGH / PREVENTIVE</span></div>
-              <div class="roi-highlight">Commercial Value: LKR 13,500 Saved (Emergency truck-roll avoided)</div>
+            <div class="wo-details">
+              <div><strong>Assigned:</strong> JKH Facilities - Electrical Engineering</div>
+              <div><strong>Priority:</strong> <span class="text-danger">HIGH / PREVENTIVE</span></div>
+              <div class="text-roi">Commercial Value: LKR 13,500 Saved (Emergency truck-roll avoided)</div>
             </div>
           </div>
         </div>
@@ -604,39 +442,35 @@
   </div>
 
   <!-- Modal: Issue New Pass -->
-  <div id="modalNewPass" class="modal-backdrop hidden" onclick="closePassModal(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-head">
-        <h3>Issue Delivery Access Pass</h3>
-        <button class="modal-x" onclick="closePassModal()">✕</button>
+  <div id="modalPass" class="drawer-backdrop hidden" onclick="closePassModal(event)">
+    <div class="modal-card-sm" onclick="event.stopPropagation()">
+      <div class="modal-header-sm">
+        <h4>Issue Single-Use Delivery Pass</h4>
+        <button class="btn-drawer-close" onclick="closePassModal()">✕</button>
       </div>
-      <div class="modal-body-form">
-        <label>Courier / Service Partner</label>
-        <select id="selPartner" class="form-ctrl">
-          <option value="Keells Super Express">Keells Super Express (Grocery Delivery)</option>
+      <div class="modal-inputs">
+        <label>Courier Service Partner</label>
+        <select id="selPartner" class="form-select">
+          <option value="Keells Super Express">Keells Super Express (Groceries)</option>
           <option value="PickMe Food">PickMe Food</option>
           <option value="Uber Eats">Uber Eats</option>
           <option value="DHL Keells">DHL Keells Logistics</option>
-          <option value="Guest Pass">Guest / Family Member</option>
         </select>
-
-        <label>Destination Unit</label>
-        <input type="text" class="form-ctrl" value="1402" readonly>
-
-        <label>Time-Window Duration</label>
-        <select id="selDuration" class="form-ctrl">
-          <option value="15">15 Minutes (Standard Delivery)</option>
+        <label>Pass Window</label>
+        <select id="selDuration" class="form-select">
+          <option value="15">15 Minutes (Single-Use)</option>
           <option value="30">30 Minutes</option>
           <option value="60">60 Minutes</option>
         </select>
       </div>
-      <div class="modal-foot">
-        <button class="btn-cancel" onclick="closePassModal()">Cancel</button>
-        <button class="btn-confirm" onclick="confirmIssuePass()">Generate Pass</button>
+      <div class="modal-foot-sm">
+        <button class="btn-secondary-sm" onclick="closePassModal()">Cancel</button>
+        <button class="btn-primary-sm" onclick="confirmIssuePass()">Generate Pass</button>
       </div>
     </div>
   </div>
 
+  <script src="twinCanvas.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

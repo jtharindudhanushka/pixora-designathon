@@ -1,18 +1,20 @@
 // ==========================================================================
-// TRI-ZEN OS — 3-Pane Digital Twin Simulation Logic
-// Seamless physical-digital coordination across Rider, Blueprint, and Resident
+// TRI-ZEN OS — 3D Documentary Digital Twin Coordination Engine
+// Synchronizes Rider QR, Cinematic Architectural Canvas, and Maya's Living App
 // ==========================================================================
 
 let ws;
+let currentPassId = null;
 let activePasses = [];
 let unitDevices = {};
-let latestAiReport = null;
-let currentPassId = null;
+let isSequencePlaying = false;
+let sequenceTimer = null;
+let currentPlaybackStage = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
   initWebSocket();
   fetchInitialData();
-  startRiderCountdownTicker();
+  startPassCountdownTimer();
 });
 
 // --------------------------------------------------------------------------
@@ -26,7 +28,6 @@ function initWebSocket() {
 
   ws.onopen = () => {
     console.log('[WebSocket] Connected to TRI-ZEN real-time hardware stream.');
-    document.getElementById('mqttStatusLabel').innerText = 'MQTT Bus: Port 1883 Active';
   };
 
   ws.onmessage = (event) => {
@@ -39,8 +40,7 @@ function initWebSocket() {
   };
 
   ws.onclose = () => {
-    document.getElementById('mqttStatusLabel').innerText = 'Reconnecting to Bus...';
-    setTimeout(initWebSocket, 2000);
+    setTimeout(initWebSocket, 2500);
   };
 }
 
@@ -49,10 +49,18 @@ function handleLiveHardwareEvent(packet) {
 
   switch (type) {
     case 'TURNSTILE_STATE':
-      updateBlueprintTurnstile(data);
+      if (data.relayClosed && window.twinRenderer) {
+        window.twinRenderer.targetTurnstileOpen = 1.0;
+      }
       break;
     case 'ELEVATOR_STATE':
-      updateBlueprintElevator(data);
+      if (window.twinRenderer) {
+        if (data.status === 'TRANSIT_ASCENDING') {
+          window.twinRenderer.targetCabinY = 0.6;
+        } else if (data.status === 'ARRIVED_DESTINATION') {
+          window.twinRenderer.targetCabinY = 1.0;
+        }
+      }
       break;
     case 'LOCK_TELEMETRY':
       updateAiTelemetryUI(data);
@@ -60,15 +68,11 @@ function handleLiveHardwareEvent(packet) {
     case 'AI_ALERT':
       updateAiAlertUI(data);
       break;
-    case 'PASS_ISSUED':
-    case 'DELIVERY_ENTRY_HANDSHAKE':
-      fetchPasses();
-      break;
     case 'DEVICE_STATE_CHANGED':
       fetchDevices();
       break;
     case 'RAW_MQTT_PACKET':
-      appendBlueprintMqttPacket(data);
+      appendMqttHudEntry(data);
       break;
   }
 }
@@ -88,17 +92,14 @@ async function fetchPasses() {
     const data = await res.json();
     if (data.success && data.passes.length > 0) {
       activePasses = data.passes;
-      const primaryPass = activePasses.find((p) => p.status === 'ACTIVE') || activePasses[0];
-      currentPassId = primaryPass.passId;
+      const primary = activePasses.find((p) => p.status === 'ACTIVE') || activePasses[0];
+      currentPassId = primary.passId;
 
-      // Update Rider pane
-      document.getElementById('riderPartnerName').innerText = primaryPass.partner;
-      document.getElementById('resCourierName').innerText = primaryPass.partner;
-
-      if (primaryPass.status === 'USED') {
-        setStepperStage(4);
-      } else {
-        setStepperStage(1);
+      if (primary.status === 'USED') {
+        document.getElementById('courierPassStatus').innerText = 'CONSUMED';
+        document.getElementById('courierPassStatus').style.background = 'rgba(59, 130, 246, 0.2)';
+        document.getElementById('courierPassStatus').style.color = 'var(--accent-blue)';
+        jumpToStage(4);
       }
     }
   } catch (err) {
@@ -133,17 +134,116 @@ async function fetchTelemetry() {
 }
 
 // --------------------------------------------------------------------------
-// PANE 1 & PANE 2: Courier Scan & Blueprint Physical Animation
+// Cinematic Documentary Playback Controller
 // --------------------------------------------------------------------------
-async function triggerLobbyScan() {
-  if (!currentPassId) {
-    alert('No active delivery pass found. Tap "+ Issue Pass" on Maya\'s app.');
-    return;
+function togglePlaySequence() {
+  if (isSequencePlaying) {
+    stopSequencePlayback();
+  } else {
+    startSequencePlayback();
+  }
+}
+
+function startSequencePlayback() {
+  isSequencePlaying = true;
+  document.getElementById('playIcon').innerText = '⏸';
+  document.getElementById('playLabel').innerText = 'Pause Sequence';
+
+  // Step 1: Gate Arrival
+  jumpToStage(1);
+
+  // Step 2: Handshake at Gate (after 2.5s)
+  sequenceTimer = setTimeout(() => {
+    triggerHandshakeScan();
+
+    // Step 3: Elevator Transit (after 4s)
+    sequenceTimer = setTimeout(() => {
+      jumpToStage(3);
+
+      // Step 4: Residence 1402 Delivery (after 4.5s)
+      sequenceTimer = setTimeout(() => {
+        jumpToStage(4);
+        stopSequencePlayback();
+      }, 4500);
+    }, 4000);
+  }, 2500);
+}
+
+function stopSequencePlayback() {
+  isSequencePlaying = false;
+  if (sequenceTimer) clearTimeout(sequenceTimer);
+  document.getElementById('playIcon').innerText = '▶';
+  document.getElementById('playLabel').innerText = 'Play Simulation';
+}
+
+function jumpToStage(stage) {
+  currentPlaybackStage = stage;
+
+  // 1. Update Timeline Stepper Buttons
+  for (let i = 1; i <= 4; i++) {
+    const btn = document.getElementById(`tNode${i}`);
+    if (btn) {
+      if (i <= stage) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
   }
 
-  const feedbackBanner = document.getElementById('gateScanFeedback');
-  const feedbackTitle = document.getElementById('feedbackTitle');
-  const feedbackSub = document.getElementById('feedbackSub');
+  // 2. Update Maya's App Delivery Stepper
+  updateResidentStepper(stage);
+
+  // 3. Update 3D Architectural Canvas
+  if (window.twinRenderer) {
+    window.twinRenderer.setStage(stage);
+  }
+}
+
+function updateResidentStepper(stage) {
+  const s1 = document.getElementById('stNode1');
+  const s2 = document.getElementById('stNode2');
+  const s3 = document.getElementById('stNode3');
+  const s4 = document.getElementById('stNode4');
+  const b1 = document.getElementById('stBar1');
+  const b2 = document.getElementById('stBar2');
+  const b3 = document.getElementById('stBar3');
+  const badge = document.getElementById('dtBadge');
+  const sub = document.getElementById('dtSubtext');
+
+  [s1, s2, s3, s4].forEach((s) => s && (s.className = 'st-node'));
+  [b1, b2, b3].forEach((b) => b && (b.className = 'st-bar'));
+
+  if (stage >= 1) s1.className = 'st-node completed';
+  if (stage >= 2) {
+    b1.className = 'st-bar completed';
+    s2.className = 'st-node completed';
+    sub.innerText = 'Courier scanned at Lobby Gate 1';
+  }
+  if (stage >= 3) {
+    b2.className = 'st-bar completed';
+    s3.className = 'st-node completed';
+    sub.innerText = 'Courier in Lift Bank A (Floor 8... 14)';
+  }
+  if (stage >= 4) {
+    b3.className = 'st-bar completed';
+    s4.className = 'st-node completed';
+    badge.innerText = 'Delivered';
+    badge.style.background = '#E8F0FE';
+    badge.style.color = '#1A73E8';
+    sub.innerText = 'Package dropped at Residence 1402 doorstep';
+  }
+}
+
+// --------------------------------------------------------------------------
+// Cryptographic Pass Scan Action
+// --------------------------------------------------------------------------
+async function triggerHandshakeScan() {
+  if (!currentPassId) {
+    alert('No active pass. Issuing new pass...');
+    await confirmIssuePass();
+  }
+
+  const alertBox = document.getElementById('scanResultAlert');
+  const title = document.getElementById('scanAlertTitle');
+  const sub = document.getElementById('scanAlertSub');
 
   try {
     const res = await fetch('/api/passes/validate-entry', {
@@ -153,243 +253,121 @@ async function triggerLobbyScan() {
     });
 
     const data = await res.json();
-
-    feedbackBanner.classList.remove('hidden');
+    alertBox.classList.remove('hidden');
 
     if (data.success) {
-      // Success: Turnstile authorized
-      feedbackBanner.className = 'scan-feedback-banner';
-      feedbackTitle.innerText = 'Access Granted (Gate 1)';
-      feedbackSub.innerText = 'Turnstile 1 unlocked. Mitsubishi Lift A dispatched to Floor 14.';
+      alertBox.className = 'scan-result-box';
+      title.innerText = 'Access Granted (Gate 1)';
+      sub.innerText = 'Turnstile 1 relay energized. Solenoid released for 8s.';
 
-      // Advance Resident Stepper to "At Gate"
-      setStepperStage(2);
+      jumpToStage(2);
 
-      // Trigger Blueprint hardware animations
-      animateBlueprintHandshake();
+      // Auto-transition to lift and doorstep
+      setTimeout(() => {
+        jumpToStage(3);
+        setTimeout(() => jumpToStage(4), 3800);
+      }, 3000);
 
-      document.getElementById('riderPassBadge').innerText = 'CONSUMED';
-      document.getElementById('riderPassBadge').style.background = 'rgba(59, 130, 246, 0.2)';
-      document.getElementById('riderPassBadge').style.color = 'var(--status-accent)';
+      document.getElementById('courierPassStatus').innerText = 'CONSUMED';
+      document.getElementById('courierPassStatus').style.background = 'rgba(59, 130, 246, 0.2)';
+      document.getElementById('courierPassStatus').style.color = 'var(--accent-blue)';
     } else {
-      // Replay Attack or Expired
-      feedbackBanner.className = 'scan-feedback-banner feedback-rejected';
-      feedbackTitle.innerText = 'Access Denied / Replay Alert';
-      feedbackSub.innerText = data.error || 'Token has already been consumed.';
+      alertBox.className = 'scan-result-box danger';
+      title.innerText = 'Access Denied (Replay Defense)';
+      sub.innerText = data.error || 'Token already consumed. Replay rejected.';
     }
   } catch (err) {
-    console.error('Handshake API error:', err);
-  }
-}
-
-function animateBlueprintHandshake() {
-  const armLeft = document.getElementById('armLeft');
-  const armRight = document.getElementById('armRight');
-  const opticalBeam = document.getElementById('opticalBeam');
-  const zoneLobby = document.getElementById('zoneLobby');
-  const bpLedRelay = document.getElementById('bpLedRelay');
-  const bpRelayState = document.getElementById('bpRelayState');
-  const bpCabin = document.getElementById('blueprintCabin');
-  const bpCabinFloor = document.getElementById('bpCabinFloor');
-  const zoneFloor14 = document.getElementById('zoneFloor14');
-
-  // 1. Turnstile Relay Energizes (0s - 3s)
-  zoneLobby.classList.add('zone-active');
-  bpLedRelay.className = 'chip-led led-green';
-  bpRelayState.innerText = 'ENERGIZED (12V)';
-  armLeft.classList.add('retracted');
-  armRight.classList.add('retracted');
-  opticalBeam.classList.add('beam-broken');
-
-  // 2. Courier passes optical sensor, boards elevator (3.5s)
-  setTimeout(() => {
-    bpRelayState.innerText = 'PASSAGE DETECTED';
-    setStepperStage(3); // Elevator Ascending
-    document.getElementById('resDeliveryStatusSub').innerText = 'Courier in Lift Bank A (Floor 4... 14)';
-
-    // Cabin leaves Ground and ascends
-    bpCabin.classList.add('cabin-traveling');
-    bpCabinFloor.innerText = 'ASCENDING (FL 4)';
-    bpCabin.style.bottom = '35%';
-
-    // Relock turnstile
-    setTimeout(() => {
-      armLeft.classList.remove('retracted');
-      armRight.classList.remove('retracted');
-      opticalBeam.classList.remove('beam-broken');
-      zoneLobby.classList.remove('zone-active');
-      bpLedRelay.className = 'chip-led';
-      bpRelayState.innerText = 'LOCKED';
-    }, 2000);
-
-    // 3. Cabin reaches Floor 14 (7s)
-    setTimeout(() => {
-      bpCabin.style.bottom = '78%';
-      bpCabinFloor.innerText = 'FLOOR 14 (DOORS OPEN)';
-      zoneFloor14.classList.add('zone-active');
-      setStepperStage(4); // Doorstep
-      document.getElementById('resDeliveryStatusSub').innerText = 'Courier arrived at Floor 14 corridor';
-
-      setTimeout(() => {
-        bpCabin.classList.remove('cabin-traveling');
-        zoneFloor14.classList.remove('zone-active');
-      }, 5000);
-    }, 3500);
-
-  }, 3500);
-}
-
-function updateBlueprintTurnstile(data) {
-  const bpLedRelay = document.getElementById('bpLedRelay');
-  const bpLedOptical = document.getElementById('bpLedOptical');
-  const bpRelayState = document.getElementById('bpRelayState');
-  const bpOpticalState = document.getElementById('bpOpticalState');
-
-  bpRelayState.innerText = data.relayClosed ? 'ENERGIZED' : 'LOCKED';
-  bpLedRelay.className = data.relayClosed ? 'chip-led led-green' : 'chip-led';
-
-  bpOpticalState.innerText = data.opticalSensorTriggered ? 'BEAM BROKEN' : 'STANDBY';
-  bpLedOptical.className = data.opticalSensorTriggered ? 'chip-led led-blue' : 'chip-led';
-}
-
-function updateBlueprintElevator(data) {
-  const bpCabin = document.getElementById('blueprintCabin');
-  const bpCabinFloor = document.getElementById('bpCabinFloor');
-
-  if (data.status === 'TRANSIT_ASCENDING') {
-    bpCabinFloor.innerText = `ASCENDING (FL ${data.currentFloor})`;
-    bpCabin.classList.add('cabin-traveling');
-  } else if (data.status === 'ARRIVED_DESTINATION') {
-    bpCabinFloor.innerText = `FLOOR ${data.currentFloor} (DOORS OPEN)`;
-    bpCabin.classList.remove('cabin-traveling');
-  } else {
-    bpCabinFloor.innerText = `FLOOR ${data.currentFloor} (${data.status})`;
+    console.error('Scan error:', err);
   }
 }
 
 // --------------------------------------------------------------------------
-// PANE 3: Resident Stepper & Device Controls
+// Maya's Resident Device Controls
 // --------------------------------------------------------------------------
-function setStepperStage(stage) {
-  const s1 = document.getElementById('step1');
-  const s2 = document.getElementById('step2');
-  const s3 = document.getElementById('step3');
-  const s4 = document.getElementById('step4');
-  const c1 = document.getElementById('conn1');
-  const c2 = document.getElementById('conn2');
-  const c3 = document.getElementById('conn3');
-
-  // Reset
-  [s1, s2, s3, s4].forEach((s) => (s.className = 'step-node'));
-  [c1, c2, c3].forEach((c) => (c.className = 'step-connector'));
-
-  if (stage >= 1) s1.className = 'step-node completed';
-  if (stage >= 2) {
-    c1.className = 'step-connector completed';
-    s2.className = 'step-node completed';
-  }
-  if (stage >= 3) {
-    c2.className = 'step-connector completed';
-    s3.className = 'step-node completed';
-  }
-  if (stage >= 4) {
-    c3.className = 'step-connector completed';
-    s4.className = 'step-node completed';
-    document.getElementById('resDeliveryBadge').innerText = 'Delivered';
-    document.getElementById('resDeliveryBadge').style.background = '#E8F0FE';
-    document.getElementById('resDeliveryBadge').style.color = '#1A73E8';
-  }
-}
-
 function renderResidentDevices() {
   if (!unitDevices) return;
 
   // Front Door
   const door = unitDevices.frontDoor;
-  const tileDoor = document.getElementById('tileDoor');
-  const tagDoor = document.getElementById('tileDoorTag');
-  const statDoor = document.getElementById('resDoorLockState');
-  const bpDoorTag = document.getElementById('bpDoorTag');
+  const tileDoor = document.getElementById('mTileDoor');
+  const tagDoor = document.getElementById('mDoorTag');
+  const statDoor = document.getElementById('resDoorState');
 
   if (door && tileDoor && tagDoor) {
     const isLocked = door.state === 'LOCKED';
-    tileDoor.className = `device-tile-card ${isLocked ? 'tile-black' : 'tile-white'}`;
+    tileDoor.className = `m-tile ${isLocked ? 'tile-dark' : 'tile-light'}`;
     tagDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
-    tagDoor.style.color = isLocked ? 'var(--status-success)' : 'var(--status-danger)';
+    tagDoor.style.color = isLocked ? 'var(--accent-green)' : 'var(--accent-red)';
     if (statDoor) statDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
-    if (bpDoorTag) bpDoorTag.innerText = isLocked ? 'DOOR LOCKED' : 'DOOR UNLOCKED';
   }
 
   // Living Room AC
   const ac = unitDevices.livingRoomAc;
-  const tileAc = document.getElementById('tileAc');
-  const valAc = document.getElementById('resAcTemp');
-  const subAc = document.getElementById('resAcModeSub');
+  const tileAc = document.getElementById('mTileAc');
+  const valAc = document.getElementById('mAcVal');
+  const subAc = document.getElementById('mAcSub');
   const statTemp = document.getElementById('resInsideTemp');
 
   if (ac && tileAc && valAc) {
     const isOn = ac.state === 'ON';
-    tileAc.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
+    tileAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
     valAc.innerText = `${ac.temp}°C`;
-    subAc.innerText = isOn ? 'Cool · Eco Mode' : 'Off';
+    subAc.innerText = isOn ? 'Cool · Eco' : 'Off';
     if (statTemp) statTemp.innerText = `${ac.temp}°C`;
   }
 
   // Guest Lights
   const lights = unitDevices.guestRoomLights;
-  const switchLights = document.getElementById('switchLights');
-  const tileLights = document.getElementById('tileLights');
-  const subLights = document.getElementById('resLightsSub');
+  const switchLights = document.getElementById('mSwitchLights');
+  const tileLights = document.getElementById('mTileLights');
+  const subLights = document.getElementById('mLightsSub');
 
   if (lights && switchLights && tileLights) {
     const isOn = lights.state === 'ON';
     switchLights.checked = isOn;
-    tileLights.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
+    tileLights.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
     subLights.innerText = isOn ? 'On · 80%' : 'Off';
   }
 
   // Guest AC
   const guestAc = unitDevices.guestRoomAc;
-  const switchGuestAc = document.getElementById('switchGuestAc');
-  const tileGuestAc = document.getElementById('tileGuestAc');
-  const subGuestAc = document.getElementById('resGuestAcSub');
+  const switchGuestAc = document.getElementById('mSwitchGuestAc');
+  const tileGuestAc = document.getElementById('mTileGuestAc');
+  const subGuestAc = document.getElementById('mGuestAcSub');
 
   if (guestAc && switchGuestAc && tileGuestAc) {
     const isOn = guestAc.state === 'ON';
     switchGuestAc.checked = isOn;
-    tileGuestAc.className = `device-tile-card ${isOn ? 'tile-black' : 'tile-white'}`;
+    tileGuestAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
     subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°C` : 'Off';
   }
 
-  // Count active devices
+  // Active count
   let count = 0;
   if (door?.state === 'LOCKED') count++;
   if (ac?.state === 'ON') count++;
   if (lights?.state === 'ON') count++;
   if (guestAc?.state === 'ON') count++;
-  document.getElementById('resActiveDevices').innerText = `${count} Devices`;
+  document.getElementById('resActiveCount').innerText = `${count} Devices`;
 }
 
 async function toggleFrontDoor() {
-  const currentState = unitDevices.frontDoor?.state || 'LOCKED';
-  const newState = currentState === 'LOCKED' ? 'UNLOCKED' : 'LOCKED';
-
+  const state = unitDevices.frontDoor?.state === 'LOCKED' ? 'UNLOCKED' : 'LOCKED';
   await fetch('/api/devices/front-door/control', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ state: newState }),
+    body: JSON.stringify({ state }),
   });
   fetchDevices();
 }
 
-async function stepAc(delta) {
-  const currentTemp = unitDevices.livingRoomAc?.temp || 23;
-  const target = Math.max(18, Math.min(28, currentTemp + delta));
-
+async function stepAcTemp(delta) {
+  const cur = unitDevices.livingRoomAc?.temp || 23;
+  const temp = Math.max(18, Math.min(28, cur + delta));
   await fetch('/api/devices/living-ac/control', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ temp: target, state: 'ON' }),
+    body: JSON.stringify({ temp, state: 'ON' }),
   });
   fetchDevices();
 }
@@ -425,14 +403,14 @@ async function toggleGuestAc() {
 }
 
 // --------------------------------------------------------------------------
-// Natural Language AI Input Bar ("Tell your home what you need…")
+// Natural Language AI Input
 // --------------------------------------------------------------------------
-function handleResidentAiKey(e) {
-  if (e.key === 'Enter') submitResidentAi();
+function handleAiInputKey(e) {
+  if (e.key === 'Enter') sendAiCommand();
 }
 
-async function submitResidentAi() {
-  const input = document.getElementById('residentAiInput');
+async function sendAiCommand() {
+  const input = document.getElementById('mAiInput');
   const query = input.value.trim();
   if (!query) return;
 
@@ -445,7 +423,7 @@ async function submitResidentAi() {
 
     const data = await res.json();
     if (data.success) {
-      showResidentToast(`✨ ${data.result.responseMessage}`);
+      showToast(`✦ ${data.result.responseMessage}`);
       input.value = '';
       fetchDevices();
       fetchPasses();
@@ -455,23 +433,23 @@ async function submitResidentAi() {
   }
 }
 
-function showResidentToast(msg) {
-  const toast = document.getElementById('residentAiToast');
+function showToast(msg) {
+  const toast = document.getElementById('mAiToast');
   toast.innerText = msg;
   toast.classList.remove('hidden');
   setTimeout(() => toast.classList.add('hidden'), 5000);
 }
 
-function focusResidentAi() {
-  const input = document.getElementById('residentAiInput');
+function focusAiInput() {
+  const input = document.getElementById('mAiInput');
   input.focus();
-  input.placeholder = 'e.g. Prep home for Keells delivery or Turn off ACs...';
+  input.placeholder = 'e.g. Issue Keells pass or Turn off all ACs...';
 }
 
 // --------------------------------------------------------------------------
-// PANE 1: Rider Countdown Progress
+// Pass Countdown Ticker
 // --------------------------------------------------------------------------
-function startRiderCountdownTicker() {
+function startPassCountdownTimer() {
   setInterval(() => {
     if (activePasses.length === 0) return;
     const pass = activePasses[0];
@@ -480,102 +458,93 @@ function startRiderCountdownTicker() {
     const mins = Math.floor(remainingMs / 60000);
     const secs = Math.floor((remainingMs % 60000) / 1000);
 
-    const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    document.getElementById('riderRemainingTime').innerText = timeStr;
-
-    const total = pass.expiresAt - pass.issuedAt;
-    const elapsed = now - pass.issuedAt;
-    const percent = Math.min(100, Math.max(0, (elapsed / total) * 100));
-    document.getElementById('riderProgressFill').style.width = `${percent}%`;
+    const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs} min remaining`;
+    const el = document.getElementById('passCountdownVal');
+    if (el) el.innerText = timeStr;
   }, 1000);
 }
 
 // --------------------------------------------------------------------------
-// PANE 2: Live MQTT Packet Stream Terminal
+// Hardware MQTT HUD Feed
 // --------------------------------------------------------------------------
-function appendBlueprintMqttPacket(packet) {
-  const terminal = document.getElementById('bpMqttTerminal');
-  if (!terminal) return;
+function appendMqttHudEntry(packet) {
+  const feed = document.getElementById('mqttHudFeed');
+  if (!feed) return;
 
-  const row = document.createElement('div');
-  row.className = 'terminal-row';
+  const entry = document.createElement('div');
+  entry.className = 'feed-entry';
 
   const d = new Date(packet.timestamp || Date.now());
   const timeStr = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
 
-  row.innerHTML = `
-    <span class="term-time">${timeStr}</span>
-    <span class="term-topic">${packet.topic}</span>
-    <span class="term-msg">${packet.rawPayload}</span>
+  entry.innerHTML = `
+    <span class="time">${timeStr}</span>
+    <span class="topic">${packet.topic}</span>
+    <span class="payload">${packet.rawPayload}</span>
   `;
 
-  terminal.prepend(row);
+  feed.prepend(entry);
 
-  while (terminal.children.length > 40) {
-    terminal.removeChild(terminal.lastChild);
+  while (feed.children.length > 25) {
+    feed.removeChild(feed.lastChild);
   }
 }
 
 // --------------------------------------------------------------------------
-// FACILITIES & AI PREDICTIVE DRAWER
+// Facilities & AI Drawer
 // --------------------------------------------------------------------------
-function toggleFacilitiesDrawer() {
-  const drawer = document.getElementById('facilitiesDrawer');
+function toggleAiDrawer() {
+  const drawer = document.getElementById('aiDrawer');
   drawer.classList.toggle('hidden');
 }
 
 function updateAiTelemetryUI(telemetry) {
-  const voltEl = document.getElementById('drawerVoltage');
-  const barEl = document.getElementById('drawerVoltsBar');
-  if (voltEl) voltEl.innerText = `${telemetry.voltage_mv} mV`;
+  const v = document.getElementById('drVoltage');
+  const bar = document.getElementById('drVoltsBar');
+  if (v) v.innerText = `${telemetry.voltage_mv} mV`;
 
-  if (barEl) {
-    const percent = Math.min(100, Math.max(0, ((telemetry.voltage_mv - 4100) / (6000 - 4100)) * 100));
-    barEl.style.width = `${percent}%`;
+  if (bar) {
+    const pct = Math.min(100, Math.max(0, ((telemetry.voltage_mv - 4100) / (6000 - 4100)) * 100));
+    bar.style.width = `${pct}%`;
   }
 }
 
 function updateAiAlertUI(report) {
-  latestAiReport = report;
-
-  const dropEl = document.getElementById('drawerDropRate');
-  const zEl = document.getElementById('drawerZscore');
-  const statusEl = document.getElementById('drawerStatusTag');
-  const card = document.getElementById('drawerAlertCard');
-  const icon = document.getElementById('drawerAlertIcon');
-  const title = document.getElementById('drawerAlertTitle');
-  const desc = document.getElementById('drawerAlertDesc');
-  const wo = document.getElementById('drawerWorkOrder');
+  const drop = document.getElementById('drDropRate');
+  const z = document.getElementById('drZscore');
+  const status = document.getElementById('drStatusTag');
+  const card = document.getElementById('drAlertCard');
+  const icon = document.getElementById('drAlertIcon');
+  const title = document.getElementById('drAlertTitle');
+  const desc = document.getElementById('drAlertDesc');
+  const wo = document.getElementById('drWorkOrder');
   const btnInject = document.getElementById('btnDrawerInject');
-  const pulse = document.getElementById('aiDrawerPulse');
 
-  if (!dropEl) return;
+  if (!drop) return;
 
-  dropEl.innerText = `${report.currentDropRate} mV/act`;
-  zEl.innerText = `${report.zScore} σ`;
-  statusEl.innerText = report.status;
+  drop.innerText = `${report.currentDropRate} mV/act`;
+  z.innerText = `${report.zScore} σ`;
+  status.innerText = report.status;
 
   if (report.isAnomaly) {
-    statusEl.className = 'unit-status-green unit-status-red';
-    card.className = 'explainable-alert-card anomaly-state';
+    status.className = 'tag-status-green tag-status-red';
+    card.className = 'alert-box-card anomaly';
     icon.innerText = '!';
     title.innerText = 'CRITICAL ANOMALY: Cell Short-Circuit';
     desc.innerText = report.explainabilityText;
     wo.classList.remove('hidden');
     if (report.workOrder) {
-      document.getElementById('drawerTicketId').innerText = report.workOrder.ticketId;
+      document.getElementById('drTicketId').innerText = report.workOrder.ticketId;
     }
-    btnInject.innerText = '✓ Reset Battery to Normal Healthy Baseline';
-    if (pulse) pulse.style.background = 'var(--status-danger)';
+    btnInject.innerText = '✓ Reset Battery to Normal Baseline';
   } else {
-    statusEl.className = 'unit-status-green';
-    card.className = 'explainable-alert-card normal-state';
+    status.className = 'tag-status-green';
+    card.className = 'alert-box-card normal';
     icon.innerText = '✓';
     title.innerText = 'Health Optimal: Lock #1402';
     desc.innerText = report.explainabilityText;
     wo.classList.add('hidden');
-    btnInject.innerText = '⚠️ Inject Accelerated Battery Short-Circuit (~42 mV/actuation)';
-    if (pulse) pulse.style.background = 'var(--status-success)';
+    btnInject.innerText = '⚠️ Inject Battery Cell Degradation (~42 mV/actuation)';
   }
 }
 
@@ -598,18 +567,18 @@ async function applyManualOverride() {
   });
   const data = await res.json();
   updateAiAlertUI(data.aiAnalysis);
-  alert('1-Tap Override Applied: Tolerance threshold widened without compromising security.');
+  alert('1-Tap Override Applied: Tolerance threshold widened by 1.8x.');
 }
 
 // --------------------------------------------------------------------------
 // Modal Pass Creation
 // --------------------------------------------------------------------------
 function openPassModal() {
-  document.getElementById('modalNewPass').classList.remove('hidden');
+  document.getElementById('modalPass').classList.remove('hidden');
 }
 
 function closePassModal() {
-  document.getElementById('modalNewPass').classList.add('hidden');
+  document.getElementById('modalPass').classList.add('hidden');
 }
 
 async function confirmIssuePass() {
@@ -626,7 +595,6 @@ async function confirmIssuePass() {
   if (data.success) {
     closePassModal();
     fetchPasses();
-    document.getElementById('riderPartnerName').innerText = partner;
-    document.getElementById('resCourierName').innerText = partner;
+    jumpToStage(1);
   }
 }
