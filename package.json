@@ -1,0 +1,42 @@
+{
+  "name": "trizen-smart-living-platform",
+  "version": "1.0.0",
+  "description": "TRI-ZEN OS: Integrated Smart Living Platform by John Keells Properties - Developed by Team Pixora",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc",
+    "test:flow": "tsx tests/verifyFlow.ts"
+  },
+  "keywords": [
+    "tri-zen",
+    "john-keells-properties",
+    "smart-building",
+    "mqtt",
+    "iot",
+    "ai-predictive-maintenance",
+    "rbac"
+  ],
+  "author": "Team Pixora",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "aedes": "^0.51.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mqtt": "^5.10.4",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.13.9",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.5.14",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
