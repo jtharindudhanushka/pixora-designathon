@@ -172,7 +172,22 @@
 
       <!-- Canvas Viewport for 3D Documentary Rendering -->
       <div class="blueprint-canvas-container">
+        <!-- Floating Camera Presets Bar -->
+        <div class="camera-toolbar" id="cameraToolbar">
+          <button class="cam-btn active" id="btnCamAuto" onclick="selectCameraPreset('auto')" title="Auto-direct camera based on simulation stage">🎥 Auto Director</button>
+          <button class="cam-btn" id="btnCamTower" onclick="selectCameraPreset('tower')" title="Full 53-Storey High-Rise View">🏛 Tower</button>
+          <button class="cam-btn" id="btnCamLobby" onclick="selectCameraPreset('lobby')" title="Ground Lobby and Turnstiles">🚪 Lobby</button>
+          <button class="cam-btn" id="btnCamLift" onclick="selectCameraPreset('lift')" title="High-Speed Mitsubishi Elevator Core">🛗 Lift Core</button>
+          <button class="cam-btn" id="btnCamResidence" onclick="selectCameraPreset('residence')" title="Floor 14 Unit 1402 Cutaway Suite">🏠 Unit 1402</button>
+        </div>
+
         <canvas id="twinCanvas" width="900" height="620"></canvas>
+
+        <!-- Live Delivery Unit 1402 Destination Badge -->
+        <div class="unit-callout-badge" id="unitCalloutBadge">
+          <span class="callout-pulse"></span>
+          <span class="callout-text">DESTINATION: UNIT 1402 · MAYA</span>
+        </div>
         <div class="canvas-overlay-guide" id="canvasOverlayGuide">
           <div class="overlay-stage-tag" id="overlayStageTag">STAGE 1: COURIER ARRIVAL AT LOBBY PERIMETER</div>
           <div class="overlay-stage-desc" id="overlayStageDesc">Awaiting cryptographic token verification at Union Place turnstile...</div>

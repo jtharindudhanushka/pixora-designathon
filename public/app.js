@@ -268,6 +268,7 @@ function togglePlaySequence() {
 }
 
 async function startSequencePlayback() {
+  selectCameraPreset('auto');
   if (!currentPassId) {
     await confirmIssuePass({ silent: true });
   }
@@ -843,3 +844,26 @@ async function confirmIssuePass(options) {
 function sharePassOption(channel) {
   showToast(`✦ Pass link shared via ${channel}.`);
 }
+
+// --------------------------------------------------------------------------
+// 3D Digital Twin Camera View Switcher
+// --------------------------------------------------------------------------
+function selectCameraPreset(preset) {
+  const btns = ['btnCamAuto', 'btnCamTower', 'btnCamLobby', 'btnCamLift', 'btnCamResidence'];
+  btns.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+
+  const activeId = preset === 'auto' ? 'btnCamAuto' :
+                   preset === 'tower' ? 'btnCamTower' :
+                   preset === 'lobby' ? 'btnCamLobby' :
+                   preset === 'lift' ? 'btnCamLift' : 'btnCamResidence';
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) activeEl.classList.add('active');
+
+  if (window.twinRenderer) {
+    window.twinRenderer.setCameraPreset(preset);
+  }
+}
+window.selectCameraPreset = selectCameraPreset;
