@@ -1472,14 +1472,20 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   max-height: 88vh;
   background: #FFFFFF;
   border-radius: 28px;
-  overflow: hidden;
   margin: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
+  /* The shell itself is the scroll container — a step's own overflow-y
+     would need a bounded height to ever activate, which a flex child
+     without min-height:0 never gets, silently clipping (and making
+     unclickable) any content past 88vh. Scrolling one level up avoids
+     that trap entirely. */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.pass-step { display: flex; flex-direction: column; overflow-y: auto; }
+.pass-step { display: flex; flex-direction: column; }
 .pass-step.hidden { display: none; }
 
 .pf-hero {
