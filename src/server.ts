@@ -31,6 +31,7 @@ async function bootstrap() {
   const httpServer = createServer(app);
 
   app.use(express.json());
+  app.use(express.static(path.join(process.cwd(), 'public')));
   app.use(express.static(path.join(__dirname, 'public')));
 
   // 3. Initialize Realtime WebSocket Hub

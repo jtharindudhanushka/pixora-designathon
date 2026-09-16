@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRI-ZEN OS | Architectural Digital Twin & Frictionless Handshake</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Executive Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <div class="jkh-pill">JKH</div>
+      <div class="nav-title-group">
+        <div class="nav-title">
+          <span>TRI-ZEN OS</span>
+          <span class="tag-blueprint">3D ARCHITECTURAL TWIN</span>
+        </div>
+        <div class="nav-sub">John Keells Properties · Union Place, Colombo 02 · Tower 1 (53 Storeys)</div>
+      </div>
+    </div>
+
+    <div class="nav-center">
+      <!-- Cinematic Timeline Stepper -->
+      <div class="playback-bar">
+        <button id="btnPlaySequence" class="btn-playback-play" onclick="togglePlaySequence()">
+          <span id="playIcon">▶</span>
+          <span id="playLabel">Play Simulation</span>
+        </button>
+        <div class="timeline-nodes">
+          <button class="t-node active" id="tNode1" onclick="jumpToStage(1)">
+            <span class="t-dot"></span>
+            <span class="t-txt">1. Gate Arrival</span>
+          </button>
+          <div class="t-line" id="tLine1"></div>
+          <button class="t-node" id="tNode2" onclick="jumpToStage(2)">
+            <span class="t-dot"></span>
+            <span class="t-txt">2. Relay Unlock</span>
+          </button>
+          <div class="t-line" id="tLine2"></div>
+          <button class="t-node" id="tNode3" onclick="jumpToStage(3)">
+            <span class="t-dot"></span>
+            <span class="t-txt">3. Lift Transit</span>
+          </button>
+          <div class="t-line" id="tLine3"></div>
+          <button class="t-node" id="tNode4" onclick="jumpToStage(4)">
+            <span class="t-dot"></span>
+            <span class="t-txt">4. Unit 1402</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn-telemetry-pill" onclick="toggleAiDrawer()">
+        <span class="pulse-dot"></span>
+        <span>AI Predictive Health</span>
+      </button>
+      <div class="mqtt-badge">
+        <span class="status-indicator"></span>
+        <span>MQTT: 1883</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stage Workspace -->
+  <main class="viewport-stage">
+
+    <!-- LEFT PANEL: Courier Pass (Refined & Compact) -->
+    <aside class="panel-card courier-panel">
+      <div class="panel-tag">PERSPECTIVE: THE COURIER</div>
+      
+      <div class="courier-ticket">
+        <div class="ticket-header">
+          <div class="courier-brand">
+            <div class="brand-square">KS</div>
+            <div>
+              <div class="courier-title">Keells Super Express</div>
+              <div class="order-id">Order #JKH-5021 · Grocery</div>
+            </div>
+          </div>
+          <span class="token-status-pill" id="courierPassStatus">VALID</span>
+        </div>
+
+        <div class="route-box">
+          <div class="route-line"><span>Target:</span> <strong>Residence 1402 (Fl 14)</strong></div>
+          <div class="route-line"><span>Resident:</span> <strong>Maya Senanayake</strong></div>
+          <div class="route-line"><span>TTL:</span> <strong id="passCountdownVal">14:58 min remaining</strong></div>
+        </div>
+
+        <!-- Clean Compact QR Card -->
+        <div class="qr-box">
+          <div class="qr-frame">
+            <svg class="qr-vector" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#FFFFFF"/>
+              <!-- Finder 1 -->
+              <rect x="8" y="8" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="13" y="13" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="17" y="17" width="8" height="8" fill="#000"/>
+              <!-- Finder 2 -->
+              <rect x="66" y="8" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="71" y="13" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="75" y="17" width="8" height="8" fill="#000"/>
+              <!-- Finder 3 -->
+              <rect x="8" y="66" width="26" height="26" fill="#000" rx="3"/>
+              <rect x="13" y="71" width="16" height="16" fill="#FFF" rx="1"/>
+              <rect x="17" y="75" width="8" height="8" fill="#000"/>
+              <!-- Matrix -->
+              <rect x="42" y="12" width="6" height="6" fill="#000"/>
+              <rect x="52" y="12" width="6" height="6" fill="#000"/>
+              <rect x="42" y="24" width="6" height="6" fill="#000"/>
+              <rect x="52" y="32" width="6" height="6" fill="#000"/>
+              <rect x="12" y="44" width="6" height="6" fill="#000"/>
+              <rect x="28" y="44" width="6" height="6" fill="#000"/>
+              <rect x="44" y="44" width="6" height="6" fill="#000"/>
+              <rect x="60" y="44" width="6" height="6" fill="#000"/>
+              <rect x="76" y="44" width="6" height="6" fill="#000"/>
+              <rect x="44" y="60" width="6" height="6" fill="#000"/>
+              <rect x="60" y="68" width="6" height="6" fill="#000"/>
+              <rect x="76" y="68" width="6" height="6" fill="#000"/>
+              <rect x="44" y="76" width="6" height="6" fill="#000"/>
+              <rect x="84" y="84" width="6" height="6" fill="#000"/>
+            </svg>
+          </div>
+          <div class="pin-text">
+            <span>ONE-TIME DIGITAL PIN</span>
+            <strong>749 · 102</strong>
+          </div>
+        </div>
+
+        <!-- Scan Trigger Action -->
+        <button id="btnScanPass" class="btn-scan-trigger" onclick="triggerHandshakeScan()">
+          <span>Tap Gate 1 Turnstile Reader</span>
+        </button>
+
+        <div id="scanResultAlert" class="scan-result-box hidden">
+          <div class="res-title" id="scanAlertTitle">Access Granted</div>
+          <div class="res-sub" id="scanAlertSub">Turnstile 1 unlocked. Solenoid energized for 8s.</div>
+        </div>
+      </div>
+
+      <!-- Quick Issue Pass Button -->
+      <button class="btn-issue-aux" onclick="openPassModal()">+ Issue Another Delivery Pass</button>
+    </aside>
+
+    <!-- CENTER PANEL: 3D DOCUMENTARY ARCHITECTURAL CANVAS -->
+    <section class="blueprint-center-stage">
+      <div class="canvas-header-bar">
+        <div class="canvas-title-wrap">
+          <span class="hud-eyebrow">TOWER 1 VERTICAL SLICE SCHEMATIC</span>
+          <div class="hud-coords">COLOMBO 02 · 6.9182° N, 79.8543° E · ELEV: 168m</div>
+        </div>
+        <div class="hud-telemetry-readouts">
+          <div class="hud-val-box">
+            <span class="hud-label">TURNSTILE RELAY</span>
+            <span class="hud-value" id="hudRelay">LOCKED (0V)</span>
+          </div>
+          <div class="hud-val-box">
+            <span class="hud-label">LIFT A ELEVATION</span>
+            <span class="hud-value" id="hudLift">FL 00 (LOBBY)</span>
+          </div>
+          <div class="hud-val-box">
+            <span class="hud-label">FLOOR 14 LOCK</span>
+            <span class="hud-value hud-green" id="hudDoor">SECURED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Viewport for 3D Documentary Rendering -->
+      <div class="blueprint-canvas-container">
+        <canvas id="twinCanvas" width="900" height="620"></canvas>
+        <div class="canvas-overlay-guide" id="canvasOverlayGuide">
+          <div class="overlay-stage-tag" id="overlayStageTag">STAGE 1: COURIER ARRIVAL AT LOBBY PERIMETER</div>
+          <div class="overlay-stage-desc" id="overlayStageDesc">Awaiting cryptographic token verification at Union Place turnstile...</div>
+        </div>
+      </div>
+
+      <!-- Hardware MQTT Telemetry Mini-Log -->
+      <div class="mqtt-hud-strip">
+        <div class="mqtt-hud-label">
+          <span>MQTT EVENT BUS</span>
+          <span class="packet-rate" id="mqttRate">PORT 1883 · REALTIME</span>
+        </div>
+        <div class="mqtt-hud-feed" id="mqttHudFeed">
+          <div class="feed-entry">
+            <span class="time">00:00:00</span>
+            <span class="topic">trizen/tower-1/system</span>
+            <span class="payload">HAL initialized. 891 residential units mapped to Mitsubishi elevator core.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: Maya's Living App (pixel-accurate to the Pixora Figma resident app) -->
+    <aside class="panel-card resident-panel">
+      <div class="panel-tag">PERSPECTIVE: THE RESIDENT</div>
+
+      <div class="resident-mobile-shell">
+        <!-- Scrollable Mobile Body -->
+        <div class="m-scroll-content">
+          <!-- Hero (tower photo + gradient scrim, matches Figma Home) -->
+          <div class="m-hero">
+            <div class="m-hero-scrim"></div>
+            <div class="m-hero-content">
+              <div class="m-hero-top">
+                <div class="m-unit-pill">
+                  <span class="dot-live"></span>
+                  <span>Tower 1 · 1402</span>
+                </div>
+                <div class="m-hero-actions">
+                  <button class="m-icon-btn" onclick="toggleAiDrawer()" aria-label="Notifications">
+                    <span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5Z"/><path d="M9.5 17a2.5 2.5 0 0 0 5 0"/></svg></span>
+                  </button>
+                  <div class="m-user-avatar">MS</div>
+                </div>
+              </div>
+
+              <div class="m-hero-greeting">Good evening,<br>Maya</div>
+
+              <div class="m-stat-row">
+                <div class="m-stat-tile">
+                  <span class="s-label">Inside</span>
+                  <span class="s-val" id="resInsideTemp">23°C</span>
+                </div>
+                <div class="m-stat-tile">
+                  <span class="s-label">Front door</span>
+                  <span class="s-val" id="resDoorState">Locked</span>
+                </div>
+                <div class="m-stat-tile">
+                  <span class="s-label">Active</span>
+                  <span class="s-val" id="resActiveCount">2 On</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Natural Language Input (overlaps hero, matches Figma) -->
+          <div class="m-ai-input-wrap">
+            <span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></span>
+            <input type="text" id="mAiInput" placeholder="Tell your home what you need…" onkeydown="handleAiInputKey(event)">
+            <span class="icon icon-sm m-mic"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span></span>
+            <button class="btn-ai-send" onclick="sendAiCommand()"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span></button>
+          </div>
+          <div id="mAiToast" class="m-ai-toast hidden"></div>
+
+          <!-- Section: Delivery in progress (live tracking card) -->
+          <div id="deliverySection">
+            <div class="m-section-header">
+              <span class="m-eyebrow" id="deliveryEyebrow">DELIVERY IN PROGRESS</span>
+              <span class="m-link">See all</span>
+            </div>
+
+            <!-- Live tracking card -->
+            <div class="delivery-tracker-card" id="deliveryTrackerCard">
+              <div class="dt-header">
+                <div class="dt-icon-wrap"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="17.5" r="2.1"/><circle cx="17.5" cy="17.5" r="2.1"/><path d="M8.5 17.5h6.5l1.5-4h2.5"/><path d="M11 13.5V9h3.5l2 3.5"/><path d="M6.5 15.3V13h2.5"/></svg></span></div>
+                <div class="dt-title-col">
+                  <div class="dt-courier-title">Keells Super Express</div>
+                </div>
+                <span class="dt-status-pill" id="dtBadge">Live</span>
+              </div>
+              <div class="dt-subtext" id="dtSubtext">Heading to Tower 1 · Grocery order</div>
+
+              <!-- 4-Stage icon stepper (mirrors the Figma live delivery card) -->
+              <div class="dt-stepper">
+                <div class="st-node" id="stNode1">
+                  <div class="st-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="17.5" r="2.1"/><circle cx="17.5" cy="17.5" r="2.1"/><path d="M8.5 17.5h6.5l1.5-4h2.5"/><path d="M11 13.5V9h3.5l2 3.5"/><path d="M6.5 15.3V13h2.5"/></svg></div>
+                  <span>On way</span>
+                </div>
+                <div class="st-connector"><div class="st-bar" id="stBar1"></div></div>
+                <div class="st-node" id="stNode2">
+                  <div class="st-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9.5h12V10"/></svg></div>
+                  <span>Gate</span>
+                </div>
+                <div class="st-connector"><div class="st-bar" id="stBar2"></div></div>
+                <div class="st-node" id="stNode3">
+                  <div class="st-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div>
+                  <span>Unlock</span>
+                </div>
+                <div class="st-connector"><div class="st-bar" id="stBar3"></div></div>
+                <div class="st-node" id="stNode4">
+                  <div class="st-circle"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3 3 11h2v9h5v-6h4v6h5v-9h2L12 3Z"/></svg></div>
+                  <span>Door</span>
+                </div>
+              </div>
+
+              <div class="dt-eta" id="dtEta">~6 min away</div>
+            </div>
+
+            <!-- Delivery successful — shown briefly, then auto-dismissed -->
+            <div class="delivery-success-card hidden" id="deliverySuccessCard">
+              <div class="ds-icon"><span class="icon icon-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.2 2.2L16 10"/></svg></span></div>
+              <div class="ds-text">
+                <div class="ds-title">Delivery successful</div>
+                <div class="ds-sub" id="dsSubtext">Keells Super Express arrived · Pass consumed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Quick Controls -->
+          <div class="m-section-header">
+            <span class="m-eyebrow">QUICK CONTROLS</span>
+            <span class="m-link">All devices</span>
+          </div>
+
+          <div class="m-grid-2x2">
+            <!-- Front Door Lock -->
+            <div id="mTileDoor" class="m-tile tile-dark" onclick="toggleFrontDoor()">
+              <div class="m-tile-head">
+                <span class="m-tile-icon-wrap"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></span></span>
+                <span class="m-tile-tag" id="mDoorTag">Locked</span>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Front door</div>
+                <div class="m-tile-sub">Locked</div>
+              </div>
+            </div>
+
+            <!-- Living AC with Stepper -->
+            <div id="mTileAc" class="m-tile tile-dark">
+              <div class="m-tile-head">
+                <span class="m-tile-icon-wrap"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><path d="M12 12c0-3 1.5-6 4-6s2 3 0 5"/><path d="M12 12c3 0 6 1.5 6 4s-3 2-5 0"/><path d="M12 12c0 3-1.5 6-4 6s-2-3 0-5"/><path d="M12 12c-3 0-6-1.5-6-4s3-2 5 0"/></svg></span></span>
+                <div class="stepper-mini" onclick="event.stopPropagation()">
+                  <button onclick="stepAcTemp(-1)"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></span></button>
+                  <span id="mAcVal">23°C</span>
+                  <button onclick="stepAcTemp(1)"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+                </div>
+              </div>
+              <div class="m-tile-foot" onclick="toggleAc()">
+                <div class="m-tile-title">Living AC</div>
+                <div class="m-tile-sub" id="mAcSub">Cooling</div>
+              </div>
+            </div>
+
+            <!-- Guest Lights Switch -->
+            <div id="mTileLights" class="m-tile tile-light" onclick="toggleLights()">
+              <div class="m-tile-head">
+                <span class="m-tile-icon-wrap light"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.2 1 2.1h5c0-.9.4-1.65 1-2.1A6 6 0 0 0 12 3Z"/></svg></span></span>
+                <div class="ios-toggle">
+                  <input type="checkbox" id="mSwitchLights" onchange="event.stopPropagation(); toggleLights()">
+                  <span class="ios-slider"></span>
+                </div>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Guest lights</div>
+                <div class="m-tile-sub" id="mLightsSub">Off</div>
+              </div>
+            </div>
+
+            <!-- Guest AC -->
+            <div id="mTileGuestAc" class="m-tile tile-light" onclick="toggleGuestAc()">
+              <div class="m-tile-head">
+                <span class="m-tile-icon-wrap light"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><path d="M12 12c0-3 1.5-6 4-6s2 3 0 5"/><path d="M12 12c3 0 6 1.5 6 4s-3 2-5 0"/><path d="M12 12c0 3-1.5 6-4 6s-2-3 0-5"/><path d="M12 12c-3 0-6-1.5-6-4s3-2 5 0"/></svg></span></span>
+                <div class="ios-toggle">
+                  <input type="checkbox" id="mSwitchGuestAc" onchange="event.stopPropagation(); toggleGuestAc()">
+                  <span class="ios-slider"></span>
+                </div>
+              </div>
+              <div class="m-tile-foot">
+                <div class="m-tile-title">Guest AC</div>
+                <div class="m-tile-sub" id="mGuestAcSub">Off</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Bottom Nav Bar -->
+        <div class="m-bottom-nav">
+          <button class="nav-item active">
+            <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3 3 11h2v9h5v-6h4v6h5v-9h2L12 3Z"/></svg></span>
+            <span>Home</span>
+          </button>
+          <button class="nav-item" onclick="openPassModal()">
+            <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="12" cy="10.5" r="2"/><path d="M8.5 16c.6-1.8 2-2.8 3.5-2.8s2.9 1 3.5 2.8"/></svg></span>
+            <span>Passes</span>
+          </button>
+          <div class="fab-ai" onclick="focusAiInput()"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></span></div>
+          <button class="nav-item" onclick="toggleAiDrawer()">
+            <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
+            <span>Activity</span>
+          </button>
+          <button class="nav-item">
+            <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.2"/><path d="M5 19.5c1-3.3 3.6-5.3 7-5.3s6 2 7 5.3"/></svg></span>
+            <span>Profile</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- FACILITIES & AI ANOMALY PREDICTIVE DRAWER (SLIDE-OVER)             -->
+  <!-- ================================================================= -->
+  <div id="aiDrawer" class="drawer-backdrop hidden" onclick="toggleAiDrawer(event)">
+    <div class="drawer-modal" onclick="event.stopPropagation()">
+      <div class="drawer-head">
+        <div>
+          <span class="badge-tiebreaker">HACKATHON TIE-BREAKER (15 MARKS)</span>
+          <h3>Predictive Hardware Health & Anomaly Triage</h3>
+        </div>
+        <button class="btn-drawer-close" onclick="toggleAiDrawer()">✕</button>
+      </div>
+
+      <div class="drawer-scroll">
+        <!-- Telemetry Card -->
+        <div class="drawer-card">
+          <div class="card-title-sm">Yale Smart Lock #1402 Telemetry</div>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="lbl">VOLTAGE</span>
+              <strong id="drVoltage">5480 mV</strong>
+            </div>
+            <div class="metric-item">
+              <span class="lbl">DECAY RATE (κ)</span>
+              <strong id="drDropRate">12.1 mV/act</strong>
+            </div>
+            <div class="metric-item">
+              <span class="lbl">Z-SCORE (σ)</span>
+              <strong id="drZscore">0.24 σ</strong>
+            </div>
+            <div class="metric-item">
+              <span class="lbl">STATUS</span>
+              <span class="tag-status-green" id="drStatusTag">OPTIMAL</span>
+            </div>
+          </div>
+          <div class="volts-track">
+            <div class="volts-bar" id="drVoltsBar" style="width: 82%;"></div>
+          </div>
+        </div>
+
+        <!-- Live Demonstration Actions -->
+        <div class="drawer-card">
+          <div class="card-title-sm">Live Judge Evaluation Controls</div>
+          <p class="card-note">Simulate accelerated internal battery cell failure to observe automatic work-order routing.</p>
+          <div class="btn-stack">
+            <button id="btnDrawerInject" class="btn-anomaly-trigger" onclick="toggleAnomalyInjection()">
+              ⚠️ Inject Battery Cell Degradation (~42 mV/actuation)
+            </button>
+            <button class="btn-override-trigger" onclick="applyManualOverride()">
+              🛡️ 1-Tap Override (Dismiss / Heavy Usage)
+            </button>
+          </div>
+        </div>
+
+        <!-- Explainable AI Alert Card -->
+        <div id="drAlertCard" class="alert-box-card normal">
+          <div class="alert-box-head">
+            <span class="status-symbol" id="drAlertIcon">✓</span>
+            <div>
+              <strong id="drAlertTitle">Health Optimal: Lock #1402</strong>
+              <div class="alert-subtext" id="drAlertSub">Operating within 1.1σ of 14-day rolling statistical baseline.</div>
+            </div>
+          </div>
+          <div class="alert-body-text" id="drAlertDesc">
+            Device health optimal. Voltage degradation is normal (12.2 mV/actuation).
+          </div>
+
+          <!-- Auto-Generated Work Order -->
+          <div id="drWorkOrder" class="work-order-ticket hidden">
+            <div class="wo-title-row">
+              <span>🎫 AUTO-ROUTED FACILITIES WORK ORDER</span>
+              <span class="wo-id" id="drTicketId">WO-JKH-8492</span>
+            </div>
+            <div class="wo-details">
+              <div><strong>Assigned:</strong> JKH Facilities - Electrical Engineering</div>
+              <div><strong>Priority:</strong> <span class="text-danger">HIGH / PREVENTIVE</span></div>
+              <div class="text-roi">Commercial Value: LKR 13,500 Saved (Emergency truck-roll avoided)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Issue Pass — pixel-accurate 2-step flow from the Pixora Figma prototype -->
+  <div id="modalPass" class="drawer-backdrop hidden" onclick="closePassModal(event)">
+    <div class="pass-flow-shell" onclick="event.stopPropagation()">
+
+      <!-- STEP 1: Create Pass -->
+      <div id="passStep1" class="pass-step">
+        <div class="pf-hero">
+          <div class="pf-hero-scrim"></div>
+          <div class="pf-hero-content">
+            <button class="pf-back" onclick="closePassModal()"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></span></button>
+            <div class="pf-hero-text">
+              <span class="pf-eyebrow">STEP 1 OF 2 · NEW PASS</span>
+              <div class="pf-title">Delivery pass</div>
+              <div class="pf-sub" id="pfOrderContext">Keells Super Express · Grocery order</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pf-body">
+          <div class="pf-section">
+            <div class="pf-section-title">PASS TYPE</div>
+            <div class="pf-type-card selected" id="passTypeCard" data-type="Delivery" onclick="selectPassType()">
+              <span class="pf-type-icon"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="17.5" r="2.1"/><circle cx="17.5" cy="17.5" r="2.1"/><path d="M8.5 17.5h6.5l1.5-4h2.5"/><path d="M11 13.5V9h3.5l2 3.5"/><path d="M6.5 15.3V13h2.5"/></svg></span></span>
+              <div class="pf-type-text">
+                <div class="pf-type-title">Delivery</div>
+                <div class="pf-type-sub">Courier &amp; driver access</div>
+              </div>
+              <span class="pf-type-check"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.2 2.2L16 10"/></svg></span></span>
+            </div>
+          </div>
+
+          <div class="pf-section">
+            <div class="pf-section-title">DURATION</div>
+            <div class="pf-pill-row" id="pfDurationRow">
+              <button class="pf-pill" data-mins="5" onclick="selectPassDuration(5)">5 min</button>
+              <button class="pf-pill selected" data-mins="15" onclick="selectPassDuration(15)">15 min</button>
+              <button class="pf-pill" data-mins="30" onclick="selectPassDuration(30)">30 min</button>
+            </div>
+            <div class="pf-time-bar">
+              <div class="pf-time-track"><div class="pf-time-fill" style="width: 34%;"></div><span class="pf-time-dot" style="left: 34%;"></span></div>
+              <div class="pf-time-labels"><span id="pfTimeStart">6:00 PM</span><span id="pfTimeEnd">6:15 PM</span></div>
+            </div>
+          </div>
+
+          <div class="pf-section">
+            <div class="pf-section-title">ACCESS INCLUDED</div>
+            <div class="pf-scope-list">
+              <div class="pf-scope-row"><div class="pf-scope-title">Main gate</div><div class="pf-scope-sub">Turnstile entry</div></div>
+              <div class="pf-scope-row"><div class="pf-scope-title">Lift access</div><div class="pf-scope-sub">Ground floor to Tower 1</div></div>
+              <div class="pf-scope-row"><div class="pf-scope-title">Unit 1402</div><div class="pf-scope-sub">Front door notification only · no unlock</div></div>
+            </div>
+          </div>
+
+          <button class="pf-btn-primary" onclick="confirmIssuePass()">Generate pass</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Share Pass -->
+      <div id="passStep2" class="pass-step hidden">
+        <div class="pf-plain-header">
+          <button class="pf-back dark" onclick="backToPassStep1()"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></span></button>
+          <div class="pf-plain-title">Delivery pass</div>
+        </div>
+
+        <div class="pf-body">
+          <div class="pf-step-label">STEP 2 OF 2 · READY TO SHARE</div>
+          <div class="pf-status-row"><span class="pf-badge-active">Active</span></div>
+
+          <div class="pf-code-panel">
+            <span class="icon icon-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="12" cy="10.5" r="2"/><path d="M8.5 16c.6-1.8 2-2.8 3.5-2.8s2.9 1 3.5 2.8"/></svg></span>
+            <div class="pf-code" id="pfPinDisplay">749102</div>
+            <div class="pf-code-helper">Show this code to the courier at the gate</div>
+          </div>
+
+          <div class="pf-time-bar">
+            <div class="pf-time-track info"><div class="pf-time-fill" style="width: 20%;"></div><span class="pf-time-dot" style="left: 20%;"></span></div>
+            <div class="pf-time-labels"><span id="pfTimeStart2">6:00 PM</span><span id="pfTimeEnd2">6:15 PM</span></div>
+          </div>
+        </div>
+
+        <div class="pf-sheet">
+          <div class="pf-sheet-handle"></div>
+          <div class="pf-sheet-title">Share pass</div>
+          <div class="pf-sheet-sub" id="pfSheetSub">Valid until 6:15 PM · Keells Super Express courier</div>
+          <div class="pf-sheet-options">
+            <button class="pf-share-opt" onclick="sharePassOption('Message')">
+              <span class="pf-share-icon"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.3"/><circle cx="17.5" cy="6" r="2.3"/><circle cx="17.5" cy="18" r="2.3"/><path d="M8.1 10.9 15.4 7"/><path d="M8.1 13.1 15.4 17"/></svg></span></span>
+              <span>Message</span>
+            </button>
+            <button class="pf-share-opt" onclick="sharePassOption('Nearby')">
+              <span class="pf-share-icon"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4"/><path d="M15.7 8.3a5.2 5.2 0 0 1 0 7.4"/><path d="M5.3 5.3a9.5 9.5 0 0 0 0 13.4"/><path d="M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/></svg></span></span>
+              <span>Nearby</span>
+            </button>
+            <button class="pf-share-opt" onclick="sharePassOption('Copy link')">
+              <span class="pf-share-icon"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.2 2.2L16 10"/></svg></span></span>
+              <span>Copy link</span>
+            </button>
+            <button class="pf-share-opt" onclick="sharePassOption('More')">
+              <span class="pf-share-icon"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"/></svg></span></span>
+              <span>More</span>
+            </button>
+          </div>
+          <button class="pf-btn-done" onclick="closePassModal()">Done</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="twinCanvas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
