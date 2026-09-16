@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
-    "build": "tsc",
+    "start": "node dist/server.js",
+    "build": "tsc && node scripts/make-entry.cjs",
+    "postinstall": "npm run build",
     "test:flow": "tsx tests/verifyFlow.ts"
   },
   "keywords": [
