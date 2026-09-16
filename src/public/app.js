@@ -113,12 +113,19 @@ async function fetchPasses() {
       const primary = activePasses.find((p) => p.status === 'ACTIVE') || activePasses[0];
       currentPassId = primary.passId;
 
-      if (primary.status === 'USED') {
-        document.getElementById('courierPassStatus').innerText = 'CONSUMED';
-        document.getElementById('courierPassStatus').style.background = 'rgba(59, 130, 246, 0.2)';
-        document.getElementById('courierPassStatus').style.color = 'var(--accent-blue)';
-        jumpToStage(4);
+      // The demo backend keeps its pass store in a single shared in-memory
+      // map (see accessRoutes.ts). On a serverless deployment that map is
+      // shared by every visitor hitting the same warm instance, so if
+      // ANYONE has already run the handshake, the next fresh visitor would
+      // otherwise load straight into a stale "already delivered" state
+      // that they never triggered. Silently issue this visitor a brand
+      // new pass instead of ever showing someone else's finished delivery.
+      if (primary.status !== 'ACTIVE') {
+        await confirmIssuePass({ silent: true });
+        return;
       }
+    } else if (data.success && data.passes.length === 0) {
+      await confirmIssuePass({ silent: true });
     }
   } catch (err) {
     console.error('Pass fetch error:', err);
@@ -625,20 +632,33 @@ async function applyManualOverride() {
 let selectedPassType = 'Delivery';
 let selectedPassDuration = 15;
 
-function openPassModal() {
-  document.getElementById('modalPass').classList.remove('hidden');
-  showPassStep(1);
+// --------------------------------------------------------------------------
+// In-phone screen navigation (Figma-prototype style: tapping "Passes"
+// pushes a new screen inside the device frame — no separate page/dialog
+// ever opens, exactly like clicking through a Figma prototype).
+// --------------------------------------------------------------------------
+function goToScreen(screenId) {
+  ['screenHome', 'screenCreatePass', 'screenSharePass'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden', id !== screenId);
+  });
+  const bottomNav = document.getElementById('phoneBottomNav');
+  if (bottomNav) bottomNav.classList.toggle('hidden', screenId !== 'screenHome');
 }
 
-function closePassModal(event) {
-  if (event && event.target !== event.currentTarget) return;
-  document.getElementById('modalPass').classList.add('hidden');
+function openPassModal() {
   showPassStep(1);
+  // Reflect real current time immediately instead of the static markup
+  // placeholder, so the duration/time-window UI never looks stale.
+  selectPassDuration(selectedPassDuration);
+}
+
+function closePassModal() {
+  goToScreen('screenHome');
 }
 
 function showPassStep(step) {
-  document.getElementById('passStep1').classList.toggle('hidden', step !== 1);
-  document.getElementById('passStep2').classList.toggle('hidden', step !== 2);
+  goToScreen(step === 2 ? 'screenSharePass' : 'screenCreatePass');
 }
 
 function backToPassStep1() {
@@ -665,7 +685,9 @@ function selectPassDuration(mins) {
   document.getElementById('pfTimeEnd').innerText = fmt(end);
 }
 
-async function confirmIssuePass() {
+async function confirmIssuePass(options) {
+  const silent = options && options.silent;
+
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -675,7 +697,15 @@ async function confirmIssuePass() {
   const data = await res.json();
   if (!data.success) return;
 
-  await fetchPasses();
+  activePasses = [data.pass];
+  currentPassId = data.pass.passId;
+
+  const courierStatus = document.getElementById('courierPassStatus');
+  if (courierStatus) {
+    courierStatus.innerText = 'VALID';
+    courierStatus.style.background = '';
+    courierStatus.style.color = '';
+  }
 
   // Reset the live tracking card for a fresh demo run
   if (deliverySuccessTimer) {
@@ -687,6 +717,12 @@ async function confirmIssuePass() {
   document.getElementById('deliveryTrackerCard').classList.remove('hidden');
   document.getElementById('deliverySuccessCard').classList.add('hidden');
   jumpToStage(1);
+
+  // A background refresh (e.g. this visitor's page load landing on a demo
+  // instance where someone else already consumed the seeded pass) should
+  // silently hand them a fresh pass — never pop the Create/Share flow the
+  // user didn't ask for.
+  if (silent) return;
 
   // Populate Step 2 and move to it. The gate handshake itself runs on the
   // real cryptographic JWT (see accessRoutes.ts); this on-screen PIN is a
