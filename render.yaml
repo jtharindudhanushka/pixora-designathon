@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: trizen-smart-living-platform
+    env: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
