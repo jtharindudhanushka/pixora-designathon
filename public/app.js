@@ -66,6 +66,24 @@ function handleLiveHardwareEvent(packet) {
   const { type, data } = packet;
 
   switch (type) {
+    case 'PASS_ISSUED':
+      renderActivePass(data);
+      break;
+    case 'DELIVERY_ENTRY_HANDSHAKE': {
+      const courierStatus = document.getElementById('courierPassStatus');
+      if (courierStatus) {
+        courierStatus.innerText = 'CONSUMED';
+        courierStatus.className = 'token-status-pill';
+        courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
+        courierStatus.style.color = 'var(--accent-blue)';
+      }
+      jumpToStage(2);
+      setTimeout(() => {
+        jumpToStage(3);
+        setTimeout(() => jumpToStage(4), 3800);
+      }, 3000);
+      break;
+    }
     case 'TURNSTILE_STATE':
       if (data.relayClosed && window.twinRenderer) {
         window.twinRenderer.targetTurnstileOpen = 1.0;
@@ -108,28 +126,108 @@ async function fetchPasses() {
   try {
     const res = await fetch('/api/passes/active');
     const data = await res.json();
-    if (data.success && data.passes.length > 0) {
+    if (data.success && data.passes && data.passes.length > 0) {
       activePasses = data.passes;
-      const primary = activePasses.find((p) => p.status === 'ACTIVE') || activePasses[0];
-      currentPassId = primary.passId;
-
-      // The demo backend keeps its pass store in a single shared in-memory
-      // map (see accessRoutes.ts). On a serverless deployment that map is
-      // shared by every visitor hitting the same warm instance, so if
-      // ANYONE has already run the handshake, the next fresh visitor would
-      // otherwise load straight into a stale "already delivered" state
-      // that they never triggered. Silently issue this visitor a brand
-      // new pass instead of ever showing someone else's finished delivery.
-      if (primary.status !== 'ACTIVE') {
-        await confirmIssuePass({ silent: true });
+      const primary = activePasses.find((p) => p.status === 'ACTIVE');
+      if (primary) {
+        renderActivePass(primary);
         return;
       }
-    } else if (data.success && data.passes.length === 0) {
-      await confirmIssuePass({ silent: true });
     }
+    renderIdleState();
   } catch (err) {
     console.error('Pass fetch error:', err);
+    renderIdleState();
   }
+}
+
+function renderActivePass(pass) {
+  currentPassId = pass.passId;
+  activePasses = [pass];
+
+  const statusEl = document.getElementById('courierPassStatus');
+  if (statusEl) {
+    statusEl.innerText = 'VALID';
+    statusEl.className = 'token-status-pill';
+    statusEl.style.background = '';
+    statusEl.style.color = '';
+  }
+
+  const brandEl = document.getElementById('courierBrandTitle');
+  if (brandEl) brandEl.innerText = pass.name || pass.partner || 'Keells Super Express';
+
+  const orderEl = document.getElementById('courierOrderId');
+  if (orderEl) orderEl.innerText = 'Order #JKH-5021 · Grocery';
+
+  const pinEl = document.getElementById('courierPinVal');
+  if (pinEl) pinEl.innerText = '749 · 102';
+
+  const scanBtn = document.getElementById('btnScanPass');
+  if (scanBtn) scanBtn.disabled = false;
+
+  const qrBox = document.getElementById('courierQrBox');
+  if (qrBox) qrBox.style.opacity = '1';
+
+  // Resident App UI
+  const idleCard = document.getElementById('deliveryIdleCard');
+  if (idleCard) idleCard.classList.add('hidden');
+
+  const deliverySection = document.getElementById('deliverySection');
+  if (deliverySection) {
+    deliverySection.classList.remove('hidden');
+    deliverySection.style.display = '';
+  }
+
+  const trackerCard = document.getElementById('deliveryTrackerCard');
+  if (trackerCard) trackerCard.classList.remove('hidden');
+
+  const successCard = document.getElementById('deliverySuccessCard');
+  if (successCard) successCard.classList.add('hidden');
+
+  jumpToStage(1);
+}
+
+function renderIdleState() {
+  currentPassId = null;
+  activePasses = [];
+
+  const statusEl = document.getElementById('courierPassStatus');
+  if (statusEl) {
+    statusEl.innerText = 'IDLE · NO PASS';
+    statusEl.className = 'token-status-pill idle';
+    statusEl.style.background = '';
+    statusEl.style.color = '';
+  }
+
+  const brandEl = document.getElementById('courierBrandTitle');
+  if (brandEl) brandEl.innerText = 'No Courier Assigned';
+
+  const orderEl = document.getElementById('courierOrderId');
+  if (orderEl) orderEl.innerText = 'Awaiting resident pass issuance';
+
+  const countdownEl = document.getElementById('passCountdownVal');
+  if (countdownEl) countdownEl.innerText = 'No active pass';
+
+  const pinEl = document.getElementById('courierPinVal');
+  if (pinEl) pinEl.innerText = '— · —';
+
+  const scanBtn = document.getElementById('btnScanPass');
+  if (scanBtn) scanBtn.disabled = true;
+
+  const qrBox = document.getElementById('courierQrBox');
+  if (qrBox) qrBox.style.opacity = '0.45';
+
+  const alertBox = document.getElementById('scanResultAlert');
+  if (alertBox) alertBox.classList.add('hidden');
+
+  // Resident App UI
+  const idleCard = document.getElementById('deliveryIdleCard');
+  if (idleCard) idleCard.classList.remove('hidden');
+
+  const deliverySection = document.getElementById('deliverySection');
+  if (deliverySection) deliverySection.classList.add('hidden');
+
+  jumpToStage(0);
 }
 
 async function fetchDevices() {
@@ -169,7 +267,11 @@ function togglePlaySequence() {
   }
 }
 
-function startSequencePlayback() {
+async function startSequencePlayback() {
+  if (!currentPassId) {
+    await confirmIssuePass({ silent: true });
+  }
+
   isSequencePlaying = true;
   document.getElementById('playIcon').innerText = '⏸';
   document.getElementById('playLabel').innerText = 'Pause Sequence';
@@ -208,13 +310,15 @@ function jumpToStage(stage) {
   for (let i = 1; i <= 4; i++) {
     const btn = document.getElementById(`tNode${i}`);
     if (btn) {
-      if (i <= stage) btn.classList.add('active');
+      if (stage > 0 && i <= stage) btn.classList.add('active');
       else btn.classList.remove('active');
     }
   }
 
   // 2. Update Maya's App Delivery Stepper
-  updateResidentStepper(stage);
+  if (stage > 0) {
+    updateResidentStepper(stage);
+  }
 
   // 3. Update 3D Architectural Canvas
   if (window.twinRenderer) {
@@ -280,8 +384,7 @@ function scheduleDeliverySuccess() {
     if (success) success.classList.remove('hidden');
 
     setTimeout(() => {
-      const section = document.getElementById('deliverySection');
-      if (section) section.style.display = 'none';
+      renderIdleState();
       deliverySuccessTimer = null;
     }, 4000);
   }, 1200);
@@ -292,8 +395,9 @@ function scheduleDeliverySuccess() {
 // --------------------------------------------------------------------------
 async function triggerHandshakeScan() {
   if (!currentPassId) {
-    alert('No active pass. Issuing new pass...');
-    await confirmIssuePass();
+    alert('No active delivery pass. Please issue a pass from Maya\'s phone app first.');
+    openPassModal();
+    return;
   }
 
   const alertBox = document.getElementById('scanResultAlert');
@@ -323,9 +427,13 @@ async function triggerHandshakeScan() {
         setTimeout(() => jumpToStage(4), 3800);
       }, 3000);
 
-      document.getElementById('courierPassStatus').innerText = 'CONSUMED';
-      document.getElementById('courierPassStatus').style.background = 'rgba(59, 130, 246, 0.2)';
-      document.getElementById('courierPassStatus').style.color = 'var(--accent-blue)';
+      const courierStatus = document.getElementById('courierPassStatus');
+      if (courierStatus) {
+        courierStatus.innerText = 'CONSUMED';
+        courierStatus.className = 'token-status-pill';
+        courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
+        courierStatus.style.color = 'var(--accent-blue)';
+      }
     } else {
       alertBox.className = 'scan-result-box danger';
       title.innerText = 'Access Denied (Replay Defense)';
@@ -506,16 +614,30 @@ function focusAiInput() {
 // --------------------------------------------------------------------------
 function startPassCountdownTimer() {
   setInterval(() => {
-    if (activePasses.length === 0) return;
+    if (activePasses.length === 0 || !currentPassId) {
+      const el = document.getElementById('passCountdownVal');
+      if (el && el.innerText !== 'No active pass') el.innerText = 'No active pass';
+      return;
+    }
     const pass = activePasses[0];
     const now = Date.now();
     const remainingMs = Math.max(0, pass.expiresAt - now);
     const mins = Math.floor(remainingMs / 60000);
     const secs = Math.floor((remainingMs % 60000) / 1000);
 
-    const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs} min remaining`;
+    const timeStr = remainingMs > 0 ? `${mins}:${secs < 10 ? '0' : ''}${secs} min remaining` : 'EXPIRED';
     const el = document.getElementById('passCountdownVal');
     if (el) el.innerText = timeStr;
+
+    if (remainingMs <= 0 && currentPassId) {
+      const statusEl = document.getElementById('courierPassStatus');
+      if (statusEl) {
+        statusEl.innerText = 'EXPIRED';
+        statusEl.className = 'token-status-pill idle';
+      }
+      const scanBtn = document.getElementById('btnScanPass');
+      if (scanBtn) scanBtn.disabled = true;
+    }
   }, 1000);
 }
 
@@ -691,43 +813,20 @@ async function confirmIssuePass(options) {
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ partner: 'Keells Super Express', ttlMinutes: selectedPassDuration, unit: '1402' }),
+    body: JSON.stringify({
+      partner: selectedPassType === 'Delivery' ? 'Keells Super Express' : 'Guest Pass',
+      ttlMinutes: selectedPassDuration,
+      unit: '1402',
+    }),
   });
 
   const data = await res.json();
   if (!data.success) return;
 
-  activePasses = [data.pass];
-  currentPassId = data.pass.passId;
+  renderActivePass(data.pass);
 
-  const courierStatus = document.getElementById('courierPassStatus');
-  if (courierStatus) {
-    courierStatus.innerText = 'VALID';
-    courierStatus.style.background = '';
-    courierStatus.style.color = '';
-  }
-
-  // Reset the live tracking card for a fresh demo run
-  if (deliverySuccessTimer) {
-    clearTimeout(deliverySuccessTimer);
-    deliverySuccessTimer = null;
-  }
-  const section = document.getElementById('deliverySection');
-  if (section) section.style.display = '';
-  document.getElementById('deliveryTrackerCard').classList.remove('hidden');
-  document.getElementById('deliverySuccessCard').classList.add('hidden');
-  jumpToStage(1);
-
-  // A background refresh (e.g. this visitor's page load landing on a demo
-  // instance where someone else already consumed the seeded pass) should
-  // silently hand them a fresh pass — never pop the Create/Share flow the
-  // user didn't ask for.
   if (silent) return;
 
-  // Populate Step 2 and move to it. The gate handshake itself runs on the
-  // real cryptographic JWT (see accessRoutes.ts); this on-screen PIN is a
-  // human-readable fallback the courier can key in, same as the courier
-  // panel's existing QR/PIN card.
   const pin = '749102';
   const now = new Date();
   const end = new Date(now.getTime() + selectedPassDuration * 60000);
@@ -736,7 +835,7 @@ async function confirmIssuePass(options) {
   document.getElementById('pfPinDisplay').innerText = pin;
   document.getElementById('pfTimeStart2').innerText = fmt(now);
   document.getElementById('pfTimeEnd2').innerText = fmt(end);
-  document.getElementById('pfSheetSub').innerText = `Valid until ${fmt(end)} · Keells Super Express courier`;
+  document.getElementById('pfSheetSub').innerText = `Valid until ${fmt(end)} · ${data.pass.name || 'Keells Super Express'} courier`;
 
   showPassStep(2);
 }

@@ -23,23 +23,8 @@ export function createAccessRouter(
   const router = Router();
   const passesDb: Map<string, ActivePassRecord> = new Map();
 
-  // Seed with an expected delivery pass for Maya (Unit 1402) matching DESIGN_SYSTEM.md
-  const initialIssue = issueToken('COURIER_PASS', 'Keells Super Express', CONFIG.DEFAULT_UNIT, 15, {
-    partner: 'Keells Super Express',
-    route: ['Lobby Turnstile 1', 'Elevator Bank A', 'Floor 14 Corridor'],
-  });
+  // Clean start: passes are issued on-demand by the resident app or API
 
-  passesDb.set(initialIssue.payload.jti, {
-    passId: initialIssue.payload.jti,
-    token: initialIssue.token,
-    name: 'Keells Super Express',
-    partner: 'Keells Super Express',
-    unit: CONFIG.DEFAULT_UNIT,
-    route: 'Main gate · Lift · Unit 1402',
-    status: 'ACTIVE',
-    issuedAt: Date.now(),
-    expiresAt: initialIssue.payload.expiresAt * 1000,
-  });
 
   /**
    * POST /api/passes/issue
