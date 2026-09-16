@@ -203,53 +203,48 @@ function renderIdleState() {
 
   const statusEl = document.getElementById('courierPassStatus');
   if (statusEl) {
-    statusEl.innerText = 'IDLE · NO PASS';
-    statusEl.className = 'token-status-pill idle';
+    statusEl.innerText = 'VALID';
+    statusEl.className = 'token-status-pill';
     statusEl.style.background = '';
     statusEl.style.color = '';
   }
 
   const brandEl = document.getElementById('courierBrandTitle');
-  if (brandEl) brandEl.innerText = 'No Courier Assigned';
+  if (brandEl) brandEl.innerText = 'Keells Super Express';
 
   const orderEl = document.getElementById('courierOrderId');
-  if (orderEl) orderEl.innerText = 'Awaiting resident pass issuance';
+  if (orderEl) orderEl.innerText = 'Main gate · Lift · Unit 1402';
 
   const countdownEl = document.getElementById('passCountdownVal');
-  if (countdownEl) countdownEl.innerText = 'No active pass';
+  if (countdownEl) countdownEl.innerText = '14m 59s';
 
   const pinEl = document.getElementById('courierPinVal');
-  if (pinEl) pinEl.innerText = '— · —';
+  if (pinEl) pinEl.innerText = '749 · 102';
 
   const scanBtn = document.getElementById('btnScanPass');
-  if (scanBtn) scanBtn.disabled = true;
+  if (scanBtn) scanBtn.disabled = false;
 
   const qrBox = document.getElementById('courierQrBox');
-  if (qrBox) qrBox.style.opacity = '0.45';
+  if (qrBox) qrBox.style.opacity = '1';
 
   const alertBox = document.getElementById('scanResultAlert');
   if (alertBox) alertBox.classList.add('hidden');
 
-  // Bring to Resident App Home screen
   goToScreen('screenHome');
 
-  // Resident App UI: Show Empty State of Arrivals
-  const emptyCard = document.getElementById('mEmptyArrivals');
-  if (emptyCard) emptyCard.classList.remove('hidden');
-
   const countPill = document.getElementById('mPassCountPill');
-  if (countPill) countPill.innerText = '0 active';
-
-  const deliverySection = document.getElementById('deliverySection');
-  if (deliverySection) deliverySection.classList.add('hidden');
+  if (countPill) countPill.innerText = '1 active';
 
   const trackerCard = document.getElementById('deliveryTrackerCard');
-  if (trackerCard) trackerCard.classList.add('hidden');
+  if (trackerCard) trackerCard.classList.remove('hidden');
+
+  const emptyCard = document.getElementById('mEmptyArrivals');
+  if (emptyCard) emptyCard.classList.add('hidden');
 
   const successCard = document.getElementById('deliverySuccessCard');
   if (successCard) successCard.classList.add('hidden');
 
-  jumpToStage(0);
+  jumpToStage(1);
 }
 
 async function fetchDevices() {
@@ -353,10 +348,10 @@ function jumpToStage(stage) {
 // (On way / Gate / Unlock / Door), driven by the same 1-4 stage the 3D twin
 // and courier timeline already use — see jumpToStage().
 const DELIVERY_STAGE_COPY = {
-  1: { sub: 'Heading to Tower 1 · Grocery order', eta: '~6 min away', badge: 'Live' },
-  2: { sub: 'Courier arrived · verifying pass at Gate 1', eta: '~3 min away', badge: 'Live' },
-  3: { sub: 'Access granted · lift dispatched to Floor 14', eta: '~1 min away', badge: 'Live' },
-  4: { sub: 'Courier at Unit 1402 door', eta: 'Delivering now', badge: 'Arriving' },
+  1: { sub: 'Heading to Tower 1 · Grocery order', badge: 'Active' },
+  2: { sub: 'Courier arrived · verifying pass at Gate 1', badge: 'Active' },
+  3: { sub: 'Access granted · lift dispatched to Floor 14', badge: 'Active' },
+  4: { sub: 'Courier at Unit 1402 door', badge: 'Active' },
 };
 
 let deliverySuccessTimer = null;
@@ -364,7 +359,6 @@ let deliverySuccessTimer = null;
 function updateResidentStepper(stage) {
   const badge = document.getElementById('dtBadge');
   const sub = document.getElementById('dtSubtext');
-  const eta = document.getElementById('dtEta');
   const copy = DELIVERY_STAGE_COPY[stage] || DELIVERY_STAGE_COPY[1];
 
   for (let i = 1; i <= 4; i++) {
@@ -380,18 +374,16 @@ function updateResidentStepper(stage) {
     bar.className = i < stage ? 'st-bar completed' : 'st-bar';
   }
 
-  if (badge) badge.innerText = copy.badge;
+  if (badge) {
+    badge.innerHTML = '<span class="badge-live-dot"></span> Active';
+  }
   if (sub) sub.innerText = copy.sub;
-  if (eta) eta.innerText = copy.eta;
 
   if (stage >= 4) {
     scheduleDeliverySuccess();
   }
 }
 
-// Mirrors the Figma "Delivery Successful" screen: the tracker card is
-// replaced by a full green success card for a few seconds, then the whole
-// delivery section is dismissed automatically (pass consumed).
 function scheduleDeliverySuccess() {
   if (deliverySuccessTimer) return; // already scheduled for this delivery
   deliverySuccessTimer = setTimeout(() => {

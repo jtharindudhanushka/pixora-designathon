@@ -2340,3 +2340,387 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   line-height: 1.4;
   color: #334155 !important;
 }
+
+
+/* ==========================================================================
+   Figma Pass Card & Single Active Pass Architecture (Node 47:539 / 47:565)
+   ========================================================================== */
+.active-pass-wrapper {
+  padding: 6px 12px 14px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pass-card-figma {
+  background: #FFFFFF;
+  border: 1px solid #DCDDE1;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pass-card-figma.hidden {
+  display: none !important;
+}
+
+.pass-card-figma:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.pcc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pcc-avatar-circle.delivery-active {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pcc-avatar-circle.delivery-active .icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pcc-title-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.pcc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #101114;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcc-sub {
+  font-size: 11px;
+  color: #63656F;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.figma-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #DCF5E8;
+  border: 1px solid #1F9E6D;
+  color: #146B49;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2.5px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+.badge-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: liveDotPulse 2s infinite;
+}
+
+@keyframes liveDotPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.dt-subtext {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4B5563;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* 4-Stage Stepper Layout */
+.dt-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 0 2px 0;
+}
+
+.st-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  width: 46px;
+}
+
+.st-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.st-circle .icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.st-node span {
+  font-size: 10px;
+  color: #6B7280;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.st-connector {
+  flex: 1;
+  height: 2px;
+  background: #E5E7EB;
+  margin: 0 3px 18px 3px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.st-bar {
+  width: 0%;
+  height: 100%;
+  background: #10B981;
+  transition: width 0.35s ease;
+}
+
+.st-bar.completed {
+  width: 100% !important;
+  background: #10B981 !important;
+}
+
+/* Completed Node */
+.st-node.state-done .st-circle {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3) !important;
+}
+
+.st-node.state-done span {
+  color: #10B981 !important;
+  font-weight: 600 !important;
+}
+
+/* Current Node */
+.st-node.state-current .st-circle {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25), 0 2px 6px rgba(2, 132, 199, 0.35) !important;
+}
+
+.st-node.state-current span {
+  color: #0284C7 !important;
+  font-weight: 700 !important;
+}
+
+/* Figma Pass Footer */
+.figma-pass-footer {
+  border-top: 1px solid #F2F2F3;
+  padding-top: 10px;
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fpf-valid {
+  font-size: 11px;
+  color: #63656F;
+  font-weight: 500;
+}
+
+.fpf-nonce {
+  font-size: 11px;
+  color: #8E909A;
+  font-weight: 400;
+}
+
+
+/* ==========================================================================
+   AI Architecture Diagram & Limitations Styling
+   ========================================================================== */
+.badge-ai-engine {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #0284C7;
+  background: rgba(2, 132, 199, 0.1);
+  padding: 2.5px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-subtle-ai {
+  font-size: 10px;
+  font-weight: 600;
+  color: #059669;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.ai-pipeline-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+}
+
+.ai-diagram-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4px;
+}
+
+.ai-diag-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 9px 11px;
+  transition: border-color 0.2s;
+}
+
+.ai-diag-step.highlight {
+  background: #F0F9FF;
+  border-color: #BAE6FD;
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #6B7280;
+  background: #E5E7EB;
+  border-radius: 4px;
+  padding: 2px 5px;
+  flex-shrink: 0;
+}
+
+.ai-diag-step.highlight .step-num {
+  background: #0284C7;
+  color: #FFFFFF;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.step-desc {
+  font-size: 10px;
+  color: #6B7280;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.ai-diag-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16px;
+  color: #9CA3AF;
+}
+
+.ai-limitations-box {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+}
+
+.limitations-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.limitations-icon {
+  font-size: 12px;
+}
+
+.limitations-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400E;
+  letter-spacing: 0.2px;
+}
+
+.limitations-list {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.limitations-list li {
+  font-size: 10px;
+  color: #78350F;
+  line-height: 1.35;
+}
+
+.limitations-list strong {
+  color: #451A03;
+}
