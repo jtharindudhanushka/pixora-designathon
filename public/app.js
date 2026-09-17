@@ -120,6 +120,11 @@ async function fetchInitialData() {
   await fetchPasses();
   await fetchDevices();
   await fetchTelemetry();
+  await fetchEnergyStatus();
+  // Re-poll every 20s so the pre-cool/eco-float state, chart "now" marker,
+  // and cycle-saving figure stay live without needing a page refresh —
+  // the same "simulation keeps running" pattern as the lock telemetry.
+  setInterval(fetchEnergyStatus, 20000);
 }
 
 async function fetchPasses() {
@@ -775,12 +780,141 @@ let selectedPassDuration = 15;
 // ever opens, exactly like clicking through a Figma prototype).
 // --------------------------------------------------------------------------
 function goToScreen(screenId) {
-  ['screenHome', 'screenCreatePass', 'screenSharePass'].forEach((id) => {
+  ['screenHome', 'screenCreatePass', 'screenSharePass', 'screenClimate'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('hidden', id !== screenId);
   });
   const bottomNav = document.getElementById('phoneBottomNav');
   if (bottomNav) bottomNav.classList.toggle('hidden', screenId !== 'screenHome');
+  if (screenId === 'screenClimate') fetchEnergyStatus();
+}
+
+// --------------------------------------------------------------------------
+// CEB Peak Tariff demand-response AI (energyOptimizer.ts): Home banner +
+// Climate & Savings screen + the 1-tap rule fallback toggles.
+// --------------------------------------------------------------------------
+async function fetchEnergyStatus() {
+  try {
+    const res = await fetch('/api/energy/status');
+    const data = await res.json();
+    if (data.success) renderEnergyStatus(data.status);
+  } catch (err) {
+    console.error('Energy status fetch error:', err);
+  }
+}
+
+function renderEnergyStatus(status) {
+  // Home banner
+  const banner = document.getElementById('energyBanner');
+  if (banner) {
+    banner.classList.toggle('hidden', !status.bannerVisible);
+    banner.classList.toggle('eb-precooling', status.mode === 'PRE_COOLING');
+    const title = document.getElementById('ebTitle');
+    if (title) title.innerText = status.mode === 'PRE_COOLING' ? 'Pre-Cooling Active' : 'CEB Peak Tariff Active';
+    const body = document.getElementById('ebBody');
+    if (body) body.innerText = status.strategyText;
+    const capLabel = document.getElementById('ebCapLabel');
+    if (capLabel) capLabel.innerText = `${status.capKw} kW Cap`;
+    const clearsAt = document.getElementById('ebClearsAt');
+    if (clearsAt) clearsAt.innerText = status.bannerAutoClearsLabel;
+  }
+
+  // Climate & Savings screen
+  const amountEl = document.getElementById('climateSavingsAmount');
+  if (amountEl) amountEl.innerText = `LKR ${status.monthSavingsLkr.toLocaleString()}`;
+  const pillEl = document.getElementById('climateSavingsPill');
+  if (pillEl) pillEl.innerText = `↓ ${status.savingsVsStandardPct}% vs Standard AC Usage`;
+
+  const badgeEl = document.getElementById('climateStrategyBadge');
+  if (badgeEl) {
+    badgeEl.innerHTML = status.mode === 'IDLE'
+      ? '<span class="badge-live-dot" style="background:#9CA3AF"></span> Idle'
+      : '<span class="badge-live-dot"></span> Active';
+  }
+
+  const startEl = document.getElementById('chartLabelStart');
+  if (startEl) startEl.innerText = status.windowStartLabel;
+  const endEl = document.getElementById('chartLabelEnd');
+  if (endEl) endEl.innerText = status.windowEndLabel;
+  const peakLabelEl = document.getElementById('chartLabelPeak');
+  if (peakLabelEl) peakLabelEl.innerText = `${status.peakStartLabel} Peak`;
+
+  // Chart: map 0-100% timeline positions onto the 0-300 SVG viewBox
+  const toX = (pct) => (pct / 100) * 300;
+  setAttr('chartPeakRect', 'x', toX(status.peakStartPct));
+  setAttr('chartPeakRect', 'width', 300 - toX(status.peakStartPct));
+  setAttr('chartPrecoolLine', 'x1', toX(status.preCoolPct));
+  setAttr('chartPrecoolLine', 'x2', toX(status.preCoolPct));
+  setAttr('chartPeakLine', 'x1', toX(status.peakStartPct));
+  setAttr('chartPeakLine', 'x2', toX(status.peakStartPct));
+  setAttr('chartPrecoolDot', 'cx', toX(status.preCoolPct));
+  setAttr('chartPeakDot', 'cx', toX(status.peakStartPct));
+
+  const tagPrecool = document.getElementById('ccTagPrecool');
+  if (tagPrecool) {
+    tagPrecool.style.left = `${status.preCoolPct}%`;
+    tagPrecool.innerText = `${status.preCoolLabel} · Pre-cool 23°C`;
+  }
+  const tagPeak = document.getElementById('ccTagPeak');
+  if (tagPeak) {
+    tagPeak.style.left = `${status.peakStartPct}%`;
+    tagPeak.innerText = `${status.peakStartLabel} · Eco-Float Active`;
+  }
+
+  const descEl = document.getElementById('climateStrategyDesc');
+  if (descEl) descEl.innerText = status.explainability;
+
+  const enabledCount = status.rules.filter((r) => r.enabled).length;
+  const countEl = document.getElementById('rulesEnabledCount');
+  if (countEl) countEl.innerText = `${enabledCount} ENABLED`;
+
+  status.rules.forEach((rule) => {
+    const toggle = document.getElementById(`ruleToggle-${rule.id}`);
+    if (toggle) toggle.checked = rule.enabled;
+  });
+}
+
+function setAttr(id, attr, value) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute(attr, value);
+}
+
+async function toggleEnergyRule(ruleId, enabled) {
+  try {
+    const res = await fetch(`/api/energy/rules/${ruleId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      renderEnergyStatus(data.status);
+      showToast(enabled
+        ? `✦ ${data.rule.label} re-enabled — AI resumes adjusting your AC.`
+        : `✦ ${data.rule.label} disabled — full manual control restored (1-tap fallback).`);
+    }
+  } catch (err) {
+    console.error('Energy rule toggle error:', err);
+  }
+}
+
+async function setEnergyDebugMode(mode) {
+  try {
+    const res = await fetch('/api/energy/debug-mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      renderEnergyStatus(data.status);
+      showToast(mode
+        ? `✦ Judge demo: CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
+        : '✦ CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
+    }
+  } catch (err) {
+    console.error('Energy debug-mode error:', err);
+  }
 }
 
 function openPassModal() {

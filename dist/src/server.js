@@ -10,6 +10,8 @@ import { AnomalyDetector } from './ai/anomalyDetector.js';
 import { createAccessRouter } from './gateway/routes/accessRoutes.js';
 import { createTelemetryRouter } from './gateway/routes/telemetryRoutes.js';
 import { createDeviceRouter } from './gateway/routes/deviceRoutes.js';
+import { createEnergyRouter } from './gateway/routes/energyRoutes.js';
+import { EnergyOptimizer } from './ai/energyOptimizer.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 async function bootstrap() {
@@ -38,6 +40,8 @@ async function bootstrap() {
     await hardwareDaemon.connect();
     // 5. Initialize AI Anomaly Detection Engine
     const anomalyDetector = new AnomalyDetector();
+    // 5b. Initialize CEB Peak-Tariff Demand Response Engine
+    const energyOptimizer = new EnergyOptimizer();
     // Bridge hardware daemon states to WebSocket
     setInterval(() => {
         const turnstileState = hardwareDaemon.turnstile.getState();
@@ -88,6 +92,7 @@ async function bootstrap() {
     app.use('/api/passes', createAccessRouter(publishToMqtt, broadcastToWs));
     app.use('/api/telemetry', createTelemetryRouter(anomalyDetector, hardwareDaemon.lockTelemetry, executeAction, broadcastToWs));
     app.use('/api/devices', createDeviceRouter(hardwareDaemon, broadcastToWs));
+    app.use('/api/energy', createEnergyRouter(energyOptimizer, hardwareDaemon));
     // Health check endpoint
     app.get('/api/health', (_req, res) => {
         res.json({

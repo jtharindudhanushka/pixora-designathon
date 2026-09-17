@@ -269,6 +269,27 @@
           </div>
           <div id="mAiToast" class="m-ai-toast hidden"></div>
 
+          <!-- CEB Peak Tariff AI card: demand-response eco-float banner.
+               Hidden outside the pre-cool/peak window; see energyOptimizer.ts -->
+          <div class="energy-banner hidden" id="energyBanner">
+            <div class="eb-head">
+              <span class="icon icon-sm eb-bolt">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.2 2.3c.3-.4.9-.2.9.3l-.9 7.4h5.4c.5 0 .8.6.4 1L10.8 21.7c-.3.4-.9.2-.9-.3l.9-7.4H5.4c-.5 0-.8-.6-.4-1L13.2 2.3Z" fill="currentColor"/></svg>
+              </span>
+              <span class="eb-title" id="ebTitle">CEB Peak Tariff Active</span>
+              <span class="eb-cap-pill">
+                <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.2 2.3c.3-.4.9-.2.9.3l-.9 7.4h5.4c.5 0 .8.6.4 1L10.8 21.7c-.3.4-.9.2-.9-.3l.9-7.4H5.4c-.5 0-.8-.6-.4-1L13.2 2.3Z" fill="currentColor"/></svg></span>
+                <span id="ebCapLabel">3.2 kW Cap</span>
+              </span>
+            </div>
+            <div class="eb-body" id="ebBody">Living Room AC eco-float is currently initiated to bypass surge rates.</div>
+            <button class="eb-cta" onclick="goToScreen('screenClimate')">
+              <span>View Climate &amp; Savings Strategy</span>
+              <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.0307 12.5306L9.53068 20.0306C9.46099 20.1003 9.37827 20.1556 9.28722 20.1933C9.19618 20.231 9.0986 20.2504 9.00005 20.2504C8.9015 20.2504 8.80392 20.231 8.71288 20.1933C8.62183 20.1556 8.53911 20.1003 8.46943 20.0306C8.39974 19.9609 8.34447 19.8782 8.30676 19.7872C8.26904 19.6961 8.24963 19.5985 8.24963 19.5C8.24963 19.4015 8.26904 19.3039 8.30676 19.2128C8.34447 19.1218 8.39974 19.0391 8.46943 18.9694L15.4397 12L8.46943 5.03062C8.32869 4.88989 8.24963 4.69902 8.24963 4.5C8.24963 4.30098 8.32869 4.1101 8.46943 3.96937C8.61016 3.82864 8.80103 3.74958 9.00005 3.74958C9.19907 3.74958 9.38995 3.82864 9.53068 3.96937L17.0307 11.4694C17.1004 11.539 17.1557 11.6217 17.1935 11.7128C17.2312 11.8038 17.2506 11.9014 17.2506 12C17.2506 12.0986 17.2312 12.1962 17.1935 12.2872C17.1557 12.3783 17.1004 12.461 17.0307 12.5306Z" fill="currentColor"/></svg></span>
+            </button>
+            <div class="eb-clears">Auto-clears <span id="ebClearsAt">20:00</span></div>
+          </div>
+
           <!-- Section: ACTIVE PASSES (Figma node 47:81 / 47:539) -->
           <div class="m-section-header">
             <div class="m-section-title-wrap">
@@ -580,6 +601,107 @@
           <button class="pf-btn-done" onclick="closePassModal()">Done</button>
         </div>
       </div>
+
+      <!-- Climate & Savings screen — CEB Peak Tariff demand-response AI.
+           Real-time status/rules come from GET /api/energy/status. -->
+      <div id="screenClimate" class="phone-screen hidden">
+        <div class="pf-plain-header">
+          <button class="pf-back dark" onclick="goToScreen('screenHome')"><span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.0307 12.5306L9.53068 20.0306C9.46099 20.1003 9.37827 20.1556 9.28722 20.1933C9.19618 20.231 9.0986 20.2504 9.00005 20.2504C8.9015 20.2504 8.80392 20.231 8.71288 20.1933C8.62183 20.1556 8.53911 20.1003 8.46943 20.0306C8.39974 19.9609 8.34447 19.8782 8.30676 19.7872C8.26904 19.6961 8.24963 19.5985 8.24963 19.5C8.24963 19.4015 8.26904 19.3039 8.30676 19.2128C8.34447 19.1218 8.39974 19.0391 8.46943 18.9694L15.4397 12L8.46943 5.03062C8.32869 4.88989 8.24963 4.69902 8.24963 4.5C8.24963 4.30098 8.32869 4.1101 8.46943 3.96937C8.61016 3.82864 8.80103 3.74958 9.00005 3.74958C9.19907 3.74958 9.38995 3.82864 9.53068 3.96937L17.0307 11.4694C17.1004 11.539 17.1557 11.6217 17.1935 11.7128C17.2312 11.8038 17.2506 11.9014 17.2506 12C17.2506 12.0986 17.2312 12.1962 17.1935 12.2872C17.1557 12.3783 17.1004 12.461 17.0307 12.5306Z" fill="currentColor" transform="rotate(180 12 12)"/></svg></span></button>
+          <div class="pf-plain-title">Climate &amp; Savings</div>
+          <button class="pf-back dark" style="margin-left:auto;" onclick="showToast('✦ CEB Peak Defender pre-cools before 6:30 PM peak pricing and caps AC draw until 10:30 PM.')" aria-label="About">
+            <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.25C10.0716 2.25 8.18657 2.82183 6.58319 3.89317C4.97982 4.96451 3.73013 6.48726 2.99218 8.26884C2.25422 10.0504 2.06114 12.0108 2.43735 13.9021C2.81355 15.7934 3.74215 17.5307 5.10571 18.8943C6.46928 20.2579 8.20656 21.1865 10.0979 21.5627C11.9892 21.9389 13.9496 21.7458 15.7312 21.0078C17.5127 20.2699 19.0355 19.0202 20.1068 17.4168C21.1782 15.8134 21.75 13.9284 21.75 12C21.7473 9.41498 20.7192 6.93661 18.8913 5.10872C17.0634 3.28084 14.585 2.25273 12 2.25ZM12 20.25C10.3683 20.25 8.77326 19.7661 7.41655 18.8596C6.05984 17.9531 5.00242 16.6646 4.378 15.1571C3.75358 13.6496 3.5902 11.9908 3.90853 10.3905C4.22685 8.79016 5.01259 7.32015 6.16637 6.16637C7.32016 5.01259 8.79017 4.22685 10.3905 3.90852C11.9909 3.59019 13.6497 3.75357 15.1571 4.37799C16.6646 5.00242 17.9531 6.05984 18.8596 7.41655C19.7661 8.77325 20.25 10.3683 20.25 12C20.2475 14.1873 19.3775 16.2843 17.8309 17.8309C16.2843 19.3775 14.1873 20.2475 12 20.25ZM13.5 16.5C13.5 16.6989 13.421 16.8897 13.2803 17.0303C13.1397 17.171 12.9489 17.25 12.75 17.25C12.3522 17.25 11.9706 17.092 11.6893 16.8107C11.408 16.5294 11.25 16.1478 11.25 15.75V12C11.0511 12 10.8603 11.921 10.7197 11.7803C10.579 11.6397 10.5 11.4489 10.5 11.25C10.5 11.0511 10.579 10.8603 10.7197 10.7197C10.8603 10.579 11.0511 10.5 11.25 10.5C11.6478 10.5 12.0294 10.658 12.3107 10.9393C12.592 11.2206 12.75 11.6022 12.75 12V15.75C12.9489 15.75 13.1397 15.829 13.2803 15.9697C13.421 16.1103 13.5 16.3011 13.5 16.5ZM10.5 7.875C10.5 7.6525 10.566 7.43499 10.6896 7.24998C10.8132 7.06498 10.9889 6.92078 11.1945 6.83564C11.4001 6.75049 11.6263 6.72821 11.8445 6.77162C12.0627 6.81502 12.2632 6.92217 12.4205 7.0795C12.5778 7.23684 12.685 7.43729 12.7284 7.65552C12.7718 7.87375 12.7495 8.09995 12.6644 8.30552C12.5792 8.51109 12.435 8.68679 12.25 8.8104C12.065 8.93402 11.8475 9 11.625 9C11.3266 9 11.0405 8.88147 10.8295 8.6705C10.6185 8.45952 10.5 8.17337 10.5 7.875Z" fill="currentColor"/></svg></span>
+          </button>
+        </div>
+
+        <div class="pf-body climate-body">
+          <div class="climate-savings-card">
+            <div class="csc-eyebrow">CEB PEAK TARIFF SAVINGS (THIS MONTH)</div>
+            <div class="csc-amount" id="climateSavingsAmount">LKR 16,450</div>
+            <span class="csc-pill" id="climateSavingsPill">↓ 34% vs Standard AC Usage</span>
+          </div>
+
+          <div class="climate-card">
+            <div class="climate-card-head">
+              <span class="climate-card-title">Today's Cooling Strategy</span>
+              <span class="figma-active-badge" id="climateStrategyBadge"><span class="badge-live-dot"></span> Active</span>
+            </div>
+
+            <div class="climate-chart-wrap">
+              <div class="cc-time-labels">
+                <span id="chartLabelStart">4:00 PM</span>
+                <span class="cc-peak-label" id="chartLabelPeak">6:30 PM Peak</span>
+                <span id="chartLabelEnd">10:00 PM</span>
+              </div>
+              <svg class="climate-chart-svg" viewBox="0 0 300 90" preserveAspectRatio="none" id="climateChartSvg">
+                <rect id="chartPeakRect" x="180" y="0" width="120" height="90" fill="#FEF3C7" opacity="0.6"></rect>
+                <line id="chartPrecoolLine" x1="132" y1="0" x2="132" y2="90" stroke="#1E9E52" stroke-width="1.5" stroke-dasharray="3,3"></line>
+                <line id="chartPeakLine" x1="180" y1="0" x2="180" y2="90" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3,3"></line>
+                <path id="chartCurve" d="M0,45 C40,45 70,68 110,68 C140,68 150,30 190,26 C230,22 260,40 300,36" fill="none" stroke="#111111" stroke-width="2"></path>
+                <circle id="chartPrecoolDot" cx="132" cy="68" r="4" fill="#1E9E52"></circle>
+                <circle id="chartPeakDot" cx="190" cy="26" r="4" fill="#D97706"></circle>
+              </svg>
+              <div class="cc-tag cc-tag-precool" id="ccTagPrecool" style="left:44%;">17:35 · Pre-cool 23°C</div>
+              <div class="cc-tag cc-tag-peak" id="ccTagPeak" style="left:60%;">18:30 · Eco-Float Active</div>
+            </div>
+
+            <div class="cc-legend">
+              <span class="cc-legend-item"><span class="cc-swatch cc-swatch-green"></span>Pre-cooling (Off-Peak)</span>
+              <span class="cc-legend-item"><span class="cc-swatch cc-swatch-amber"></span>CEB Peak Window</span>
+            </div>
+
+            <p class="climate-desc" id="climateStrategyDesc">Your home pre-cooled before your arrival and shifted to energy-saving mode during the 6:30 PM evening tariff hike.</p>
+          </div>
+
+          <div class="climate-card">
+            <div class="climate-card-head">
+              <span class="climate-card-title">Active AI Rules</span>
+              <span class="cc-count-pill" id="rulesEnabledCount">2 ENABLED</span>
+            </div>
+
+            <div class="ai-rule-row">
+              <div class="ai-rule-icon">
+                <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2Z"/></svg></span>
+              </div>
+              <div class="ai-rule-text">
+                <div class="ai-rule-title">Thermal Pre-Cooling</div>
+                <div class="ai-rule-sub">Adapts to outdoor heat</div>
+              </div>
+              <div class="ios-toggle">
+                <input type="checkbox" id="ruleToggle-thermalPreCooling" checked onchange="toggleEnergyRule('thermalPreCooling', this.checked)">
+                <span class="ios-slider"></span>
+              </div>
+            </div>
+
+            <div class="ai-rule-row">
+              <div class="ai-rule-icon">
+                <span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.2 2.3c.3-.4.9-.2.9.3l-.9 7.4h5.4c.5 0 .8.6.4 1L10.8 21.7c-.3.4-.9.2-.9-.3l.9-7.4H5.4c-.5 0-.8-.6-.4-1L13.2 2.3Z" fill="currentColor"/></svg></span>
+              </div>
+              <div class="ai-rule-text">
+                <div class="ai-rule-title">CEB Peak Defender</div>
+                <div class="ai-rule-sub">Reduces AC draw 6:30–10:30 PM</div>
+              </div>
+              <div class="ios-toggle">
+                <input type="checkbox" id="ruleToggle-cebPeakDefender" checked onchange="toggleEnergyRule('cebPeakDefender', this.checked)">
+                <span class="ios-slider"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="climate-units-row">
+            <div class="cu-icon">
+              <span class="icon icon-sm"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.5603 10.1887L13.0603 2.68875C12.779 2.40766 12.3977 2.24976 12 2.24976C11.6024 2.24976 11.221 2.40766 10.9397 2.68875L3.4397 10.1887C3.29973 10.3277 3.18878 10.493 3.1133 10.6752C3.03782 10.8574 2.99931 11.0528 3.00001 11.25V20.25C3.00001 20.4489 3.07903 20.6397 3.21968 20.7803C3.36033 20.921 3.5511 21 3.75001 21H9.75001C9.94892 21 10.1397 20.921 10.2803 20.7803C10.421 20.6397 10.5 20.4489 10.5 20.25V15H13.5V20.25C13.5 20.4489 13.579 20.6397 13.7197 20.7803C13.8603 20.921 14.0511 21 14.25 21H20.25C20.4489 21 20.6397 20.921 20.7803 20.7803C20.921 20.6397 21 20.4489 21 20.25V11.25C21.0007 11.0528 20.9622 10.8574 20.8867 10.6752C20.8112 10.493 20.7003 10.3277 20.5603 10.1887ZM19.5 19.5H15V14.25C15 14.0511 14.921 13.8603 14.7803 13.7197C14.6397 13.579 14.4489 13.5 14.25 13.5H9.75001C9.5511 13.5 9.36033 13.579 9.21968 13.7197C9.07903 13.8603 9.00001 14.0511 9.00001 14.25V19.5H4.50001V11.25L12 3.75L19.5 11.25V19.5Z" fill="currentColor"/></svg></span>
+            </div>
+            <div class="cu-text">
+              <div class="cu-title">Suite 1204 Units</div>
+              <div class="cu-sub">Living Room, Master Bed, Guest</div>
+            </div>
+            <div class="cu-status">
+              <div class="cu-count">3 ACs Synced</div>
+              <div class="cu-optimal">Optimal</div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </aside>
 
@@ -707,6 +829,16 @@
             <button class="btn-override-trigger" onclick="applyManualOverride()">
               🛡️ 1-Tap Override (Dismiss / Heavy Usage)
             </button>
+          </div>
+        </div>
+
+        <div class="drawer-card">
+          <div class="card-title-sm">CEB Peak-Tariff AI — Judge Evaluation Controls</div>
+          <p class="card-note">The real behavior only appears live between 5:35 PM–8:00 PM (pre-cool → eco-float around the actual CEB peak window). Force a mode here to demo it at any time — every other computation (chart timing, savings, explainability) still runs for real off whichever mode is forced.</p>
+          <div class="btn-stack">
+            <button class="btn-override-trigger" onclick="setEnergyDebugMode('PRE_COOLING')">🌡️ Force: Pre-Cooling</button>
+            <button class="btn-anomaly-trigger" style="background:#0F172A;" onclick="setEnergyDebugMode('ECO_FLOAT')">⚡ Force: Eco-Float (Peak Active)</button>
+            <button class="btn-override-trigger" onclick="setEnergyDebugMode(null)">↩ Clear Override (Real Time)</button>
           </div>
         </div>
 
