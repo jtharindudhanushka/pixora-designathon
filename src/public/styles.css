@@ -4189,3 +4189,138 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
   color: #334155;
   line-height: 1.5;
 }
+
+
+/* ==========================================================================
+   SOLID 3-COLUMN VIEWPORT STAGE FOR VISITOR PASS SIM
+   ========================================================================== */
+#pageVisitorPass {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+#pageVisitorPass.hidden {
+  display: none !important;
+}
+
+.visitor-sim-subnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.viewport-stage {
+  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: 290px 1fr 402px !important;
+  gap: 16px !important;
+  padding: 16px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: calc(100vh - 120px) !important;
+  box-sizing: border-box !important;
+}
+
+/* Left Pane */
+.courier-panel {
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: 290px !important;
+}
+
+/* Center Pane: 3D Architectural Canvas */
+.blueprint-center-stage {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  height: 100% !important;
+}
+
+.blueprint-canvas-container {
+  flex: 1 !important;
+  position: relative !important;
+  background: #f1f5f9 !important;
+  border-radius: 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 520px !important;
+}
+
+#twinCanvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+/* Right Pane: Resident Living App strictly on the right */
+.resident-panel {
+  grid-column: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 402px !important;
+  margin-left: auto !important;
+}
+
+/* Top Nav Tabs */
+.nav-tabs-primary {
+  display: flex;
+  align-items: center;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.nav-tab-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-tab-btn:hover {
+  color: #0F172A;
+}
+
+.nav-tab-btn.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Full Pages: Energy Sim & Chatbot Sim */
+#pageEnergySim,
+#pageChatbotSim {
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - 65px);
+  background: #F8FAFC;
+  overflow-y: auto;
+}
+
+#pageEnergySim.hidden,
+#pageChatbotSim.hidden {
+  display: none !important;
+}
