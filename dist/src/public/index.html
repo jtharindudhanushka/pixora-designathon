@@ -168,6 +168,10 @@
         <div class="canvas-title-wrap">
           <span class="hud-eyebrow">TOWER 1 VERTICAL SLICE SCHEMATIC</span>
           <div class="hud-coords">COLOMBO 02 · 6.9182° N, 79.8543° E · ELEV: 168m</div>
+          <div class="pres-top-launcher-strip">
+            <button class="btn-pres-badge cyan" onclick="openAiGuardrailsModal('friend')">✦ AI Guardrail Sim</button>
+            <button class="btn-pres-badge amber" onclick="openCebArrivalModal()">⚡ CEB Arrival Story</button>
+          </div>
         </div>
         <div class="hud-telemetry-readouts">
           <div class="hud-val-box">
@@ -268,6 +272,18 @@
             <button class="btn-ai-send" onclick="sendAiCommand()"><span class="icon icon-xs"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.2807 11.0306C19.211 11.1004 19.1283 11.1557 19.0373 11.1934C18.9462 11.2312 18.8486 11.2506 18.7501 11.2506C18.6515 11.2506 18.5539 11.2312 18.4628 11.1934C18.3718 11.1557 18.2891 11.1004 18.2194 11.0306L12.7501 5.56031V20.25C12.7501 20.4489 12.671 20.6397 12.5304 20.7803C12.3897 20.921 12.199 21 12.0001 21C11.8011 21 11.6104 20.921 11.4697 20.7803C11.3291 20.6397 11.2501 20.4489 11.2501 20.25V5.56031L5.78068 11.0306C5.63995 11.1714 5.44907 11.2504 5.25005 11.2504C5.05103 11.2504 4.86016 11.1714 4.71943 11.0306C4.5787 10.8899 4.49963 10.699 4.49963 10.5C4.49963 10.301 4.5787 10.1101 4.71943 9.96938L11.4694 3.21938C11.5391 3.14964 11.6218 3.09432 11.7128 3.05658C11.8039 3.01884 11.9015 2.99941 12.0001 2.99941C12.0986 2.99941 12.1962 3.01884 12.2873 3.05658C12.3783 3.09432 12.461 3.14964 12.5307 3.21938L19.2807 9.96938C19.3504 10.039 19.4057 10.1217 19.4435 10.2128C19.4812 10.3038 19.5006 10.4014 19.5006 10.5C19.5006 10.5986 19.4812 10.6962 19.4435 10.7872C19.4057 10.8783 19.3504 10.961 19.2807 11.0306Z" fill="currentColor"/></svg></span></button>
           </div>
           <div id="mAiToast" class="m-ai-toast hidden"></div>
+
+          <!-- Presentation Simulation Chips (Minimal, big typography, projector-ready) -->
+          <div class="ai-demo-chips-row">
+            <button class="ai-demo-chip chip-cyan" onclick="openAiGuardrailsModal('friend')" title="Show Animated 4-Tier Guardrail Pipeline">
+              <span class="chip-dot-pulse cyan"></span>
+              <span class="chip-text">✦ AI Guardrails Pipeline</span>
+            </button>
+            <button class="ai-demo-chip chip-amber" onclick="openCebArrivalModal()" title="Play Autonomous Arrival & CEB Story">
+              <span class="chip-dot-pulse amber"></span>
+              <span class="chip-text">⚡ CEB Arrival Story</span>
+            </button>
+          </div>
 
           <!-- CEB Peak Tariff AI card: demand-response eco-float banner.
                Hidden outside the pre-cool/peak window; see energyOptimizer.ts -->
@@ -872,9 +888,264 @@
     </div>
   </div>
 
+  
+  <!-- ================================================================= -->
+  <!-- PRESENTATION SIMULATOR 1: ENTERPRISE AI GUARDRAIL PIPELINE         -->
+  <!-- ================================================================= -->
+  <div id="aiGuardrailsModal" class="pres-modal-backdrop hidden" onclick="closeAiGuardrailsModal(event)">
+    <div class="pres-modal-container" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="pres-modal-header">
+        <div class="pres-title-col">
+          <div class="pres-header-pill cyan">ENTERPRISE DEFENSE-IN-DEPTH · SRI LANKA PDPA &amp; HARDWARE AIR-GAP</div>
+          <h2 class="pres-title">AI Chatbot Guardrails &amp; Conglomerate Skill Mesh</h2>
+          <p class="pres-subtitle">Projector Visualizer: Watch prompt packets travel through 4 enterprise security tiers down to physical locks</p>
+        </div>
+        <div class="pres-header-actions">
+          <button class="pres-btn-control" onclick="stepGuardrailPrev()" title="Previous Tier">⏮ Prev</button>
+          <button class="pres-btn-action cyan" id="btnPlayGuardrail" onclick="toggleGuardrailAutoPlay()">▶ Run Pipeline Flow</button>
+          <button class="pres-btn-control" onclick="stepGuardrailNext()" title="Next Tier">Next ⏭</button>
+          <button class="pres-btn-control subtle" onclick="resetGuardrailTiers()">⟲ Reset</button>
+          <button class="pres-btn-close" onclick="closeAiGuardrailsModal()" title="Close (Esc)">✕</button>
+        </div>
+      </div>
+
+      <!-- Scenario Selector Bar -->
+      <div class="pres-prompts-bar">
+        <span class="pres-prompts-lbl">PROMPT SCENARIO:</span>
+        <button class="pres-prompt-pill active" id="btnPromptFriend" onclick="selectGuardrailPrompt('friend')">
+          <span class="pill-ico">✦</span> "My friend is arriving tomorrow at 6 PM"
+        </button>
+        <button class="pres-prompt-pill" id="btnPromptScene" onclick="selectGuardrailPrompt('scene')">
+          <span class="pill-ico">✦</span> "Leaving home for work" (Macro Scene)
+        </button>
+        <button class="pres-prompt-pill danger" id="btnPromptAttack" onclick="selectGuardrailPrompt('attack')">
+          <span class="pill-ico">⚠️</span> "Unlock Unit 1204 front door" (Cross-Tenant Attack)
+        </button>
+      </div>
+
+      <!-- Live 4-Tier Pipeline Grid -->
+      <div class="pres-pipeline-grid">
+        <!-- Tier 1 -->
+        <div class="pres-tier-card" id="presTier1">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 01 / 04</span>
+            <span class="tier-status-badge" id="t1Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Input Defense &amp; PDPA Masking</div>
+          <div class="tier-desc">NeMo prompt-injection guardrails detect jailbreak probes. Sri Lanka PDPA engine redacts resident PII before model ingest.</div>
+          
+          <div class="tier-live-box">
+            <div class="live-label">RAW PROMPT INGEST</div>
+            <div class="live-val-mono" id="t1RawPrompt">"My friend is arriving tomorrow at 6 PM"</div>
+            <div class="live-status-row">
+              <span class="live-pill green" id="t1InjectionStatus">✓ INJECTION: SAFE</span>
+              <span class="live-pill blue" id="t1PiStatus">✓ PDPA PII: MASKED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="pulse1"></div></div>
+
+        <!-- Tier 2 -->
+        <div class="pres-tier-card" id="presTier2">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 02 / 04</span>
+            <span class="tier-status-badge" id="t2Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Semantic Router &amp; Conglomerate Mesh</div>
+          <div class="tier-desc">Deterministic router routes strictly to target microservice. Bypasses unneeded conglomerate APIs to prevent data leaks.</div>
+          
+          <div class="tier-live-box">
+            <div class="live-label">CONGLOMERATE SKILL MESH</div>
+            <div class="skill-mesh-list">
+              <div class="mesh-item active" id="meshPass">
+                <span class="mesh-dot green"></span>
+                <strong>JKH Access Microservice</strong>
+                <span class="mesh-tag target">TARGET DISPATCH</span>
+              </div>
+              <div class="mesh-item muted" id="meshRetail">
+                <span class="mesh-dot gray"></span>
+                <span>Keells Super Delivery</span>
+                <span class="mesh-tag">BYPASSED</span>
+              </div>
+              <div class="mesh-item muted" id="meshFinance">
+                <span class="mesh-dot gray"></span>
+                <span>FriMi Banking Gateway</span>
+                <span class="mesh-tag">AIR-GAPPED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="pulse2"></div></div>
+
+        <!-- Tier 3 -->
+        <div class="pres-tier-card" id="presTier3">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 03 / 04</span>
+            <span class="tier-status-badge" id="t3Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Cryptographic Zero-Trust &amp; Air-Gap</div>
+          <div class="tier-desc">Raw LLM outputs NEVER touch physical relays. Cryptographic claims must match Unit 1402 tenant JWT and single-use nonces.</div>
+          
+          <div class="tier-live-box" id="t3Box">
+            <div class="live-label">HARDWARE INTERLOCK CLAIMS</div>
+            <div class="auth-claims-grid">
+              <div><span class="lbl-xs">TENANT JWT:</span> <strong id="t3Resident">Maya (Unit 1402)</strong></div>
+              <div><span class="lbl-xs">SCOPE CHECK:</span> <strong class="text-green" id="t3Scope">turnstile:enter · lift:14</strong></div>
+              <div><span class="lbl-xs">TOKEN NONCE:</span> <strong class="text-mono" id="t3Nonce">#749102 · Single-use</strong></div>
+              <div><span class="lbl-xs">RELAY STATE:</span> <strong class="text-amber" id="t3Relay">ARMED FOR TTL 15M</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="pulse3"></div></div>
+
+        <!-- Tier 4 -->
+        <div class="pres-tier-card" id="presTier4">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 04 / 04</span>
+            <span class="tier-status-badge" id="t4Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Deterministic Output &amp; Resident UI</div>
+          <div class="tier-desc">Enforces JSON schema output to eliminate hallucinations. Confirms real-time state with mobile UI and immutable audit log.</div>
+          
+          <div class="tier-live-box highlight" id="t4Box">
+            <div class="live-label">MOBILE APP DISPATCH</div>
+            <div class="t4-result-title" id="t4Title">✦ Guest Pass Minted Successfully</div>
+            <div class="t4-result-desc" id="t4Desc">Generated 15-min cryptographic pass for Union Place Turnstile 1 and Elevator Bank A to Floor 14.</div>
+            <div class="t4-badge-row">
+              <span class="live-pill green" id="t4ResultBadge">✓ SECURE &amp; ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pres-modal-footer">
+        <div class="pres-foot-note">
+          <strong>Key Judge Takeaway:</strong> Generative models never actuate physical hardware relays directly. If a resident attempts cross-unit control (e.g. Unit 1204), Tier 3 cryptographic token validation instantly rejects the action.
+        </div>
+        <button class="pres-btn-done" onclick="closeAiGuardrailsModal()">Close Visualizer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- PRESENTATION SIMULATOR 2: CEB POWERGRID & SPATIAL ARRIVAL STORY   -->
+  <!-- ================================================================= -->
+  <div id="cebArrivalModal" class="pres-modal-backdrop hidden" onclick="closeCebArrivalModal(event)">
+    <div class="pres-modal-container ceb-story-container" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="pres-modal-header">
+        <div class="pres-title-col">
+          <div class="pres-header-pill amber">CEB DEMAND-RESPONSE &amp; 3D DIGITAL TWIN SYNCHRONIZATION</div>
+          <h2 class="pres-title">A Day in Maya's Life: Autonomous Arrival &amp; Peak-Shaving Story</h2>
+          <p class="pres-subtitle">Projector Walkthrough: Colombo CEB peak tariff shaving (LKR 16,450 saved) synchronized live with 3D turnstiles, lifts &amp; locks</p>
+        </div>
+        <div class="pres-header-actions">
+          <button class="pres-btn-control" onclick="stepCebPrev()" title="Previous Stage">⏮ Prev</button>
+          <button class="pres-btn-action amber" id="btnPlayCeb" onclick="toggleCebStoryAutoPlay()">▶ Play Full Day Timeline</button>
+          <button class="pres-btn-control" onclick="stepCebNext()" title="Next Stage">Next ⏭</button>
+          <button class="pres-btn-control subtle" onclick="jumpToStoryStep(1)">⟲ Restart</button>
+          <button class="pres-btn-close" onclick="closeCebArrivalModal()" title="Close (Esc)">✕</button>
+        </div>
+      </div>
+
+      <!-- Step Timeline Cards (Big Projector Typography) -->
+      <div class="ceb-story-timeline">
+        <!-- Step 1 -->
+        <div class="story-step-card active" id="storyStep1" onclick="jumpToStoryStep(1)">
+          <div class="story-card-top">
+            <span class="story-step-badge">STEP 01</span>
+            <span class="story-time">08:30 AM</span>
+          </div>
+          <div class="story-step-title">Leaving for Work: Auto-Eco Scene</div>
+          <p class="story-step-p">Maya taps 'Leaving home'. Yale lock latches, Living AC shuts down, and baseline energy drops to 240W standby.</p>
+          <div class="story-state-chip">APARTMENT IDLE · 240W</div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="story-step-card" id="storyStep2" onclick="jumpToStoryStep(2)">
+          <div class="story-card-top">
+            <span class="story-step-badge green">STEP 02 · OFF-PEAK</span>
+            <span class="story-time">05:40 PM</span>
+          </div>
+          <div class="story-step-title">CEB Pre-Cooling Window</div>
+          <p class="story-step-p">Off-peak tariff (LKR 24/kWh). AI pre-cools Unit 1402 to 21.5°C using thermal mass storage before peak rates hit.</p>
+          <div class="story-state-chip">PRE-COOL · 21.5°C @ LKR 24</div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="story-step-card" id="storyStep3" onclick="jumpToStoryStep(3)">
+          <div class="story-card-top">
+            <span class="story-step-badge amber">STEP 03 · PEAK TARIFF</span>
+            <span class="story-time">06:00 PM</span>
+          </div>
+          <div class="story-step-title">Peak-Tariff Shield (LKR 54/kWh)</div>
+          <p class="story-step-p">CEB peak tariffs activate. AC enters eco-float at 23.5°C. Compressor power capped to 3.2kW, cutting bill by 34%.</p>
+          <div class="story-state-chip">ECO-FLOAT · PEAK CAPPED</div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="story-step-card" id="storyStep4" onclick="jumpToStoryStep(4)">
+          <div class="story-card-top">
+            <span class="story-step-badge cyan">STEP 04 · SPATIAL TWIN</span>
+            <span class="story-time">06:14 PM</span>
+          </div>
+          <div class="story-step-title">Lobby Turnstile &amp; Lift Call</div>
+          <p class="story-step-p">BLE beacon detects Maya at Union Place gate. Turnstile 1 grants access and Elevator Bank A dispatches to Ground.</p>
+          <div class="story-state-chip">LIFT EN ROUTE TO GROUND</div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="story-step-card" id="storyStep5" onclick="jumpToStoryStep(5)">
+          <div class="story-card-top">
+            <span class="story-step-badge green">STEP 05 · HOME ARRIVAL</span>
+            <span class="story-time">06:18 PM</span>
+          </div>
+          <div class="story-step-title">Hands-Free Yale Unlock</div>
+          <p class="story-step-p">Maya reaches Floor 14. Smart lock unlocks hands-free, AC resumes comfort mode, and welcome scene welcomes her home.</p>
+          <div class="story-state-chip">UNIT 1402 UNLOCKED · 22.0°C</div>
+        </div>
+      </div>
+
+      <!-- Live Telemetry & Savings Monitor Strip -->
+      <div class="story-monitor-strip">
+        <div class="sms-stat">
+          <span class="sms-lbl">CEB GRID TARIFF</span>
+          <span class="sms-val text-cyan" id="smsTariff">OFF-PEAK (LKR 24/kWh)</span>
+        </div>
+        <div class="sms-stat">
+          <span class="sms-lbl">UNIT 1402 CLIMATE AI</span>
+          <span class="sms-val text-green" id="smsAc">STANDBY · OFF</span>
+        </div>
+        <div class="sms-stat">
+          <span class="sms-lbl">3D DIGITAL TWIN STATE</span>
+          <span class="sms-val text-amber" id="smsTwin">TOWER 1 · NORMAL CAD</span>
+        </div>
+        <div class="sms-stat">
+          <span class="sms-lbl">MONTHLY CEB SAVINGS</span>
+          <span class="sms-val text-green" id="smsSavings">LKR 16,450 (↓ 34%)</span>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pres-modal-footer">
+        <div class="pres-foot-note">
+          <strong>Autonomous Resident Experience:</strong> The system balances resident comfort with CEB time-of-use tariffs. Maya does not need to press buttons or adjust thermostats manually.
+        </div>
+        <button class="pres-btn-done" onclick="closeCebArrivalModal()">Close Story Visualizer</button>
+      </div>
+    </div>
+  </div>
+
   <script src="three.min.js"></script>
   <script src="OrbitControls.js"></script>
   <script src="twinCanvas.js"></script>
   <script src="app.js"></script>
+
+  
 </body>
 </html>
