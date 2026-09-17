@@ -2724,3 +2724,273 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 .limitations-list strong {
   color: #451A03;
 }
+
+/* ==========================================================================
+   ENERGY / CEB PEAK TARIFF DEMAND-RESPONSE AI
+   Home banner + Climate & Savings screen (energyOptimizer.ts backed)
+   ========================================================================== */
+.energy-banner {
+  margin: 0 12px;
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.energy-banner.hidden { display: none; }
+
+.eb-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eb-bolt { color: #FBBF24; flex-shrink: 0; }
+
+.eb-title {
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eb-cap-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.12);
+  color: #FBBF24;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.eb-body {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.75);
+}
+
+.eb-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  color: #111111;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eb-clears {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+}
+
+.eb-clears span { color: rgba(255,255,255,0.7); font-weight: 600; }
+
+/* Climate & Savings screen */
+.climate-body { gap: 20px; }
+
+.climate-savings-card {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.csc-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.6);
+}
+
+.csc-amount {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.csc-pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  background: rgba(30, 158, 82, 0.25);
+  color: #4ADE80;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.climate-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.climate-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.climate-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.cc-count-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.climate-chart-wrap { position: relative; }
+
+.cc-time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #9CA3AF;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.cc-peak-label { color: #D97706; }
+
+.climate-chart-svg {
+  width: 100%;
+  height: 90px;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #FAFAFA;
+}
+
+.cc-tag {
+  position: absolute;
+  top: -4px;
+  transform: translate(-50%, -100%);
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.cc-tag-precool { background: #DCFCE7; color: #146B49; margin-top: 28px; }
+.cc-tag-peak { background: #FEF3C7; color: #92400E; margin-top: 8px; }
+
+.cc-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.cc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.cc-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.cc-swatch-green { background: #1E9E52; }
+.cc-swatch-amber { background: #D97706; }
+
+.climate-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #4B5563;
+}
+
+.ai-rule-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #F3F4F6;
+}
+
+.ai-rule-row:first-of-type { border-top: none; padding-top: 0; }
+
+.ai-rule-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #111111;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-rule-text { flex: 1; min-width: 0; }
+.ai-rule-title { font-size: 13px; font-weight: 700; color: #111111; }
+.ai-rule-sub { font-size: 11px; color: #6B7280; margin-top: 1px; }
+
+.climate-units-row {
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.cu-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cu-text { flex: 1; min-width: 0; }
+.cu-title { font-size: 13px; font-weight: 700; color: #111111; }
+.cu-sub { font-size: 11px; color: #6B7280; margin-top: 1px; }
+
+.cu-status { text-align: right; flex-shrink: 0; }
+.cu-count { font-size: 12px; font-weight: 700; color: #111111; }
+.cu-optimal { font-size: 11px; color: var(--accent-green); font-weight: 600; margin-top: 1px; }
