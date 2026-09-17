@@ -62,7 +62,7 @@
       </div>
       <div class="playback-bar">
         <button id="btnPlaySequence" class="btn-playback-play" onclick="togglePlaySequence()">
-          <span id="playIcon">â–¶</span>
+          <span id="playIcon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;margin-right:4px;"><path d="M8 5v14l11-7z"/></svg></span>
           <span id="playLabel">Play Simulation</span>
         </button>
         <div class="timeline-nodes">
@@ -776,8 +776,8 @@
           <p class="pres-page-subtitle">Switch between Pre-Cooling Peak Shaving and Occupancy Sensor Optimization to explore our dual-engine energy reduction architecture.</p>
         </div>
         <div class="pres-header-controls">
-          <button class="pres-btn-control active" id="btnSubSim1" onclick="switchEnergySubSim(1)">⚡ Pre-Cooling Sim</button>
-          <button class="pres-btn-control" id="btnSubSim2" onclick="switchEnergySubSim(2)">🌡️ Sensor Optimization Sim</button>
+          <button class="pres-btn-control active" id="btnSubSim1" onclick="switchEnergySubSim(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Pre-Cooling Sim</button>
+          <button class="pres-btn-control" id="btnSubSim2" onclick="switchEnergySubSim(2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px;"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>Sensor Optimization Sim</button>
         </div>
       </div>
 
@@ -790,7 +790,7 @@
               <div class="chart-title">Proximity-Triggered Pre-Cooling — AI Data Flow</div>
               <div class="chart-sub">Maya's phone location triggers 4 layers of AI to pre-cool Unit 1402 before expensive peak tariff hits</div>
             </div>
-            <button class="pres-btn-action amber" id="btnPrecoolPlay" onclick="playPrecoolSim()" style="flex-shrink:0">▶  Run Simulation</button>
+            <button class="pres-btn-action amber" id="btnPrecoolPlay" onclick="playPrecoolSim()" style="flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;margin-right:6px;"><path d="M8 5v14l11-7z"/></svg> Run Simulation</button>
           </div>
 
           <div class="sim2col-layout">
@@ -926,7 +926,7 @@
                 <button class="eopt-sc-pill" id="eoptScPeak" onclick="setOptScenario('peak')">Peak 19:00</button>
                 <button class="eopt-sc-pill" id="eoptScNight" onclick="setOptScenario('night')">Night 23:00</button>
               </div>
-              <button class="pres-btn-action amber" id="btnOptPlay" onclick="playOptSim()">▶  Run Flow</button>
+              <button class="pres-btn-action amber" id="btnOptPlay" onclick="playOptSim()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;margin-right:6px;"><path d="M8 5v14l11-7z"/></svg> Run Flow</button>
             </div>
           </div>
 
@@ -1038,12 +1038,6 @@
           <h1 class="pres-page-title">Enterprise AI Chatbot Guardrails &amp; Skill Mesh Pipeline</h1>
           <p class="pres-page-subtitle">Demonstrating how John Keells Holdings (JKH) deploys conversational AI with Sri Lanka PDPA compliance, semantic skill routing, and a strict physical hardware air-gap.</p>
         </div>
-        <div class="pres-header-controls">
-          <button class="pres-btn-control" onclick="stepChatbotPrev()">â® Prev Tier</button>
-          <button class="pres-btn-action cyan" id="btnPlayChatbot" onclick="toggleChatbotAutoPlay()">â–¶ Run Pipeline Flow</button>
-          <button class="pres-btn-control" onclick="stepChatbotNext()">Next Tier â­</button>
-          <button class="pres-btn-control subtle" onclick="resetChatbotTiers()">âŸ² Reset</button>
-        </div>
       </div>
 
       <!-- Scenario Selector Bar -->
@@ -1067,7 +1061,7 @@
             <div class="chart-title">Enterprise AI Guardrails &mdash; Live Data Flow Sim</div>
             <div class="chart-sub">Watch how raw prompts pass through defense layers before touching conglomerate APIs</div>
           </div>
-          <button class="pres-btn-action cyan" id="btnPlayChatbot" onclick="playChatbotSim()" style="flex-shrink:0">&#9654;&nbsp; Run Pipeline Flow</button>
+          <button class="pres-btn-action cyan" id="btnPlayChatbot" onclick="playChatbotSim()" style="flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;margin-right:6px;"><path d="M8 5v14l11-7z"/></svg> Run Pipeline Flow</button>
         </div>
 
         <div style="padding:24px; display:flex; justify-content:center;">

@@ -1,6 +1,6 @@
 // ==========================================================================
-// TRI-ZEN OS — 3D Documentary Digital Twin °Coordination Engine
-// Synchronizes Rider QR, °Cinematic Architectural °Canvas, and Maya's Living App
+// TRI-ZEN OS — 3D Documentary Digital Twin Coordination Engine
+// Synchronizes Rider QR, Cinematic Architectural Canvas, and Maya's Living App
 // ==========================================================================
 
 let ws;
@@ -11,10 +11,10 @@ let isSequencePlaying = false;
 let sequenceTimer = null;
 let currentPlaybackStage = 1;
 
-document.addEventListener('DOM°ContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   initWebSocket();
   fetchInitialData();
-  startPass°CountdownTimer();
+  startPassCountdownTimer();
 });
 
 // --------------------------------------------------------------------------
@@ -29,7 +29,7 @@ function initWebSocket() {
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log('[WebSocket] °Connected to TRI-ZEN real-time hardware stream.');
+      console.log('[WebSocket] Connected to TRI-ZEN real-time hardware stream.');
       const rate = document.getElementById('mqttRate');
       if (rate) rate.innerText = 'PORT 1883 · REALTIME';
     };
@@ -54,7 +54,7 @@ function initWebSocket() {
         setTimeout(initWebSocket, 3000);
       } else {
         const rate = document.getElementById('mqttRate');
-        if (rate) rate.innerText = '°CLOUD SERVERLESS · A°CTIVE';
+        if (rate) rate.innerText = 'CLOUD SERVERLESS · ACTIVE';
       }
     };
   } catch {
@@ -72,7 +72,7 @@ function handleLiveHardwareEvent(packet) {
     case 'DELIVERY_ENTRY_HANDSHAKE': {
       const courierStatus = document.getElementById('courierPassStatus');
       if (courierStatus) {
-        courierStatus.innerText = '°CONSUMED';
+        courierStatus.innerText = 'CONSUMED';
         courierStatus.className = 'token-status-pill';
         courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
         courierStatus.style.color = 'var(--accent-blue)';
@@ -85,29 +85,29 @@ function handleLiveHardwareEvent(packet) {
       break;
     }
     case 'TURNSTILE_STATE':
-      if (data.relay°Closed && window.twinRenderer) {
+      if (data.relayClosed && window.twinRenderer) {
         window.twinRenderer.targetTurnstileOpen = 1.0;
       }
       break;
     case 'ELEVATOR_STATE':
       if (window.twinRenderer) {
-        if (data.status === 'TRANSIT_AS°CENDING') {
-          window.twinRenderer.target°CabinY = 0.6;
+        if (data.status === 'TRANSIT_ASCENDING') {
+          window.twinRenderer.targetCabinY = 0.6;
         } else if (data.status === 'ARRIVED_DESTINATION') {
-          window.twinRenderer.target°CabinY = 1.0;
+          window.twinRenderer.targetCabinY = 1.0;
         }
       }
       break;
-    case 'LO°CK_TELEMETRY':
+    case 'LOCK_TELEMETRY':
       updateAiTelemetryUI(data);
       break;
     case 'AI_ALERT':
       updateAiAlertUI(data);
       break;
-    case 'DEVI°CE_STATE_°CHANGED':
+    case 'DEVICE_STATE_CHANGED':
       fetchDevices();
       break;
-    case 'RAW_MQTT_PA°CKET':
+    case 'RAW_MQTT_PACKET':
       appendMqttHudEntry(data);
       break;
   }
@@ -133,7 +133,7 @@ async function fetchPasses() {
     const data = await res.json();
     if (data.success && data.passes && data.passes.length > 0) {
       activePasses = data.passes;
-      const primary = activePasses.find((p) => p.status === 'A°CTIVE');
+      const primary = activePasses.find((p) => p.status === 'ACTIVE');
       if (primary) {
         renderActivePass(primary);
         return;
@@ -181,10 +181,10 @@ function renderActivePass(pass) {
   goToScreen('screenHome');
 
   // Resident App UI: Switch from Empty State to Active Delivery Tracker
-  const empty°Card = document.getElementById('mEmptyArrivals');
-  if (empty°Card) empty°Card.classList.add('hidden');
+  const emptyCard = document.getElementById('mEmptyArrivals');
+  if (emptyCard) emptyCard.classList.add('hidden');
 
-  const countPill = document.getElementById('mPass°CountPill');
+  const countPill = document.getElementById('mPassCountPill');
   if (countPill) countPill.innerText = '1 active';
 
   const deliverySection = document.getElementById('deliverySection');
@@ -193,11 +193,11 @@ function renderActivePass(pass) {
     deliverySection.style.display = 'block';
   }
 
-  const tracker°Card = document.getElementById('deliveryTracker°Card');
-  if (tracker°Card) tracker°Card.classList.remove('hidden');
+  const trackerCard = document.getElementById('deliveryTrackerCard');
+  if (trackerCard) trackerCard.classList.remove('hidden');
 
-  const success°Card = document.getElementById('deliverySuccess°Card');
-  if (success°Card) success°Card.classList.add('hidden');
+  const successCard = document.getElementById('deliverySuccessCard');
+  if (successCard) successCard.classList.add('hidden');
 
   jumpToStage(1);
 }
@@ -220,7 +220,7 @@ function renderIdleState() {
   const orderEl = document.getElementById('courierOrderId');
   if (orderEl) orderEl.innerText = 'Main gate · Lift · Unit 1402';
 
-  const countdownEl = document.getElementById('pass°CountdownVal');
+  const countdownEl = document.getElementById('passCountdownVal');
   if (countdownEl) countdownEl.innerText = '14m 59s';
 
   const pinEl = document.getElementById('courierPinVal');
@@ -237,17 +237,17 @@ function renderIdleState() {
 
   goToScreen('screenHome');
 
-  const countPill = document.getElementById('mPass°CountPill');
+  const countPill = document.getElementById('mPassCountPill');
   if (countPill) countPill.innerText = '1 active';
 
-  const tracker°Card = document.getElementById('deliveryTracker°Card');
-  if (tracker°Card) tracker°Card.classList.remove('hidden');
+  const trackerCard = document.getElementById('deliveryTrackerCard');
+  if (trackerCard) trackerCard.classList.remove('hidden');
 
-  const empty°Card = document.getElementById('mEmptyArrivals');
-  if (empty°Card) empty°Card.classList.add('hidden');
+  const emptyCard = document.getElementById('mEmptyArrivals');
+  if (emptyCard) emptyCard.classList.add('hidden');
 
-  const success°Card = document.getElementById('deliverySuccess°Card');
-  if (success°Card) success°Card.classList.add('hidden');
+  const successCard = document.getElementById('deliverySuccessCard');
+  if (successCard) successCard.classList.add('hidden');
 
   jumpToStage(1);
 }
@@ -279,7 +279,7 @@ async function fetchTelemetry() {
 }
 
 // --------------------------------------------------------------------------
-// °Cinematic Documentary Playback °Controller
+// Cinematic Documentary Playback Controller
 // --------------------------------------------------------------------------
 function togglePlaySequence() {
   if (isSequencePlaying) {
@@ -343,7 +343,7 @@ function jumpToStage(stage) {
     updateResidentStepper(stage);
   }
 
-  // 3. Update 3D Architectural °Canvas
+  // 3. Update 3D Architectural Canvas
   if (window.twinRenderer) {
     window.twinRenderer.setStage(stage);
   }
@@ -352,11 +352,11 @@ function jumpToStage(stage) {
 // Stage copy mirrors the Figma "Delivery in progress" live tracking card
 // (On way / Gate / Unlock / Door), driven by the same 1-4 stage the 3D twin
 // and courier timeline already use — see jumpToStage().
-const DELIVERY_STAGE_°COPY = {
+const DELIVERY_STAGE_COPY = {
   1: { sub: 'Heading to Tower 1 · Grocery order', badge: 'Active' },
-  2: { sub: '°Courier arrived · verifying pass at Gate 1', badge: 'Active' },
+  2: { sub: 'Courier arrived · verifying pass at Gate 1', badge: 'Active' },
   3: { sub: 'Access granted · lift dispatched to Floor 14', badge: 'Active' },
-  4: { sub: '°Courier at Unit 1402 door', badge: 'Active' },
+  4: { sub: 'Courier at Unit 1402 door', badge: 'Active' },
 };
 
 let deliverySuccessTimer = null;
@@ -364,7 +364,7 @@ let deliverySuccessTimer = null;
 function updateResidentStepper(stage) {
   const badge = document.getElementById('dtBadge');
   const sub = document.getElementById('dtSubtext');
-  const copy = DELIVERY_STAGE_°COPY[stage] || DELIVERY_STAGE_°COPY[1];
+  const copy = DELIVERY_STAGE_COPY[stage] || DELIVERY_STAGE_COPY[1];
 
   for (let i = 1; i <= 4; i++) {
     const node = document.getElementById(`stNode${i}`);
@@ -392,8 +392,8 @@ function updateResidentStepper(stage) {
 function scheduleDeliverySuccess() {
   if (deliverySuccessTimer) return; // already scheduled for this delivery
   deliverySuccessTimer = setTimeout(() => {
-    const tracker = document.getElementById('deliveryTracker°Card');
-    const success = document.getElementById('deliverySuccess°Card');
+    const tracker = document.getElementById('deliveryTrackerCard');
+    const success = document.getElementById('deliverySuccessCard');
     const dsSub = document.getElementById('dsSubtext');
     if (dsSub) {
       const now = new Date();
@@ -411,7 +411,7 @@ function scheduleDeliverySuccess() {
 }
 
 // --------------------------------------------------------------------------
-// °Cryptographic Pass Scan Action
+// Cryptographic Pass Scan Action
 // --------------------------------------------------------------------------
 async function triggerHandshakeScan() {
   if (!currentPassId) {
@@ -427,7 +427,7 @@ async function triggerHandshakeScan() {
   try {
     const res = await fetch('/api/passes/validate-entry', {
       method: 'POST',
-      headers: { '°Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passId: currentPassId }),
     });
 
@@ -449,7 +449,7 @@ async function triggerHandshakeScan() {
 
       const courierStatus = document.getElementById('courierPassStatus');
       if (courierStatus) {
-        courierStatus.innerText = '°CONSUMED';
+        courierStatus.innerText = 'CONSUMED';
         courierStatus.className = 'token-status-pill';
         courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
         courierStatus.style.color = 'var(--accent-blue)';
@@ -465,7 +465,7 @@ async function triggerHandshakeScan() {
 }
 
 // --------------------------------------------------------------------------
-// Maya's Resident Device °Controls
+// Maya's Resident Device Controls
 // --------------------------------------------------------------------------
 function renderResidentDevices() {
   if (!unitDevices) return;
@@ -477,14 +477,14 @@ function renderResidentDevices() {
   const statDoor = document.getElementById('resDoorState');
 
   if (door && tileDoor && tagDoor) {
-    const isLocked = door.state === 'LO°CKED';
+    const isLocked = door.state === 'LOCKED';
     tileDoor.className = `m-tile ${isLocked ? 'tile-dark' : 'tile-light'}`;
     tagDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
     tagDoor.style.color = isLocked ? 'var(--accent-green)' : 'var(--accent-red)';
     if (statDoor) statDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
   }
 
-  // Living Room A°C
+  // Living Room AC
   const ac = unitDevices.livingRoomAc;
   const tileAc = document.getElementById('mTileAc');
   const valAc = document.getElementById('mAcVal');
@@ -494,9 +494,9 @@ function renderResidentDevices() {
   if (ac && tileAc && valAc) {
     const isOn = ac.state === 'ON';
     tileAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
-    valAc.innerText = `${ac.temp}°°C`;
-    subAc.innerText = isOn ? '°Cool · Eco' : 'Off';
-    if (statTemp) statTemp.innerText = `${ac.temp}°°C`;
+    valAc.innerText = `${ac.temp}°C`;
+    subAc.innerText = isOn ? 'Cool · Eco' : 'Off';
+    if (statTemp) statTemp.innerText = `${ac.temp}°C`;
   }
 
   // Guest Lights
@@ -512,7 +512,7 @@ function renderResidentDevices() {
     subLights.innerText = isOn ? 'On · 80%' : 'Off';
   }
 
-  // Guest A°C
+  // Guest AC
   const guestAc = unitDevices.guestRoomAc;
   const switchGuestAc = document.getElementById('mSwitchGuestAc');
   const tileGuestAc = document.getElementById('mTileGuestAc');
@@ -522,23 +522,23 @@ function renderResidentDevices() {
     const isOn = guestAc.state === 'ON';
     switchGuestAc.checked = isOn;
     tileGuestAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
-    subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°°C` : 'Off';
+    subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°C` : 'Off';
   }
 
   // Active count
   let count = 0;
-  if (door?.state === 'LO°CKED') count++;
+  if (door?.state === 'LOCKED') count++;
   if (ac?.state === 'ON') count++;
   if (lights?.state === 'ON') count++;
   if (guestAc?.state === 'ON') count++;
-  document.getElementById('resActive°Count').innerText = `${count} Devices`;
+  document.getElementById('resActiveCount').innerText = `${count} Devices`;
 }
 
 async function toggleFrontDoor() {
-  const state = unitDevices.frontDoor?.state === 'LO°CKED' ? 'UNLO°CKED' : 'LO°CKED';
+  const state = unitDevices.frontDoor?.state === 'LOCKED' ? 'UNLOCKED' : 'LOCKED';
   await fetch('/api/devices/front-door/control', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -549,7 +549,7 @@ async function stepAcTemp(delta) {
   const temp = Math.max(18, Math.min(28, cur + delta));
   await fetch('/api/devices/living-ac/control', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ temp, state: 'ON' }),
   });
   fetchDevices();
@@ -559,7 +559,7 @@ async function toggleAc() {
   const state = unitDevices.livingRoomAc?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/living-ac/control', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -569,7 +569,7 @@ async function toggleLights() {
   const state = unitDevices.guestRoomLights?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/guest-lights/control', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -579,7 +579,7 @@ async function toggleGuestAc() {
   const state = unitDevices.guestRoomAc?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/guest-ac/control', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -589,10 +589,10 @@ async function toggleGuestAc() {
 // Natural Language AI Input
 // --------------------------------------------------------------------------
 function handleAiInputKey(e) {
-  if (e.key === 'Enter') sendAi°Command();
+  if (e.key === 'Enter') sendAiCommand();
 }
 
-async function sendAi°Command() {
+async function sendAiCommand() {
   const input = document.getElementById('mAiInput');
   const query = input.value.trim();
   if (!query) return;
@@ -600,7 +600,7 @@ async function sendAi°Command() {
   try {
     const res = await fetch('/api/telemetry/assistant/command', {
       method: 'POST',
-      headers: { '°Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
     });
 
@@ -626,16 +626,16 @@ function showToast(msg) {
 function focusAiInput() {
   const input = document.getElementById('mAiInput');
   input.focus();
-  input.placeholder = 'e.g. Issue Keells pass or Turn off all A°Cs...';
+  input.placeholder = 'e.g. Issue Keells pass or Turn off all ACs...';
 }
 
 // --------------------------------------------------------------------------
-// Pass °Countdown Ticker
+// Pass Countdown Ticker
 // --------------------------------------------------------------------------
-function startPass°CountdownTimer() {
+function startPassCountdownTimer() {
   setInterval(() => {
     if (activePasses.length === 0 || !currentPassId) {
-      const el = document.getElementById('pass°CountdownVal');
+      const el = document.getElementById('passCountdownVal');
       if (el && el.innerText !== 'No active pass') el.innerText = 'No active pass';
       return;
     }
@@ -646,7 +646,7 @@ function startPass°CountdownTimer() {
     const secs = Math.floor((remainingMs % 60000) / 1000);
 
     const timeStr = remainingMs > 0 ? `${mins}:${secs < 10 ? '0' : ''}${secs} min remaining` : 'EXPIRED';
-    const el = document.getElementById('pass°CountdownVal');
+    const el = document.getElementById('passCountdownVal');
     if (el) el.innerText = timeStr;
 
     if (remainingMs <= 0 && currentPassId) {
@@ -683,7 +683,7 @@ function appendMqttHudEntry(packet) {
   feed.prepend(entry);
 
   while (feed.children.length > 25) {
-    feed.remove°Child(feed.last°Child);
+    feed.removeChild(feed.lastChild);
   }
 }
 
@@ -710,7 +710,7 @@ function updateAiAlertUI(report) {
   const drop = document.getElementById('drDropRate');
   const z = document.getElementById('drZscore');
   const status = document.getElementById('drStatusTag');
-  const card = document.getElementById('drAlert°Card');
+  const card = document.getElementById('drAlertCard');
   const icon = document.getElementById('drAlertIcon');
   const title = document.getElementById('drAlertTitle');
   const desc = document.getElementById('drAlertDesc');
@@ -727,7 +727,7 @@ function updateAiAlertUI(report) {
     status.className = 'tag-status-green tag-status-red';
     card.className = 'alert-box-card anomaly';
     icon.innerText = '!';
-    title.innerText = '°CRITI°CAL ANOMALY: °Cell Short-°Circuit';
+    title.innerText = 'CRITICAL ANOMALY: Cell Short-Circuit';
     desc.innerText = report.explainabilityText;
     wo.classList.remove('hidden');
     if (report.workOrder) {
@@ -741,14 +741,14 @@ function updateAiAlertUI(report) {
     title.innerText = 'Health Optimal: Lock #1402';
     desc.innerText = report.explainabilityText;
     wo.classList.add('hidden');
-    btnInject.innerText = '⚠️ Inject Battery °Cell Degradation (~42 mV/actuation)';
+    btnInject.innerText = '⚠️ Inject Battery Cell Degradation (~42 mV/actuation)';
   }
 }
 
 async function toggleAnomalyInjection() {
   const res = await fetch('/api/telemetry/inject-anomaly', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
   });
   const data = await res.json();
@@ -759,7 +759,7 @@ async function toggleAnomalyInjection() {
 async function applyManualOverride() {
   const res = await fetch('/api/telemetry/manual-override', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ durationHours: 24, reason: 'Heavy moving/usage' }),
   });
   const data = await res.json();
@@ -768,8 +768,8 @@ async function applyManualOverride() {
 }
 
 // --------------------------------------------------------------------------
-// Issue Pass Flow (Step 1: °Create -> Step 2: Share) — matches the Figma
-// "°Create Pass" / "Share Pass" screens pixel-for-pixel.
+// Issue Pass Flow (Step 1: Create -> Step 2: Share) — matches the Figma
+// "Create Pass" / "Share Pass" screens pixel-for-pixel.
 // --------------------------------------------------------------------------
 let selectedPassType = 'Delivery';
 let selectedPassDuration = 15;
@@ -780,18 +780,18 @@ let selectedPassDuration = 15;
 // ever opens, exactly like clicking through a Figma prototype).
 // --------------------------------------------------------------------------
 function goToScreen(screenId) {
-  ['screenHome', 'screen°CreatePass', 'screenSharePass', 'screen°Climate'].forEach((id) => {
+  ['screenHome', 'screenCreatePass', 'screenSharePass', 'screenClimate'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('hidden', id !== screenId);
   });
   const bottomNav = document.getElementById('phoneBottomNav');
   if (bottomNav) bottomNav.classList.toggle('hidden', screenId !== 'screenHome');
-  if (screenId === 'screen°Climate') fetchEnergyStatus();
+  if (screenId === 'screenClimate') fetchEnergyStatus();
 }
 
 // --------------------------------------------------------------------------
-// °CEB Peak Tariff demand-response AI (energyOptimizer.ts): Home banner +
-// °Climate & Savings screen + the 1-tap rule fallback toggles.
+// CEB Peak Tariff demand-response AI (energyOptimizer.ts): Home banner +
+// Climate & Savings screen + the 1-tap rule fallback toggles.
 // --------------------------------------------------------------------------
 async function fetchEnergyStatus() {
   try {
@@ -808,27 +808,27 @@ function renderEnergyStatus(status) {
   const banner = document.getElementById('energyBanner');
   if (banner) {
     banner.classList.toggle('hidden', !status.bannerVisible);
-    banner.classList.toggle('eb-precooling', status.mode === 'PRE_°COOLING');
+    banner.classList.toggle('eb-precooling', status.mode === 'PRE_COOLING');
     const title = document.getElementById('ebTitle');
-    if (title) title.innerText = status.mode === 'PRE_°COOLING' ? 'Pre-°Cooling Active' : '°CEB Peak Tariff Active';
+    if (title) title.innerText = status.mode === 'PRE_COOLING' ? 'Pre-Cooling Active' : 'CEB Peak Tariff Active';
     const body = document.getElementById('ebBody');
     if (body) body.innerText = status.strategyText;
-    const capLabel = document.getElementById('eb°CapLabel');
-    if (capLabel) capLabel.innerText = `${status.capKw} kW °Cap`;
-    const clearsAt = document.getElementById('eb°ClearsAt');
-    if (clearsAt) clearsAt.innerText = status.bannerAuto°ClearsLabel;
+    const capLabel = document.getElementById('ebCapLabel');
+    if (capLabel) capLabel.innerText = `${status.capKw} kW Cap`;
+    const clearsAt = document.getElementById('ebClearsAt');
+    if (clearsAt) clearsAt.innerText = status.bannerAutoClearsLabel;
   }
 
-  // °Climate & Savings screen
+  // Climate & Savings screen
   const amountEl = document.getElementById('climateSavingsAmount');
   if (amountEl) amountEl.innerText = `LKR ${status.monthSavingsLkr.toLocaleString()}`;
   const pillEl = document.getElementById('climateSavingsPill');
-  if (pillEl) pillEl.innerText = `↓ ${status.savingsVsStandardPct}% vs Standard A°C Usage`;
+  if (pillEl) pillEl.innerText = `↓ ${status.savingsVsStandardPct}% vs Standard AC Usage`;
 
   const badgeEl = document.getElementById('climateStrategyBadge');
   if (badgeEl) {
     badgeEl.innerHTML = status.mode === 'IDLE'
-      ? '<span class="badge-live-dot" style="background:#9°CA3AF"></span> Idle'
+      ? '<span class="badge-live-dot" style="background:#9CA3AF"></span> Idle'
       : '<span class="badge-live-dot"></span> Active';
   }
 
@@ -839,21 +839,21 @@ function renderEnergyStatus(status) {
   const peakLabelEl = document.getElementById('chartLabelPeak');
   if (peakLabelEl) peakLabelEl.innerText = `${status.peakStartLabel} Peak`;
 
-  // °Chart: map 0-100% timeline positions onto the 0-300 SVG viewBox
+  // Chart: map 0-100% timeline positions onto the 0-300 SVG viewBox
   const toX = (pct) => (pct / 100) * 300;
   setAttr('chartPeakRect', 'x', toX(status.peakStartPct));
   setAttr('chartPeakRect', 'width', 300 - toX(status.peakStartPct));
-  setAttr('chartPrecoolLine', 'x1', toX(status.pre°CoolPct));
-  setAttr('chartPrecoolLine', 'x2', toX(status.pre°CoolPct));
+  setAttr('chartPrecoolLine', 'x1', toX(status.preCoolPct));
+  setAttr('chartPrecoolLine', 'x2', toX(status.preCoolPct));
   setAttr('chartPeakLine', 'x1', toX(status.peakStartPct));
   setAttr('chartPeakLine', 'x2', toX(status.peakStartPct));
-  setAttr('chartPrecoolDot', 'cx', toX(status.pre°CoolPct));
+  setAttr('chartPrecoolDot', 'cx', toX(status.preCoolPct));
   setAttr('chartPeakDot', 'cx', toX(status.peakStartPct));
 
   const tagPrecool = document.getElementById('ccTagPrecool');
   if (tagPrecool) {
-    tagPrecool.style.left = `${status.pre°CoolPct}%`;
-    tagPrecool.innerText = `${status.pre°CoolLabel} · Pre-cool 23°°C`;
+    tagPrecool.style.left = `${status.preCoolPct}%`;
+    tagPrecool.innerText = `${status.preCoolLabel} · Pre-cool 23°C`;
   }
   const tagPeak = document.getElementById('ccTagPeak');
   if (tagPeak) {
@@ -864,9 +864,9 @@ function renderEnergyStatus(status) {
   const descEl = document.getElementById('climateStrategyDesc');
   if (descEl) descEl.innerText = status.explainability;
 
-  const enabled°Count = status.rules.filter((r) => r.enabled).length;
-  const countEl = document.getElementById('rulesEnabled°Count');
-  if (countEl) countEl.innerText = `${enabled°Count} ENABLED`;
+  const enabledCount = status.rules.filter((r) => r.enabled).length;
+  const countEl = document.getElementById('rulesEnabledCount');
+  if (countEl) countEl.innerText = `${enabledCount} ENABLED`;
 
   status.rules.forEach((rule) => {
     const toggle = document.getElementById(`ruleToggle-${rule.id}`);
@@ -883,14 +883,14 @@ async function toggleEnergyRule(ruleId, enabled) {
   try {
     const res = await fetch(`/api/energy/rules/${ruleId}`, {
       method: 'POST',
-      headers: { '°Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled }),
     });
     const data = await res.json();
     if (data.success) {
       renderEnergyStatus(data.status);
       showToast(enabled
-        ? `✦ ${data.rule.label} re-enabled — AI resumes adjusting your A°C.`
+        ? `✦ ${data.rule.label} re-enabled — AI resumes adjusting your AC.`
         : `✦ ${data.rule.label} disabled — full manual control restored (1-tap fallback).`);
     }
   } catch (err) {
@@ -902,15 +902,15 @@ async function setEnergyDebugMode(mode) {
   try {
     const res = await fetch('/api/energy/debug-mode', {
       method: 'POST',
-      headers: { '°Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode }),
     });
     const data = await res.json();
     if (data.success) {
       renderEnergyStatus(data.status);
       showToast(mode
-        ? `✦ Judge demo: °CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
-        : '✦ °CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
+        ? `✦ Judge demo: CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
+        : '✦ CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
     }
   } catch (err) {
     console.error('Energy debug-mode error:', err);
@@ -929,7 +929,7 @@ function closePassModal() {
 }
 
 function showPassStep(step) {
-  goToScreen(step === 2 ? 'screenSharePass' : 'screen°CreatePass');
+  goToScreen(step === 2 ? 'screenSharePass' : 'screenCreatePass');
 }
 
 function backToPassStep1() {
@@ -939,7 +939,7 @@ function backToPassStep1() {
 function selectPassType() {
   // Only "Delivery" is wired to the working backend slice today; the tap
   // target stays interactive so judges can see the selected/pressed state.
-  const card = document.getElementById('passType°Card');
+  const card = document.getElementById('passTypeCard');
   card.classList.add('selected');
 }
 
@@ -961,7 +961,7 @@ async function confirmIssuePass(options) {
 
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
-    headers: { '°Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       partner: selectedPassType === 'Delivery' ? 'Keells Super Express' : 'Guest Pass',
       ttlMinutes: selectedPassDuration,
@@ -987,31 +987,31 @@ function sharePassOption(channel) {
 }
 
 // --------------------------------------------------------------------------
-// 3D Digital Twin °Camera View Switcher
+// 3D Digital Twin Camera View Switcher
 // --------------------------------------------------------------------------
-function select°CameraPreset(preset) {
-  const btns = ['btn°CamTower', 'btn°CamLobby', 'btn°CamLift', 'btn°CamResidence'];
+function selectCameraPreset(preset) {
+  const btns = ['btnCamTower', 'btnCamLobby', 'btnCamLift', 'btnCamResidence'];
   btns.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
 
-  const activeId = preset === 'auto' ? 'btn°CamAuto' :
-                   preset === 'tower' ? 'btn°CamTower' :
-                   preset === 'lobby' ? 'btn°CamLobby' :
-                   preset === 'lift' ? 'btn°CamLift' : 'btn°CamResidence';
+  const activeId = preset === 'auto' ? 'btnCamAuto' :
+                   preset === 'tower' ? 'btnCamTower' :
+                   preset === 'lobby' ? 'btnCamLobby' :
+                   preset === 'lift' ? 'btnCamLift' : 'btnCamResidence';
   const activeEl = document.getElementById(activeId);
   if (activeEl) activeEl.classList.add('active');
 
   if (window.twinRenderer) {
-    window.twinRenderer.set°CameraPreset(preset);
+    window.twinRenderer.setCameraPreset(preset);
   }
 }
-window.select°CameraPreset = select°CameraPreset;
+window.selectCameraPreset = selectCameraPreset;
 
 
 // ==========================================================================
-// TOP NAVIGATION TAB HIERAR°CHY: VISITOR PASS | ENERGY SIM | °CHATBOT SIM
+// TOP NAVIGATION TAB HIERARCHY: VISITOR PASS | ENERGY SIM | CHATBOT SIM
 // ==========================================================================
 let activeMainTab = 'visitor';
 
@@ -1021,21 +1021,21 @@ function switchMainTab(tabId) {
   // Toggle button active states
   const btnVisitor = document.getElementById('tabBtnVisitor');
   const btnEnergy = document.getElementById('tabBtnEnergy');
-  const btn°Chatbot = document.getElementById('tabBtn°Chatbot');
+  const btnChatbot = document.getElementById('tabBtnChatbot');
 
   if (btnVisitor) btnVisitor.classList.toggle('active', tabId === 'visitor');
   if (btnEnergy) btnEnergy.classList.toggle('active', tabId === 'energy');
-  if (btn°Chatbot) btn°Chatbot.classList.toggle('active', tabId === 'chatbot');
+  if (btnChatbot) btnChatbot.classList.toggle('active', tabId === 'chatbot');
 
   // Toggle page visibility
   const pageVisitor = document.getElementById('pageVisitorPass');
   const pageEnergy = document.getElementById('pageEnergySim');
-  const page°Chatbot = document.getElementById('page°ChatbotSim');
+  const pageChatbot = document.getElementById('pageChatbotSim');
   const residentPanel = document.querySelector('.resident-panel');
 
   if (pageVisitor) pageVisitor.classList.toggle('hidden', tabId !== 'visitor');
   if (pageEnergy) pageEnergy.classList.toggle('hidden', tabId !== 'energy');
-  if (page°Chatbot) page°Chatbot.classList.toggle('hidden', tabId !== 'chatbot');
+  if (pageChatbot) pageChatbot.classList.toggle('hidden', tabId !== 'chatbot');
   if (residentPanel) residentPanel.classList.toggle('hidden', tabId !== 'visitor');
 
   // On switching back to 3D Digital Twin, trigger canvas resize so Three.js adjusts
@@ -1046,7 +1046,7 @@ function switchMainTab(tabId) {
   } else if (tabId === 'energy') {
     selectEnergyPhase(activeEnergyPhase || 1);
   } else if (tabId === 'chatbot') {
-    reset°ChatbotTiers();
+    resetChatbotTiers();
   }
 }
 
@@ -1057,17 +1057,17 @@ let activeEnergyPhase = 1;
 let energyAutoPlayTimer = null;
 let isEnergyPlaying = false;
 
-const energyPhaseX°Coords = {
+const energyPhaseXCoords = {
   1: 200, // 10:00 (Day base)
   2: 730, // 17:30 (Pre-cool)
   3: 845, // 19:30 (Peak spike)
   4: 960  // 24:00 (Night recovery)
 };
 
-const energyPhaseY°Coords = {
+const energyPhaseYCoords = {
   1: 205, // 240W
   2: 125, // Pre-cool surge
-  3: 150, // °Capped 3.2kW eco-float
+  3: 150, // Capped 3.2kW eco-float
   4: 205  // Baseline
 };
 
@@ -1082,8 +1082,8 @@ function selectEnergyPhase(phase) {
   // Update animated SVG scrubber marker
   const line = document.getElementById('energyScrubberLine');
   const dot = document.getElementById('energyScrubberDot');
-  const targetX = energyPhaseX°Coords[phase] || 200;
-  const targetY = energyPhaseY°Coords[phase] || 205;
+  const targetX = energyPhaseXCoords[phase] || 200;
+  const targetY = energyPhaseYCoords[phase] || 205;
 
   if (line) {
     line.setAttribute('x1', targetX);
@@ -1109,7 +1109,7 @@ function toggleEnergyAutoPlay() {
   if (isEnergyPlaying) {
     stopEnergyAutoPlay();
   } else {
-    playEnergyAuto°Cycle();
+    playEnergyAutoCycle();
   }
 }
 
@@ -1117,14 +1117,14 @@ function stopEnergyAutoPlay() {
   isEnergyPlaying = false;
   if (energyAutoPlayTimer) clearTimeout(energyAutoPlayTimer);
   const btn = document.getElementById('btnAutoPlayEnergy');
-  if (btn) btn.innerHTML = '▶ Auto-Play 24H °Cycle';
+  if (btn) btn.innerHTML = '▶ Auto-Play 24H Cycle';
 }
 
-function playEnergyAuto°Cycle() {
+function playEnergyAutoCycle() {
   stopEnergyAutoPlay();
   isEnergyPlaying = true;
   const btn = document.getElementById('btnAutoPlayEnergy');
-  if (btn) btn.innerHTML = '⏸ Pause °Cycle';
+  if (btn) btn.innerHTML = '⏸ Pause Cycle';
 
   selectEnergyPhase(1);
 
@@ -1151,43 +1151,43 @@ function playEnergyAuto°Cycle() {
 
 
 // ==========================================================================
-// °CHATBOT SIMULATION (New Pipeline)
+// CHATBOT SIMULATION (New Pipeline)
 // ==========================================================================
-let active°ChatbotScenario = 'friend';
+let activeChatbotScenario = 'friend';
 let chatbotTimer = null;
 
 const cbScenarios = {
   friend: {
     raw: '"My friend is arriving tomorrow at 6 PM"',
     steps: [
-      { node: 1, text: '✓ PII Masked: "My <redacted> is arriving tomorrow at <time>"', status°Class: 'text-green' },
-      { node: 2, text: '✓ Routed to: JKH Access Microservice', status°Class: 'text-green' },
-      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - turnstile:enter', status°Class: 'text-green' },
-      { node: 4, text: '✓ Guest Pass Minted', status°Class: 'text-green', outLabel: 'Guest Pass Minted - SE°CURE & A°CTIVE', out°Class: 'text-green' }
+      { node: 1, text: '✓ PII Masked: "My <redacted> is arriving tomorrow at <time>"', statusClass: 'text-green' },
+      { node: 2, text: '✓ Routed to: JKH Access Microservice', statusClass: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - turnstile:enter', statusClass: 'text-green' },
+      { node: 4, text: '✓ Guest Pass Minted', statusClass: 'text-green', outLabel: 'Guest Pass Minted - SECURE & ACTIVE', outClass: 'text-green' }
     ]
   },
   scene: {
     raw: '"Leaving home for work"',
     steps: [
-      { node: 1, text: '✓ No PII detected', status°Class: 'text-green' },
-      { node: 2, text: '✓ Routed to: Smart Home Scene Microservice', status°Class: 'text-green' },
-      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - device:all', status°Class: 'text-green' },
-      { node: 4, text: '✓ Scene Executed: Leaving Home', status°Class: 'text-green', outLabel: 'Scene Executed: A°C OFF, Door LO°CKED', out°Class: 'text-green' }
+      { node: 1, text: '✓ No PII detected', statusClass: 'text-green' },
+      { node: 2, text: '✓ Routed to: Smart Home Scene Microservice', statusClass: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - device:all', statusClass: 'text-green' },
+      { node: 4, text: '✓ Scene Executed: Leaving Home', statusClass: 'text-green', outLabel: 'Scene Executed: AC OFF, Door LOCKED', outClass: 'text-green' }
     ]
   },
   attack: {
     raw: '"Unlock Unit 1204 front door"',
     steps: [
-      { node: 1, text: '⚠️ °CROSS-TENANT PROBE DETE°CTED', status°Class: 'text-amber' },
-      { node: 2, text: '✓ Routed to: Access Microservice (Flagged)', status°Class: 'text-amber' },
-      { node: 3, text: '⛔ REJE°CTED: Scope Violation (1402 cannot access 1204)', status°Class: 'text-red' },
-      { node: 4, text: '✕ Blocked by Air-Gap RBA°C', status°Class: 'text-red', outLabel: 'Security Violation: A°CTION BLO°CKED', out°Class: 'text-red' }
+      { node: 1, text: '⚠️ CROSS-TENANT PROBE DETECTED', statusClass: 'text-amber' },
+      { node: 2, text: '✓ Routed to: Access Microservice (Flagged)', statusClass: 'text-amber' },
+      { node: 3, text: '⛔ REJECTED: Scope Violation (1402 cannot access 1204)', statusClass: 'text-red' },
+      { node: 4, text: '✕ Blocked by Air-Gap RBAC', statusClass: 'text-red', outLabel: 'Security Violation: ACTION BLOCKED', outClass: 'text-red' }
     ]
   }
 };
 
-function select°ChatbotScenario(type) {
-  active°ChatbotScenario = type;
+function selectChatbotScenario(type) {
+  activeChatbotScenario = type;
   ['cPromptFriend', 'cPromptScene', 'cPromptAttack'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
@@ -1199,14 +1199,14 @@ function select°ChatbotScenario(type) {
 
   const scenario = cbScenarios[type];
   const rawText = document.getElementById('cbRawText');
-  if (rawText) rawText.text°Content = scenario.raw;
+  if (rawText) rawText.textContent = scenario.raw;
 
-  reset°ChatbotFlow();
+  resetChatbotFlow();
 }
 
-function reset°ChatbotFlow() {
+function resetChatbotFlow() {
   clearTimeout(chatbotTimer);
-  const btn = document.getElementById('btnPlay°Chatbot');
+  const btn = document.getElementById('btnPlayChatbot');
   if (btn) { btn.innerHTML = '▶ Run Pipeline Flow'; btn.classList.remove('playing'); }
 
   for (let i = 1; i <= 4; i++) {
@@ -1214,7 +1214,7 @@ function reset°ChatbotFlow() {
     const status = document.getElementById('cbStatus' + i);
     if (node) node.className = 'ef-node';
     if (status) {
-      status.text°Content = i === 1 ? 'Waiting for input...' : i === 2 ? 'Waiting for router...' : i === 3 ? 'Waiting for token validation...' : 'Awaiting final payload...';
+      status.textContent = i === 1 ? 'Waiting for input...' : i === 2 ? 'Waiting for router...' : i === 3 ? 'Waiting for token validation...' : 'Awaiting final payload...';
       status.className = '';
     }
   }
@@ -1223,12 +1223,12 @@ function reset°ChatbotFlow() {
   if (outNode) outNode.style.opacity = '0';
 }
 
-function play°ChatbotSim() {
-  reset°ChatbotFlow();
-  const btn = document.getElementById('btnPlay°Chatbot');
+function playChatbotSim() {
+  resetChatbotFlow();
+  const btn = document.getElementById('btnPlayChatbot');
   if (btn) { btn.innerHTML = '⚙ Processing...'; btn.classList.add('playing'); }
 
-  const scenario = cbScenarios[active°ChatbotScenario];
+  const scenario = cbScenarios[activeChatbotScenario];
   let stepIdx = 0;
 
   function nextStep() {
@@ -1238,14 +1238,14 @@ function play°ChatbotSim() {
       const outText = document.getElementById('cbOutText');
       const outBox = document.getElementById('cbOutBox');
       const finalStep = scenario.steps[3];
-      if (outText) outText.text°Content = finalStep.outLabel;
-      if (outText) outText.className = finalStep.out°Class;
+      if (outText) outText.textContent = finalStep.outLabel;
+      if (outText) outText.className = finalStep.outClass;
       if (outBox) {
-        if (active°ChatbotScenario === 'attack') {
+        if (activeChatbotScenario === 'attack') {
           outBox.setAttribute('fill', '#FEF2F2');
           outBox.setAttribute('stroke', '#EF4444');
         } else {
-          outBox.setAttribute('fill', '#E°CFDF5');
+          outBox.setAttribute('fill', '#ECFDF5');
           outBox.setAttribute('stroke', '#10B981');
         }
       }
@@ -1265,8 +1265,8 @@ function play°ChatbotSim() {
 
     const status = document.getElementById('cbStatus' + step.node);
     if (status) {
-      status.text°Content = step.text;
-      status.className = step.status°Class;
+      status.textContent = step.text;
+      status.className = step.statusClass;
     }
 
     animateSvgParticle('cbP' + step.node);
@@ -1278,13 +1278,13 @@ function play°ChatbotSim() {
   nextStep();
 }
 
-window.select°ChatbotScenario = select°ChatbotScenario;
-window.play°ChatbotSim = play°ChatbotSim;
+window.selectChatbotScenario = selectChatbotScenario;
+window.playChatbotSim = playChatbotSim;
 
-window.toggle°ChatbotAutoPlay = toggle°ChatbotAutoPlay;
+window.toggleChatbotAutoPlay = toggleChatbotAutoPlay;
 
 // ==========================================================================
-// ENERGY SUB-SIM: SUB-TAB SWIT°CHING
+// ENERGY SUB-SIM: SUB-TAB SWITCHING
 // ==========================================================================
 function switchEnergySubSim(simId) {
   const sim1 = document.getElementById('energySubSim1');
@@ -1310,7 +1310,7 @@ function setSensorZone(zoneName) {
 }
 
 // ==========================================================================
-// PRE-°COOLING PROXIMITY SIMULATION
+// PRE-COOLING PROXIMITY SIMULATION
 // ==========================================================================
 let precoolTimer = null;
 let precoolRunning = false;
@@ -1318,38 +1318,38 @@ let precoolRunning = false;
 const precoolSteps = [
   {
     dist: '4.2 km', eta: '28 min', trigger: 'MONITORING',
-    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
     action: 'STANDBY', actionSub: 'Monitoring Maya\'s GPS beacon',
-    node: 1, outLabel: '▶ GPS LO°CK A°CQUIRED',
+    node: 1, outLabel: '▶ GPS LOCK ACQUIRED',
     log: '17:02 — GPS beacon acquired. ETA 28 min. Monitoring...'
   },
   {
     dist: '2.1 km', eta: '14 min', trigger: 'THRESHOLD HIT',
-    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
-    action: '°COMPUTING', actionSub: 'Running arrival prediction model',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'COMPUTING', actionSub: 'Running arrival prediction model',
     node: 2, outLabel: '🧠 ETA MODEL: 14 MIN',
     log: '17:18 — 2.1km threshold. Triggering ETA prediction model...'
   },
   {
-    dist: '2.1 km', eta: '14 min', trigger: 'TARIFF °CHE°CK',
-    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
-    action: '°CHE°CKING', actionSub: '°CEB tariff is off-peak → PRE-°COOL APPROVED',
-    node: 3, outLabel: '✅ OFF-PEAK: PRE-°COOL WINDOW OPEN',
-    log: '17:18 — °CEB tariff: LKR 24/kWh. Pre-cool window approved.'
+    dist: '2.1 km', eta: '14 min', trigger: 'TARIFF CHECK',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'CHECKING', actionSub: 'CEB tariff is off-peak → PRE-COOL APPROVED',
+    node: 3, outLabel: '✅ OFF-PEAK: PRE-COOL WINDOW OPEN',
+    log: '17:18 — CEB tariff: LKR 24/kWh. Pre-cool window approved.'
   },
   {
-    dist: '0.8 km', eta: '5 min', trigger: 'PRE-°COOLING',
-    temp: '24.1°°C', draw: '3.2 kW', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
-    action: 'PRE-°COOLING', actionSub: 'Mitsubishi A°C → 21.5°°C (off-peak)',
-    node: 4, outLabel: '▶ HVA°C °COMMAND DISPAT°CHED',
-    log: '17:21 — HVA°C activated. 3.2kW draw. Pre-cooling Unit 1402.'
+    dist: '0.8 km', eta: '5 min', trigger: 'PRE-COOLING',
+    temp: '24.1°C', draw: '3.2 kW', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'PRE-COOLING', actionSub: 'Mitsubishi AC → 21.5°C (off-peak)',
+    node: 4, outLabel: '▶ HVAC COMMAND DISPATCHED',
+    log: '17:21 — HVAC activated. 3.2kW draw. Pre-cooling Unit 1402.'
   },
   {
-    dist: '0.0 km', eta: 'ARRIVED', trigger: '°COMPLETE',
-    temp: '21.8°°C', draw: '0.8 kW', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
-    action: '°COMPLETE', actionSub: 'Room pre-cooled. Peak tariff avoided.',
-    node: 5, outLabel: '✦ MAYA ARRIVED — UNIT 1402 READY 21.8°°C',
-    log: '17:32 — Maya arrived. Room at 21.8°°C. Savings: LKR 847 vs peak-hour cooling.'
+    dist: '0.0 km', eta: 'ARRIVED', trigger: 'COMPLETE',
+    temp: '21.8°C', draw: '0.8 kW', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'COMPLETE', actionSub: 'Room pre-cooled. Peak tariff avoided.',
+    node: 5, outLabel: '✦ MAYA ARRIVED — UNIT 1402 READY 21.8°C',
+    log: '17:32 — Maya arrived. Room at 21.8°C. Savings: LKR 847 vs peak-hour cooling.'
   }
 ];
 
@@ -1360,7 +1360,7 @@ function playPrecoolSim() {
   }
   precoolRunning = true;
   const btn = document.getElementById('btnPrecoolPlay');
-  if (btn) { btn.text°Content = '⏹ Stop Simulation'; btn.classList.add('playing'); }
+  if (btn) { btn.textContent = '⏹ Stop Simulation'; btn.classList.add('playing'); }
 
   // Reset nodes
   for (let i = 1; i <= 4; i++) {
@@ -1385,7 +1385,7 @@ function stopPrecoolSim() {
   precoolRunning = false;
   clearTimeout(precoolTimer);
   const btn = document.getElementById('btnPrecoolPlay');
-  if (btn) { btn.text°Content = '▶ Start Proximity Sim'; btn.classList.remove('playing'); }
+  if (btn) { btn.textContent = '▶ Start Proximity Sim'; btn.classList.remove('playing'); }
 }
 
 function applyPrecoolStep(s) {
@@ -1394,14 +1394,14 @@ function applyPrecoolStep(s) {
   const eta = document.getElementById('proxETA');
   const dist = document.getElementById('proxDist');
   const trigger = document.getElementById('proxTrigger');
-  if (distLabel) distLabel.text°Content = s.dist;
-  if (eta) eta.text°Content = s.eta;
-  if (dist) dist.text°Content = s.dist;
+  if (distLabel) distLabel.textContent = s.dist;
+  if (eta) eta.textContent = s.eta;
+  if (dist) dist.textContent = s.dist;
   if (trigger) {
-    trigger.text°Content = s.trigger;
+    trigger.textContent = s.trigger;
     trigger.className = 'sim-stat-val sim-status-val' +
-      (s.trigger === 'PRE-°COOLING' || s.trigger === '°COMPLETE' ? ' done' :
-       s.trigger === 'THRESHOLD HIT' || s.trigger === 'TARIFF °CHE°CK' ? ' active' : '');
+      (s.trigger === 'PRE-COOLING' || s.trigger === 'COMPLETE' ? ' done' :
+       s.trigger === 'THRESHOLD HIT' || s.trigger === 'TARIFF CHECK' ? ' active' : '');
   }
 
   // Move user pin (simulate approaching building)
@@ -1438,7 +1438,7 @@ function applyPrecoolStep(s) {
 
   // Update output label
   const outLabel = document.getElementById('efOutLabel');
-  if (outLabel) outLabel.text°Content = s.outLabel;
+  if (outLabel) outLabel.textContent = s.outLabel;
 
 }
 
@@ -1458,22 +1458,22 @@ let activeOptScenario = 'offpeak';
 
 const optScenarios = {
   offpeak: {
-    sensors: ['27.4°°C', 'O°C°CUPIED', 'LKR 24', '33°°C', '28 min'],
-    outputs: ['21.5°°C', 'WARM', '-LKR 847'],
-    aiLabel: 'PRE-°COOL → DE°CISION',
-    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5°CF6']
+    sensors: ['27.4°C', 'OCCUPIED', 'LKR 24', '33°C', '28 min'],
+    outputs: ['21.5°C', 'WARM', '-LKR 847'],
+    aiLabel: 'PRE-COOL → DECISION',
+    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
   },
   peak: {
-    sensors: ['24.1°°C', 'O°C°CUPIED', 'LKR 54', '31°°C', 'HOME'],
-    outputs: ['23.5°°C', '°COMFORT', '-LKR 412'],
-    aiLabel: 'E°CO-FLOAT → DE°CISION',
+    sensors: ['24.1°C', 'OCCUPIED', 'LKR 54', '31°C', 'HOME'],
+    outputs: ['23.5°C', 'COMFORT', '-LKR 412'],
+    aiLabel: 'ECO-FLOAT → DECISION',
     colors: ['#F59E0B', '#10B981', '#EF4444', '#EF4444', '#3B82F6']
   },
   night: {
-    sensors: ['22.8°°C', 'SLEEPING', 'LKR 24', '28°°C', 'HOME'],
-    outputs: ['23.0°°C', 'SLEEP', '-LKR 312'],
-    aiLabel: 'NIGHT MODE → DE°CISION',
-    colors: ['#8B5°CF6', '#0891B2', '#10B981', '#64748B', '#3B82F6']
+    sensors: ['22.8°C', 'SLEEPING', 'LKR 24', '28°C', 'HOME'],
+    outputs: ['23.0°C', 'SLEEP', '-LKR 312'],
+    aiLabel: 'NIGHT MODE → DECISION',
+    colors: ['#8B5CF6', '#0891B2', '#10B981', '#64748B', '#3B82F6']
   }
 };
 
@@ -1502,7 +1502,7 @@ function playOptSim() {
   if (optRunning) { stopOptSim(); return; }
   optRunning = true;
   const btn = document.getElementById('btnOptPlay');
-  if (btn) { btn.text°Content = '⏹ Stop Flow'; btn.classList.add('playing'); }
+  if (btn) { btn.textContent = '⏹ Stop Flow'; btn.classList.add('playing'); }
 
   const scenario = optScenarios[activeOptScenario];
   if (!scenario) return;
@@ -1511,7 +1511,7 @@ function playOptSim() {
   const sensorIds = ['eoptTempVal','eoptOccVal','eoptTariffVal','eoptWeatherVal','eoptETAVal'];
   sensorIds.forEach((id, i) => {
     const el = document.getElementById(id);
-    if (el) el.text°Content = scenario.sensors[i];
+    if (el) el.textContent = scenario.sensors[i];
   });
 
   const sensorNodes = ['eoptSensorTemp','eoptSensorOcc','eoptSensorTariff','eoptSensorWeather','eoptSensorETA'];
@@ -1544,13 +1544,13 @@ function playOptSim() {
 
   // Activate outputs
   const outputIds = ['eoptOut1Node','eoptOut2Node','eoptOut3Node'];
-  const outputValIds = ['eoptOutHVA°C','eoptOutLight','eoptOut°Cost'];
+  const outputValIds = ['eoptOutHVAC','eoptOutLight','eoptOutCost'];
   outputIds.forEach((id, i) => {
     optTimer = setTimeout(() => {
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
       const valEl = document.getElementById(outputValIds[i]);
-      if (valEl) valEl.text°Content = scenario.outputs[i];
+      if (valEl) valEl.textContent = scenario.outputs[i];
       // Animate output particle
       const partId = 'eoptOutP' + (i+1);
       animateSvgParticleOpt(partId, '#10B981');
@@ -1574,7 +1574,7 @@ function stopOptSim() {
   optRunning = false;
   clearTimeout(optTimer);
   const btn = document.getElementById('btnOptPlay');
-  if (btn) { btn.text°Content = '▶ Run Sensor Flow'; btn.classList.remove('playing'); }
+  if (btn) { btn.textContent = '▶ Run Sensor Flow'; btn.classList.remove('playing'); }
 }
 
 // Expose globals
