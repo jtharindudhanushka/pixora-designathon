@@ -796,10 +796,11 @@ function goToScreen(screenId) {
 async function fetchEnergyStatus() {
   try {
     const res = await fetch('/api/energy/status');
+    if (!res.ok) return;
     const data = await res.json();
-    if (data.success) renderEnergyStatus(data.status);
+    if (data && data.success) renderEnergyStatus(data.status);
   } catch (err) {
-    console.error('Energy status fetch error:', err);
+    // Offline or static fallback
   }
 }
 
@@ -1031,10 +1032,12 @@ function switchMainTab(tabId) {
   const pageVisitor = document.getElementById('pageVisitorPass');
   const pageEnergy = document.getElementById('pageEnergySim');
   const pageChatbot = document.getElementById('pageChatbotSim');
+  const residentPanel = document.querySelector('.resident-panel');
 
   if (pageVisitor) pageVisitor.classList.toggle('hidden', tabId !== 'visitor');
   if (pageEnergy) pageEnergy.classList.toggle('hidden', tabId !== 'energy');
   if (pageChatbot) pageChatbot.classList.toggle('hidden', tabId !== 'chatbot');
+  if (residentPanel) residentPanel.classList.toggle('hidden', tabId !== 'visitor');
 
   // On switching back to 3D Digital Twin, trigger canvas resize so Three.js adjusts
   if (tabId === 'visitor') {
@@ -1042,9 +1045,27 @@ function switchMainTab(tabId) {
       setTimeout(() => window.twinRenderer.onResize(), 60);
     }
   } else if (tabId === 'energy') {
-    selectEnergyPhase(activeEnergyPhase || 1);
+    setTimeout(() => {
+      const el = document.getElementById('mermaidEnergy');
+      if (el && window.mermaid && !el.getAttribute('data-processed')) {
+        try {
+          window.mermaid.run({ nodes: [el] });
+        } catch(e) {
+          console.warn('Mermaid render warning:', e);
+        }
+      }
+    }, 50);
   } else if (tabId === 'chatbot') {
-    resetChatbotTiers();
+    setTimeout(() => {
+      const el = document.getElementById('mermaidChatbot');
+      if (el && window.mermaid && !el.getAttribute('data-processed')) {
+        try {
+          window.mermaid.run({ nodes: [el] });
+        } catch(e) {
+          console.warn('Mermaid render warning:', e);
+        }
+      }
+    }, 50);
   }
 }
 
@@ -1146,184 +1167,438 @@ function playEnergyAutoCycle() {
   }, 2600);
 }
 
+
+
 // ==========================================================================
-// CHATBOT SIMULATION VISUALIZER ENGINE (SHOWING NOT SIMULATING)
+// CHATBOT SIMULATION (New Pipeline)
 // ==========================================================================
 let activeChatbotScenario = 'friend';
-let chatbotStep = 0;
-let isChatbotPlaying = false;
-let chatbotAnimTimer = null;
+let chatbotTimer = null;
+
+const cbScenarios = {
+  friend: {
+    raw: '"My friend is arriving tomorrow at 6 PM"',
+    steps: [
+      { node: 1, text: '✓ PII Masked: "My <redacted> is arriving tomorrow at <time>"', statusClass: 'text-green' },
+      { node: 2, text: '✓ Routed to: JKH Access Microservice', statusClass: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - turnstile:enter', statusClass: 'text-green' },
+      { node: 4, text: '✓ Guest Pass Minted', statusClass: 'text-green', outLabel: 'Guest Pass Minted - SECURE & ACTIVE', outClass: 'text-green' }
+    ]
+  },
+  scene: {
+    raw: '"Leaving home for work"',
+    steps: [
+      { node: 1, text: '✓ No PII detected', statusClass: 'text-green' },
+      { node: 2, text: '✓ Routed to: Smart Home Scene Microservice', statusClass: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - device:all', statusClass: 'text-green' },
+      { node: 4, text: '✓ Scene Executed: Leaving Home', statusClass: 'text-green', outLabel: 'Scene Executed: AC OFF, Door LOCKED', outClass: 'text-green' }
+    ]
+  },
+  attack: {
+    raw: '"Unlock Unit 1204 front door"',
+    steps: [
+      { node: 1, text: '⚠️ CROSS-TENANT PROBE DETECTED', statusClass: 'text-amber' },
+      { node: 2, text: '✓ Routed to: Access Microservice (Flagged)', statusClass: 'text-amber' },
+      { node: 3, text: '⛔ REJECTED: Scope Violation (1402 cannot access 1204)', statusClass: 'text-red' },
+      { node: 4, text: '✕ Blocked by Air-Gap RBAC', statusClass: 'text-red', outLabel: 'Security Violation: ACTION BLOCKED', outClass: 'text-red' }
+    ]
+  }
+};
 
 function selectChatbotScenario(type) {
   activeChatbotScenario = type;
-
   ['cPromptFriend', 'cPromptScene', 'cPromptAttack'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
-
-  const activeId = type === 'friend' ? 'cPromptFriend' :
-                   type === 'scene' ? 'cPromptScene' : 'cPromptAttack';
+  
+  const activeId = type === 'friend' ? 'cPromptFriend' : type === 'scene' ? 'cPromptScene' : 'cPromptAttack';
   const btn = document.getElementById(activeId);
   if (btn) btn.classList.add('active');
 
-  resetChatbotTiers();
+  const scenario = cbScenarios[type];
+  const rawText = document.getElementById('cbRawText');
+  if (rawText) rawText.textContent = scenario.raw;
+
+  resetChatbotFlow();
 }
 
-function resetChatbotTiers() {
-  stopChatbotAutoPlay();
-  chatbotStep = 0;
+function resetChatbotFlow() {
+  clearTimeout(chatbotTimer);
+  const btn = document.getElementById('btnPlayChatbot');
+  if (btn) { btn.innerHTML = '▶ Run Pipeline Flow'; btn.classList.remove('playing'); }
 
   for (let i = 1; i <= 4; i++) {
-    const tier = document.getElementById('cTier' + i);
-    if (tier) tier.className = 'pres-tier-card';
-    const badge = document.getElementById('cb' + i + 'Badge');
-    if (badge) badge.innerText = 'IDLE';
-  }
-  for (let i = 1; i <= 3; i++) {
-    const pulse = document.getElementById('cPulse' + i);
-    if (pulse) pulse.classList.remove('flowing');
+    const node = document.getElementById('cbNode' + i);
+    const status = document.getElementById('cbStatus' + i);
+    if (node) node.className = 'ef-node';
+    if (status) {
+      status.textContent = i === 1 ? 'Waiting for input...' : i === 2 ? 'Waiting for router...' : i === 3 ? 'Waiting for token validation...' : 'Awaiting final payload...';
+      status.className = '';
+    }
   }
 
-  const rawEl = document.getElementById('cb1RawPrompt');
-  const injEl = document.getElementById('cb1InjectionStatus');
-  const piiEl = document.getElementById('cb1PiStatus');
-  const t3Resident = document.getElementById('cb3Resident');
-  const t3Scope = document.getElementById('cb3Scope');
-  const t3Nonce = document.getElementById('cb3Nonce');
-  const t3Relay = document.getElementById('cb3Relay');
-  const t4Title = document.getElementById('cb4Title');
-  const t4Desc = document.getElementById('cb4Desc');
-  const t4Badge = document.getElementById('cb4ResultBadge');
+  const outNode = document.getElementById('cbNodeOut');
+  if (outNode) outNode.style.opacity = '0';
+}
 
-  if (activeChatbotScenario === 'friend') {
-    if (rawEl) rawEl.innerText = '"My friend is arriving tomorrow at 6 PM"';
-    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
-    if (piiEl) { piiEl.innerText = '✓ PDPA PII: MASKED'; piiEl.className = 'live-pill blue'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
-    if (t3Scope) { t3Scope.innerText = 'turnstile:enter · lift:14'; t3Scope.className = 'text-green'; }
-    if (t3Nonce) t3Nonce.innerText = '#749102 · Single-use';
-    if (t3Relay) { t3Relay.innerText = 'ARMED FOR TTL 15M'; t3Relay.className = 'text-amber'; }
-    if (t4Title) { t4Title.innerText = '✦ Guest Pass Minted Successfully'; t4Title.className = 't4-result-title text-green'; }
-    if (t4Desc) t4Desc.innerText = 'Generated 15-min cryptographic pass for Union Place Turnstile 1 and Elevator Bank A to Floor 14.';
-    if (t4Badge) { t4Badge.innerText = '✓ SECURE & ACTIVE'; t4Badge.className = 'live-pill green'; }
-  } else if (activeChatbotScenario === 'scene') {
-    if (rawEl) rawEl.innerText = '"Leaving home for work"';
-    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
-    if (piiEl) { piiEl.innerText = '✓ PDPA: NO PII'; piiEl.className = 'live-pill blue'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
-    if (t3Scope) { t3Scope.innerText = 'device:front-door · ac:off'; t3Scope.className = 'text-green'; }
-    if (t3Nonce) t3Nonce.innerText = '#892301 · Scene Lock';
-    if (t3Relay) { t3Relay.innerText = 'ALL GUEST ZONES OFF'; t3Relay.className = 'text-green'; }
-    if (t4Title) { t4Title.innerText = '✦ Scene Executed: Leaving Home'; t4Title.className = 't4-result-title text-green'; }
-    if (t4Desc) t4Desc.innerText = 'Front door secured (LOCKED). Living AC switched off. Standby capped at 240W.';
-    if (t4Badge) { t4Badge.innerText = '✓ SCENE ACTIVE'; t4Badge.className = 'live-pill green'; }
-  } else if (activeChatbotScenario === 'attack') {
-    if (rawEl) rawEl.innerText = '"Unlock Unit 1204 front door"';
-    if (injEl) { injEl.innerText = '⚠️ JAILBREAK / CROSS-TENANT PROBE'; injEl.className = 'live-pill red'; }
-    if (piiEl) { piiEl.innerText = '⚠️ UNAUTHORIZED TARGET'; piiEl.className = 'live-pill red'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Tenant 1402)';
-    if (t3Scope) { t3Scope.innerText = 'VIOLATION: NO SCOPE FOR 1204'; t3Scope.className = 'text-red'; }
-    if (t3Nonce) t3Nonce.innerText = 'REJECTED · 0x403';
-    if (t3Relay) { t3Relay.innerText = 'RELAYS INTERLOCKED (LOCKED)'; t3Relay.className = 'text-red'; }
-    if (t4Title) { t4Title.innerText = '⛔ Security Violation: Action Blocked'; t4Title.className = 't4-result-title text-red'; }
-    if (t4Desc) t4Desc.innerText = 'Tier 3 Hardware RBAC rejected access. Token permissions strictly restricted to Unit 1402.';
-    if (t4Badge) { t4Badge.innerText = '✕ 403 FORBIDDEN'; t4Badge.className = 'live-pill red'; }
+function playChatbotSim() {
+  resetChatbotFlow();
+  const btn = document.getElementById('btnPlayChatbot');
+  if (btn) { btn.innerHTML = '⚙ Processing...'; btn.classList.add('playing'); }
+
+  const scenario = cbScenarios[activeChatbotScenario];
+  let stepIdx = 0;
+
+  function nextStep() {
+    if (stepIdx >= scenario.steps.length) {
+      if (btn) { btn.innerHTML = '▶ Run Pipeline Flow'; btn.classList.remove('playing'); }
+      const outNode = document.getElementById('cbNodeOut');
+      const outText = document.getElementById('cbOutText');
+      const outBox = document.getElementById('cbOutBox');
+      const finalStep = scenario.steps[3];
+      if (outText) outText.textContent = finalStep.outLabel;
+      if (outText) outText.className = finalStep.outClass;
+      if (outBox) {
+        if (activeChatbotScenario === 'attack') {
+          outBox.setAttribute('fill', '#FEF2F2');
+          outBox.setAttribute('stroke', '#EF4444');
+        } else {
+          outBox.setAttribute('fill', '#ECFDF5');
+          outBox.setAttribute('stroke', '#10B981');
+        }
+      }
+      if (outNode) outNode.style.opacity = '1';
+      return;
+    }
+
+    const step = scenario.steps[stepIdx];
+    for (let i = 1; i <= 4; i++) {
+      const n = document.getElementById('cbNode' + i);
+      if (n) {
+        if (i < step.node) n.className = 'ef-node done';
+        else if (i === step.node) n.className = 'ef-node active';
+        else n.className = 'ef-node';
+      }
+    }
+
+    const status = document.getElementById('cbStatus' + step.node);
+    if (status) {
+      status.textContent = step.text;
+      status.className = step.statusClass;
+    }
+
+    animateSvgParticle('cbP' + step.node);
+
+    stepIdx++;
+    chatbotTimer = setTimeout(nextStep, 1000);
+  }
+
+  nextStep();
+}
+
+window.selectChatbotScenario = selectChatbotScenario;
+window.playChatbotSim = playChatbotSim;
+
+window.toggleChatbotAutoPlay = toggleChatbotAutoPlay;
+
+// ==========================================================================
+// ENERGY SUB-SIM: SUB-TAB SWITCHING
+// ==========================================================================
+function switchEnergySubSim(simId) {
+  const sim1 = document.getElementById('energySubSim1');
+  const sim2 = document.getElementById('energySubSim2');
+  const btn1 = document.getElementById('btnSubSim1');
+  const btn2 = document.getElementById('btnSubSim2');
+  if (simId === 1) {
+    if (sim1) sim1.classList.remove('hidden');
+    if (sim2) sim2.classList.add('hidden');
+    if (btn1) btn1.classList.add('active');
+    if (btn2) btn2.classList.remove('active');
+  } else {
+    if (sim1) sim1.classList.add('hidden');
+    if (sim2) sim2.classList.remove('hidden');
+    if (btn1) btn1.classList.remove('active');
+    if (btn2) btn2.classList.add('active');
   }
 }
 
-function setChatbotStage(step) {
-  chatbotStep = step;
-  const isAttack = activeChatbotScenario === 'attack';
+function setSensorZone(zoneName) {
+  // Placeholder for sensor zone selection
+  console.log('Sensor zone selected:', zoneName);
+}
 
+// ==========================================================================
+// PRE-COOLING PROXIMITY SIMULATION
+// ==========================================================================
+let precoolTimer = null;
+let precoolRunning = false;
+
+const precoolSteps = [
+  {
+    dist: '4.2 km', eta: '28 min', trigger: 'MONITORING',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'STANDBY', actionSub: 'Monitoring Maya\'s GPS beacon',
+    node: 1, outLabel: '▶ GPS LOCK ACQUIRED',
+    log: '17:02 — GPS beacon acquired. ETA 28 min. Monitoring...'
+  },
+  {
+    dist: '2.1 km', eta: '14 min', trigger: 'THRESHOLD HIT',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'COMPUTING', actionSub: 'Running arrival prediction model',
+    node: 2, outLabel: '🧠 ETA MODEL: 14 MIN',
+    log: '17:18 — 2.1km threshold. Triggering ETA prediction model...'
+  },
+  {
+    dist: '2.1 km', eta: '14 min', trigger: 'TARIFF CHECK',
+    temp: '27.4°C', draw: '240W', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'CHECKING', actionSub: 'CEB tariff is off-peak → PRE-COOL APPROVED',
+    node: 3, outLabel: '✅ OFF-PEAK: PRE-COOL WINDOW OPEN',
+    log: '17:18 — CEB tariff: LKR 24/kWh. Pre-cool window approved.'
+  },
+  {
+    dist: '0.8 km', eta: '5 min', trigger: 'PRE-COOLING',
+    temp: '24.1°C', draw: '3.2 kW', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'PRE-COOLING', actionSub: 'Mitsubishi AC → 21.5°C (off-peak)',
+    node: 4, outLabel: '▶ HVAC COMMAND DISPATCHED',
+    log: '17:21 — HVAC activated. 3.2kW draw. Pre-cooling Unit 1402.'
+  },
+  {
+    dist: '0.0 km', eta: 'ARRIVED', trigger: 'COMPLETE',
+    temp: '21.8°C', draw: '0.8 kW', tariff: 'LKR 24/kWh', tariffClass: 'text-green',
+    action: 'COMPLETE', actionSub: 'Room pre-cooled. Peak tariff avoided.',
+    node: 5, outLabel: '✦ MAYA ARRIVED — UNIT 1402 READY 21.8°C',
+    log: '17:32 — Maya arrived. Room at 21.8°C. Savings: LKR 847 vs peak-hour cooling.'
+  }
+];
+
+function playPrecoolSim() {
+  if (precoolRunning) {
+    stopPrecoolSim();
+    return;
+  }
+  precoolRunning = true;
+  const btn = document.getElementById('btnPrecoolPlay');
+  if (btn) { btn.textContent = '⏹ Stop Simulation'; btn.classList.add('playing'); }
+
+  // Reset nodes
   for (let i = 1; i <= 4; i++) {
-    const tier = document.getElementById('cTier' + i);
-    const badge = document.getElementById('cb' + i + 'Badge');
-    if (!tier) continue;
-
-    if (i < step) {
-      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'completed-step');
-      if (badge) badge.innerText = isAttack ? 'FLAGGED' : 'PASSED';
-    } else if (i === step) {
-      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'active-step');
-      if (badge) badge.innerText = isAttack ? 'ATTACK BLOCKED' : 'PROCESSING';
-    } else {
-      tier.className = 'pres-tier-card';
-      if (badge) badge.innerText = 'IDLE';
-    }
+    const n = document.getElementById('efNode' + i);
+    if (n) { n.classList.remove('active', 'done'); }
   }
 
-  for (let i = 1; i <= 3; i++) {
-    const pulse = document.getElementById('cPulse' + i);
-    if (pulse) {
-      if (i < step) pulse.classList.add('flowing');
-      else pulse.classList.remove('flowing');
+  let step = 0;
+  function runStep() {
+    if (!precoolRunning || step >= precoolSteps.length) {
+      stopPrecoolSim();
+      return;
     }
+    applyPrecoolStep(precoolSteps[step]);
+    step++;
+    precoolTimer = setTimeout(runStep, 2200);
+  }
+  runStep();
+}
+
+function stopPrecoolSim() {
+  precoolRunning = false;
+  clearTimeout(precoolTimer);
+  const btn = document.getElementById('btnPrecoolPlay');
+  if (btn) { btn.textContent = '▶ Start Proximity Sim'; btn.classList.remove('playing'); }
+}
+
+function applyPrecoolStep(s) {
+  // Update phone
+  const distLabel = document.getElementById('proxDistLabel');
+  const eta = document.getElementById('proxETA');
+  const dist = document.getElementById('proxDist');
+  const trigger = document.getElementById('proxTrigger');
+  if (distLabel) distLabel.textContent = s.dist;
+  if (eta) eta.textContent = s.eta;
+  if (dist) dist.textContent = s.dist;
+  if (trigger) {
+    trigger.textContent = s.trigger;
+    trigger.className = 'sim-stat-val sim-status-val' +
+      (s.trigger === 'PRE-COOLING' || s.trigger === 'COMPLETE' ? ' done' :
+       s.trigger === 'THRESHOLD HIT' || s.trigger === 'TARIFF CHECK' ? ' active' : '');
   }
 
-  if (step === 4) {
-    if (!isAttack) {
-      showToast('✦ Enterprise Pipeline: Pass securely issued through 4 defense tiers');
-    } else {
-      showToast('⛔ Security Rejection: Physical door lock relay protected by Tier 3 RBAC air-gap');
-    }
+  // Move user pin (simulate approaching building)
+  const pin = document.getElementById('proxUserPin');
+  const positions = ['top:20%;left:22%', 'top:30%;left:30%', 'top:38%;left:37%', 'top:44%;left:42%', 'top:48%;left:46%'];
+  const stepIdx = precoolSteps.indexOf(s);
+  if (pin && positions[stepIdx]) {
+    const [topVal, leftVal] = positions[stepIdx].split(';');
+    pin.style.top = topVal.replace('top:', '');
+    pin.style.left = leftVal.replace('left:', '');
   }
+
+  // Pulse rings on threshold
+  if (s.trigger !== 'MONITORING') {
+    ['proxRing1','proxRing2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('pulsing');
+    });
+  }
+
+  // Animate SVG particle on pipeline
+  const nodeNum = Math.min(s.node, 4);
+  for (let i = 1; i <= 4; i++) {
+    const n = document.getElementById('efNode' + i);
+    if (!n) continue;
+    if (i < nodeNum) n.className = 'ef-node done';
+    else if (i === nodeNum) n.className = 'ef-node active';
+    else n.className = 'ef-node';
+  }
+
+  // Animate particle
+  const particleId = 'efP' + Math.min(nodeNum, 4);
+  animateSvgParticle(particleId);
+
+  // Update output label
+  const outLabel = document.getElementById('efOutLabel');
+  if (outLabel) outLabel.textContent = s.outLabel;
+
 }
 
-function stepChatbotNext() {
-  if (chatbotStep < 4) setChatbotStage(chatbotStep + 1);
+function animateSvgParticle(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.opacity = '1';
+  setTimeout(() => { if (el) el.style.opacity = '0'; }, 600);
 }
 
-function stepChatbotPrev() {
-  if (chatbotStep > 1) setChatbotStage(chatbotStep - 1);
-  else resetChatbotTiers();
+// ==========================================================================
+// SENSOR OPTIMIZATION SIMULATION
+// ==========================================================================
+let optTimer = null;
+let optRunning = false;
+let activeOptScenario = 'offpeak';
+
+const optScenarios = {
+  offpeak: {
+    sensors: ['27.4°C', 'OCCUPIED', 'LKR 24', '33°C', '28 min'],
+    outputs: ['21.5°C', 'WARM', '-LKR 847'],
+    aiLabel: 'PRE-COOL → DECISION',
+    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+  },
+  peak: {
+    sensors: ['24.1°C', 'OCCUPIED', 'LKR 54', '31°C', 'HOME'],
+    outputs: ['23.5°C', 'COMFORT', '-LKR 412'],
+    aiLabel: 'ECO-FLOAT → DECISION',
+    colors: ['#F59E0B', '#10B981', '#EF4444', '#EF4444', '#3B82F6']
+  },
+  night: {
+    sensors: ['22.8°C', 'SLEEPING', 'LKR 24', '28°C', 'HOME'],
+    outputs: ['23.0°C', 'SLEEP', '-LKR 312'],
+    aiLabel: 'NIGHT MODE → DECISION',
+    colors: ['#8B5CF6', '#0891B2', '#10B981', '#64748B', '#3B82F6']
+  }
+};
+
+function setOptScenario(s) {
+  activeOptScenario = s;
+  ['eoptScOff','eoptScPeak','eoptScNight'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const map = { offpeak: 'eoptScOff', peak: 'eoptScPeak', night: 'eoptScNight' };
+  const activeBtn = document.getElementById(map[s]);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Reset state
+  ['eoptSensorTemp','eoptSensorOcc','eoptSensorTariff','eoptSensorWeather','eoptSensorETA'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  ['eoptOut1Node','eoptOut2Node','eoptOut3Node'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
 }
 
-function toggleChatbotAutoPlay() {
-  if (isChatbotPlaying) stopChatbotAutoPlay();
-  else playChatbotAnimation();
+function playOptSim() {
+  if (optRunning) { stopOptSim(); return; }
+  optRunning = true;
+  const btn = document.getElementById('btnOptPlay');
+  if (btn) { btn.textContent = '⏹ Stop Flow'; btn.classList.add('playing'); }
+
+  const scenario = optScenarios[activeOptScenario];
+  if (!scenario) return;
+
+  // Update sensor values
+  const sensorIds = ['eoptTempVal','eoptOccVal','eoptTariffVal','eoptWeatherVal','eoptETAVal'];
+  sensorIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = scenario.sensors[i];
+  });
+
+  const sensorNodes = ['eoptSensorTemp','eoptSensorOcc','eoptSensorTariff','eoptSensorWeather','eoptSensorETA'];
+
+  // Sequentially activate sensors → AI → outputs
+  let delay = 0;
+  sensorNodes.forEach((id, i) => {
+    optTimer = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      // Animate particle for this sensor
+      const particleId = 'eoptPart' + (i+1);
+      animateSvgParticleOpt(particleId, scenario.colors[i]);
+    }, delay);
+    delay += 400;
+  });
+
+  // AI box pulse
+  optTimer = setTimeout(() => {
+    const aiBox = document.getElementById('eoptAiBox');
+    if (aiBox) {
+      aiBox.style.stroke = '#10B981';
+      aiBox.style.filter = 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.4))';
+      setTimeout(() => {
+        if (aiBox) { aiBox.style.stroke = '#3B82F6'; aiBox.style.filter = 'none'; }
+      }, 800);
+    }
+  }, delay);
+  delay += 600;
+
+  // Activate outputs
+  const outputIds = ['eoptOut1Node','eoptOut2Node','eoptOut3Node'];
+  const outputValIds = ['eoptOutHVAC','eoptOutLight','eoptOutCost'];
+  outputIds.forEach((id, i) => {
+    optTimer = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      const valEl = document.getElementById(outputValIds[i]);
+      if (valEl) valEl.textContent = scenario.outputs[i];
+      // Animate output particle
+      const partId = 'eoptOutP' + (i+1);
+      animateSvgParticleOpt(partId, '#10B981');
+    }, delay);
+    delay += 350;
+  });
+
+  optTimer = setTimeout(stopOptSim, delay + 800);
 }
 
-function stopChatbotAutoPlay() {
-  isChatbotPlaying = false;
-  if (chatbotAnimTimer) clearTimeout(chatbotAnimTimer);
-  const btn = document.getElementById('btnPlayChatbot');
-  if (btn) btn.innerHTML = '▶ Run Pipeline Flow';
+function animateSvgParticleOpt(id, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.setAttribute('fill', color);
+  el.style.opacity = '1';
+  el.style.transition = 'opacity 0.3s';
+  setTimeout(() => { if (el) el.style.opacity = '0'; }, 700);
 }
 
-function playChatbotAnimation() {
-  resetChatbotTiers();
-  isChatbotPlaying = true;
-  const btn = document.getElementById('btnPlayChatbot');
-  if (btn) btn.innerHTML = '⏸ Pause Flow';
-
-  setChatbotStage(1);
-
-  chatbotAnimTimer = setTimeout(() => {
-    if (!isChatbotPlaying) return;
-    setChatbotStage(2);
-
-    chatbotAnimTimer = setTimeout(() => {
-      if (!isChatbotPlaying) return;
-      setChatbotStage(3);
-
-      chatbotAnimTimer = setTimeout(() => {
-        if (!isChatbotPlaying) return;
-        setChatbotStage(4);
-        stopChatbotAutoPlay();
-      }, 1100);
-    }, 1100);
-  }, 1100);
+function stopOptSim() {
+  optRunning = false;
+  clearTimeout(optTimer);
+  const btn = document.getElementById('btnOptPlay');
+  if (btn) { btn.textContent = '▶ Run Sensor Flow'; btn.classList.remove('playing'); }
 }
 
 // Expose globals
-window.switchMainTab = switchMainTab;
-window.selectEnergyPhase = selectEnergyPhase;
-window.stepEnergyPhaseNext = stepEnergyPhaseNext;
-window.stepEnergyPhasePrev = stepEnergyPhasePrev;
-window.toggleEnergyAutoPlay = toggleEnergyAutoPlay;
-window.selectChatbotScenario = selectChatbotScenario;
-window.resetChatbotTiers = resetChatbotTiers;
-window.stepChatbotNext = stepChatbotNext;
-window.stepChatbotPrev = stepChatbotPrev;
-window.toggleChatbotAutoPlay = toggleChatbotAutoPlay;
+window.switchEnergySubSim = switchEnergySubSim;
+window.setSensorZone = setSensorZone;
+window.playPrecoolSim = playPrecoolSim;
+window.playOptSim = playOptSim;
+window.setOptScenario = setOptScenario;

@@ -796,10 +796,11 @@ function goToScreen(screenId) {
 async function fetchEnergyStatus() {
   try {
     const res = await fetch('/api/energy/status');
+    if (!res.ok) return;
     const data = await res.json();
-    if (data.success) renderEnergyStatus(data.status);
+    if (data && data.success) renderEnergyStatus(data.status);
   } catch (err) {
-    console.error('Energy status fetch error:', err);
+    // Offline or static fallback
   }
 }
 
@@ -1044,9 +1045,27 @@ function switchMainTab(tabId) {
       setTimeout(() => window.twinRenderer.onResize(), 60);
     }
   } else if (tabId === 'energy') {
-    selectEnergyPhase(activeEnergyPhase || 1);
+    setTimeout(() => {
+      const el = document.getElementById('mermaidEnergy');
+      if (el && window.mermaid && !el.getAttribute('data-processed')) {
+        try {
+          window.mermaid.run({ nodes: [el] });
+        } catch(e) {
+          console.warn('Mermaid render warning:', e);
+        }
+      }
+    }, 50);
   } else if (tabId === 'chatbot') {
-    resetChatbotTiers();
+    setTimeout(() => {
+      const el = document.getElementById('mermaidChatbot');
+      if (el && window.mermaid && !el.getAttribute('data-processed')) {
+        try {
+          window.mermaid.run({ nodes: [el] });
+        } catch(e) {
+          console.warn('Mermaid render warning:', e);
+        }
+      }
+    }, 50);
   }
 }
 
