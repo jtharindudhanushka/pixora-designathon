@@ -1595,3 +1595,321 @@ window.playCebArrivalStory = playCebArrivalStory;
 window.toggleCebStoryAutoPlay = toggleCebStoryAutoPlay;
 window.stepCebNext = stepCebNext;
 window.stepCebPrev = stepCebPrev;
+
+// ==========================================================================
+// TOP NAVIGATION TAB SWITCHER: VISITOR PASS | ENERGY | CHATBOT
+// ==========================================================================
+let activeMainTab = 'visitor';
+
+function switchMainTab(tabId) {
+  activeMainTab = tabId;
+
+  // Toggle button active states
+  const btnVisitor = document.getElementById('tabBtnVisitor');
+  const btnEnergy = document.getElementById('tabBtnEnergy');
+  const btnChatbot = document.getElementById('tabBtnChatbot');
+
+  if (btnVisitor) btnVisitor.classList.toggle('active', tabId === 'visitor');
+  if (btnEnergy) btnEnergy.classList.toggle('active', tabId === 'energy');
+  if (btnChatbot) btnChatbot.classList.toggle('active', tabId === 'chatbot');
+
+  // Toggle page visibility
+  const pageVisitor = document.getElementById('pageVisitorPass');
+  const pageEnergy = document.getElementById('pageEnergySim');
+  const pageChatbot = document.getElementById('pageChatbotSim');
+
+  if (pageVisitor) pageVisitor.classList.toggle('hidden', tabId !== 'visitor');
+  if (pageEnergy) pageEnergy.classList.toggle('hidden', tabId !== 'energy');
+  if (pageChatbot) pageChatbot.classList.toggle('hidden', tabId !== 'chatbot');
+
+  // On switching back to 3D Digital Twin, trigger canvas resize so Three.js adjusts
+  if (tabId === 'visitor') {
+    if (window.twinRenderer && window.twinRenderer.onResize) {
+      setTimeout(() => window.twinRenderer.onResize(), 50);
+    }
+  } else if (tabId === 'energy') {
+    selectEnergyPhase(activeEnergyPhase);
+  } else if (tabId === 'chatbot') {
+    resetChatbotTiers();
+  }
+}
+
+// ==========================================================================
+// ENERGY SIMULATION VISUALIZER ENGINE (SHOWING NOT SIMULATING)
+// ==========================================================================
+let activeEnergyPhase = 1;
+let energyAutoPlayTimer = null;
+let isEnergyPlaying = false;
+
+const energyPhaseXCoords = {
+  1: 200, // 10:00 (Day base)
+  2: 730, // 17:30 (Pre-cool)
+  3: 845, // 19:30 (Peak spike)
+  4: 960  // 24:00 (Night recovery)
+};
+
+const energyPhaseYCoords = {
+  1: 205, // 240W
+  2: 125, // Pre-cool surge
+  3: 150, // Capped 3.2kW eco-float
+  4: 205  // Baseline
+};
+
+function selectEnergyPhase(phase) {
+  activeEnergyPhase = phase;
+
+  for (let i = 1; i <= 4; i++) {
+    const card = document.getElementById('energyPhase' + i);
+    if (card) card.classList.toggle('active', i === phase);
+  }
+
+  // Update animated SVG scrubber marker
+  const line = document.getElementById('energyScrubberLine');
+  const dot = document.getElementById('energyScrubberDot');
+  const targetX = energyPhaseXCoords[phase] || 200;
+  const targetY = energyPhaseYCoords[phase] || 205;
+
+  if (line) {
+    line.setAttribute('x1', targetX);
+    line.setAttribute('x2', targetX);
+  }
+  if (dot) {
+    dot.setAttribute('cx', targetX);
+    dot.setAttribute('cy', targetY);
+  }
+}
+
+function stepEnergyPhaseNext() {
+  if (activeEnergyPhase < 4) selectEnergyPhase(activeEnergyPhase + 1);
+  else selectEnergyPhase(1);
+}
+
+function stepEnergyPhasePrev() {
+  if (activeEnergyPhase > 1) selectEnergyPhase(activeEnergyPhase - 1);
+  else selectEnergyPhase(4);
+}
+
+function toggleEnergyAutoPlay() {
+  if (isEnergyPlaying) {
+    stopEnergyAutoPlay();
+  } else {
+    playEnergyAutoCycle();
+  }
+}
+
+function stopEnergyAutoPlay() {
+  isEnergyPlaying = false;
+  if (energyAutoPlayTimer) clearTimeout(energyAutoPlayTimer);
+  const btn = document.getElementById('btnAutoPlayEnergy');
+  if (btn) btn.innerHTML = '▶ Auto-Play 24H Cycle';
+}
+
+function playEnergyAutoCycle() {
+  stopEnergyAutoPlay();
+  isEnergyPlaying = true;
+  const btn = document.getElementById('btnAutoPlayEnergy');
+  if (btn) btn.innerHTML = '⏸ Pause Cycle';
+
+  selectEnergyPhase(1);
+
+  energyAutoPlayTimer = setTimeout(() => {
+    if (!isEnergyPlaying) return;
+    selectEnergyPhase(2);
+
+    energyAutoPlayTimer = setTimeout(() => {
+      if (!isEnergyPlaying) return;
+      selectEnergyPhase(3);
+
+      energyAutoPlayTimer = setTimeout(() => {
+        if (!isEnergyPlaying) return;
+        selectEnergyPhase(4);
+
+        energyAutoPlayTimer = setTimeout(() => {
+          stopEnergyAutoPlay();
+        }, 2600);
+      }, 2600);
+    }, 2600);
+  }, 2600);
+}
+
+// ==========================================================================
+// CHATBOT SIMULATION VISUALIZER ENGINE (SHOWING NOT SIMULATING)
+// ==========================================================================
+let activeChatbotScenario = 'friend';
+let chatbotStep = 0;
+let isChatbotPlaying = false;
+let chatbotAnimTimer = null;
+
+function selectChatbotScenario(type) {
+  activeChatbotScenario = type;
+
+  ['cPromptFriend', 'cPromptScene', 'cPromptAttack'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+
+  const activeId = type === 'friend' ? 'cPromptFriend' :
+                   type === 'scene' ? 'cPromptScene' : 'cPromptAttack';
+  const btn = document.getElementById(activeId);
+  if (btn) btn.classList.add('active');
+
+  resetChatbotTiers();
+}
+
+function resetChatbotTiers() {
+  stopChatbotAutoPlay();
+  chatbotStep = 0;
+
+  for (let i = 1; i <= 4; i++) {
+    const tier = document.getElementById('cTier' + i);
+    if (tier) tier.className = 'pres-tier-card';
+    const badge = document.getElementById('cb' + i + 'Badge');
+    if (badge) badge.innerText = 'IDLE';
+  }
+  for (let i = 1; i <= 3; i++) {
+    const pulse = document.getElementById('cPulse' + i);
+    if (pulse) pulse.classList.remove('flowing');
+  }
+
+  const rawEl = document.getElementById('cb1RawPrompt');
+  const injEl = document.getElementById('cb1InjectionStatus');
+  const piiEl = document.getElementById('cb1PiStatus');
+  const t3Resident = document.getElementById('cb3Resident');
+  const t3Scope = document.getElementById('cb3Scope');
+  const t3Nonce = document.getElementById('cb3Nonce');
+  const t3Relay = document.getElementById('cb3Relay');
+  const t4Title = document.getElementById('cb4Title');
+  const t4Desc = document.getElementById('cb4Desc');
+  const t4Badge = document.getElementById('cb4ResultBadge');
+
+  if (activeChatbotScenario === 'friend') {
+    if (rawEl) rawEl.innerText = '"My friend is arriving tomorrow at 6 PM"';
+    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
+    if (piiEl) { piiEl.innerText = '✓ PDPA PII: MASKED'; piiEl.className = 'live-pill blue'; }
+    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
+    if (t3Scope) { t3Scope.innerText = 'turnstile:enter · lift:14'; t3Scope.className = 'text-green'; }
+    if (t3Nonce) t3Nonce.innerText = '#749102 · Single-use';
+    if (t3Relay) { t3Relay.innerText = 'ARMED FOR TTL 15M'; t3Relay.className = 'text-amber'; }
+    if (t4Title) { t4Title.innerText = '✦ Guest Pass Minted Successfully'; t4Title.className = 't4-result-title text-green'; }
+    if (t4Desc) t4Desc.innerText = 'Generated 15-min cryptographic pass for Union Place Turnstile 1 and Elevator Bank A to Floor 14.';
+    if (t4Badge) { t4Badge.innerText = '✓ SECURE & ACTIVE'; t4Badge.className = 'live-pill green'; }
+  } else if (activeChatbotScenario === 'scene') {
+    if (rawEl) rawEl.innerText = '"Leaving home for work"';
+    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
+    if (piiEl) { piiEl.innerText = '✓ PDPA: NO PII'; piiEl.className = 'live-pill blue'; }
+    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
+    if (t3Scope) { t3Scope.innerText = 'device:front-door · ac:off'; t3Scope.className = 'text-green'; }
+    if (t3Nonce) t3Nonce.innerText = '#892301 · Scene Lock';
+    if (t3Relay) { t3Relay.innerText = 'ALL GUEST ZONES OFF'; t3Relay.className = 'text-green'; }
+    if (t4Title) { t4Title.innerText = '✦ Scene Executed: Leaving Home'; t4Title.className = 't4-result-title text-green'; }
+    if (t4Desc) t4Desc.innerText = 'Front door secured (LOCKED). Living AC switched off. Standby capped at 240W.';
+    if (t4Badge) { t4Badge.innerText = '✓ SCENE ACTIVE'; t4Badge.className = 'live-pill green'; }
+  } else if (activeChatbotScenario === 'attack') {
+    if (rawEl) rawEl.innerText = '"Unlock Unit 1204 front door"';
+    if (injEl) { injEl.innerText = '⚠️ JAILBREAK / CROSS-TENANT PROBE'; injEl.className = 'live-pill red'; }
+    if (piiEl) { piiEl.innerText = '⚠️ UNAUTHORIZED TARGET'; piiEl.className = 'live-pill red'; }
+    if (t3Resident) t3Resident.innerText = 'Maya (Tenant 1402)';
+    if (t3Scope) { t3Scope.innerText = 'VIOLATION: NO SCOPE FOR 1204'; t3Scope.className = 'text-red'; }
+    if (t3Nonce) t3Nonce.innerText = 'REJECTED · 0x403';
+    if (t3Relay) { t3Relay.innerText = 'RELAYS INTERLOCKED (LOCKED)'; t3Relay.className = 'text-red'; }
+    if (t4Title) { t4Title.innerText = '⛔ Security Violation: Action Blocked'; t4Title.className = 't4-result-title text-red'; }
+    if (t4Desc) t4Desc.innerText = 'Tier 3 Hardware RBAC rejected access. Token permissions strictly restricted to Unit 1402.';
+    if (t4Badge) { t4Badge.innerText = '✕ 403 FORBIDDEN'; t4Badge.className = 'live-pill red'; }
+  }
+}
+
+function setChatbotStage(step) {
+  chatbotStep = step;
+  const isAttack = activeChatbotScenario === 'attack';
+
+  for (let i = 1; i <= 4; i++) {
+    const tier = document.getElementById('cTier' + i);
+    const badge = document.getElementById('cb' + i + 'Badge');
+    if (!tier) continue;
+
+    if (i < step) {
+      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'completed-step');
+      if (badge) badge.innerText = isAttack ? 'FLAGGED' : 'PASSED';
+    } else if (i === step) {
+      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'active-step');
+      if (badge) badge.innerText = isAttack ? 'ATTACK BLOCKED' : 'PROCESSING';
+    } else {
+      tier.className = 'pres-tier-card';
+      if (badge) badge.innerText = 'IDLE';
+    }
+  }
+
+  for (let i = 1; i <= 3; i++) {
+    const pulse = document.getElementById('cPulse' + i);
+    if (pulse) {
+      if (i < step) pulse.classList.add('flowing');
+      else pulse.classList.remove('flowing');
+    }
+  }
+
+  if (step === 4) {
+    if (!isAttack) {
+      showToast('✦ Enterprise Pipeline: Pass securely issued through 4 defense tiers');
+    } else {
+      showToast('⛔ Security Rejection: Physical door lock relay protected by Tier 3 RBAC air-gap');
+    }
+  }
+}
+
+function stepChatbotNext() {
+  if (chatbotStep < 4) setChatbotStage(chatbotStep + 1);
+}
+
+function stepChatbotPrev() {
+  if (chatbotStep > 1) setChatbotStage(chatbotStep - 1);
+  else resetChatbotTiers();
+}
+
+function toggleChatbotAutoPlay() {
+  if (isChatbotPlaying) stopChatbotAutoPlay();
+  else playChatbotAnimation();
+}
+
+function stopChatbotAutoPlay() {
+  isChatbotPlaying = false;
+  if (chatbotAnimTimer) clearTimeout(chatbotAnimTimer);
+  const btn = document.getElementById('btnPlayChatbot');
+  if (btn) btn.innerHTML = '▶ Run Pipeline Flow';
+}
+
+function playChatbotAnimation() {
+  resetChatbotTiers();
+  isChatbotPlaying = true;
+  const btn = document.getElementById('btnPlayChatbot');
+  if (btn) btn.innerHTML = '⏸ Pause Flow';
+
+  setChatbotStage(1);
+
+  chatbotAnimTimer = setTimeout(() => {
+    if (!isChatbotPlaying) return;
+    setChatbotStage(2);
+
+    chatbotAnimTimer = setTimeout(() => {
+      if (!isChatbotPlaying) return;
+      setChatbotStage(3);
+
+      chatbotAnimTimer = setTimeout(() => {
+        if (!isChatbotPlaying) return;
+        setChatbotStage(4);
+        stopChatbotAutoPlay();
+      }, 1100);
+    }, 1100);
+  }, 1100);
+}
+
+// Expose globals
+window.switchMainTab = switchMainTab;
+window.selectEnergyPhase = selectEnergyPhase;
+window.stepEnergyPhaseNext = stepEnergyPhaseNext;
+window.stepEnergyPhasePrev = stepEnergyPhasePrev;
+window.toggleEnergyAutoPlay = toggleEnergyAutoPlay;
+window.selectChatbotScenario = selectChatbotScenario;
+window.resetChatbotTiers = resetChatbotTiers;
+window.stepChatbotNext = stepChatbotNext;
+window.stepChatbotPrev = stepChatbotPrev;
+window.toggleChatbotAutoPlay = toggleChatbotAutoPlay;

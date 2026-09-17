@@ -3769,3 +3769,423 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 .pres-btn-done:hover {
   background: #1E293B;
 }
+
+/* ==========================================================================
+   TOP NAV HIERARCHY & 3-PAGE PRESENTATION ARCHITECTURE
+   ========================================================================== */
+
+/* Top Navigation Primary Tabs */
+.nav-tabs-primary {
+  display: flex;
+  align-items: center;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.nav-tab-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-tab-btn:hover {
+  color: #0F172A;
+}
+
+.nav-tab-btn.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.nav-tab-btn .tab-icon {
+  font-size: 14px;
+}
+
+/* Page Visibility */
+.main-tab-page {
+  display: block;
+  width: 100%;
+}
+
+.main-tab-page.hidden {
+  display: none !important;
+}
+
+/* Visitor Sim Subnav Bar */
+.visitor-sim-subnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.subnav-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.vsim-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: #0284C7;
+  letter-spacing: 0.8px;
+}
+
+.vsim-sub {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* Full-Page Presentation Containers (Energy Sim & Chatbot Sim) */
+.pres-page-container {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 32px 36px 60px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.pres-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 22px;
+  gap: 24px;
+}
+
+.pres-page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.6px;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.pres-page-subtitle {
+  font-size: 15px;
+  color: #475569;
+  margin: 0;
+  max-width: 920px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.pres-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* High-Impact Metric Row */
+.pres-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.pres-metric-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.pm-lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.pm-val {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.pm-sub {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+
+/* Timeline Cards */
+.pres-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.pres-phase-card {
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 230px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.pres-phase-card:hover {
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+}
+
+.pres-phase-card.active {
+  border-color: #D97706;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15), 0 16px 32px -8px rgba(217, 119, 6, 0.2);
+  transform: translateY(-4px);
+}
+
+.phase-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phase-pill {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.phase-pill.green { background: #DCFCE7; color: #15803D; }
+.phase-pill.amber { background: #FEF3C7; color: #B45309; }
+.phase-pill.cyan { background: #E0F2FE; color: #0369A1; }
+
+.phase-time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.phase-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.3;
+}
+
+.phase-desc {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.phase-status-chip {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  background: #F8FAFC;
+  color: #334155;
+  border-radius: 6px;
+  padding: 6px 10px;
+  text-align: center;
+  border: 1px solid #E2E8F0;
+}
+
+.phase-status-chip.green { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+.phase-status-chip.amber { background: #FFFBEB; color: #B45309; border-color: #FDE68A; }
+.phase-status-chip.cyan { background: #F0F9FF; color: #0369A1; border-color: #BAE6FD; }
+
+/* 24-Hour Load Chart Card */
+.pres-chart-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.chart-sub {
+  font-size: 13.5px;
+  color: #64748B;
+  margin-top: 3px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.swatch.red-dash {
+  border-top: 2.5px dashed #EF4444;
+  height: 0;
+  width: 18px;
+}
+
+.swatch.green-solid {
+  background: #10B981;
+  height: 4px;
+  width: 18px;
+  border-radius: 2px;
+}
+
+.swatch.amber-area {
+  background: rgba(245, 158, 11, 0.35);
+  border: 1px solid #F59E0B;
+}
+
+.chart-svg-container {
+  width: 100%;
+  height: 240px;
+  position: relative;
+}
+
+.energy-load-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Explainability Box */
+.pres-explain-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.peb-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.peb-head h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.peb-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #0284C7;
+  letter-spacing: 0.6px;
+}
+
+.peb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.peb-col {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.peb-col.highlight {
+  border-color: #BBF7D0;
+  background: #F0FDF4;
+}
+
+.peb-col h4 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.peb-col p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* Chatbot Pres Footer Banner */
+.pres-footer-banner {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px 24px;
+}
+
+.pfb-content {
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.5;
+}
