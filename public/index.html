@@ -832,6 +832,16 @@
           </div>
         </div>
 
+        <div class="drawer-card">
+          <div class="card-title-sm">CEB Peak-Tariff AI — Judge Evaluation Controls</div>
+          <p class="card-note">The real behavior only appears live between 5:35 PM–8:00 PM (pre-cool → eco-float around the actual CEB peak window). Force a mode here to demo it at any time — every other computation (chart timing, savings, explainability) still runs for real off whichever mode is forced.</p>
+          <div class="btn-stack">
+            <button class="btn-override-trigger" onclick="setEnergyDebugMode('PRE_COOLING')">🌡️ Force: Pre-Cooling</button>
+            <button class="btn-anomaly-trigger" style="background:#0F172A;" onclick="setEnergyDebugMode('ECO_FLOAT')">⚡ Force: Eco-Float (Peak Active)</button>
+            <button class="btn-override-trigger" onclick="setEnergyDebugMode(null)">↩ Clear Override (Real Time)</button>
+          </div>
+        </div>
+
         <!-- Explainable AI Alert Card -->
         <div id="drAlertCard" class="alert-box-card normal">
           <div class="alert-box-head">

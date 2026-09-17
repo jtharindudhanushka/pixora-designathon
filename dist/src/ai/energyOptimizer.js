@@ -68,6 +68,19 @@ export class EnergyOptimizer {
     // same limitation as the pass store; a production build would persist
     // this per-unit in a database).
     monthSavingsLkr = 16450;
+    // Judge/demo evaluation control (mirrors the existing lock-anomaly
+    // "Inject Battery Cell Degradation" button): the demo's real behavior
+    // is time-of-day gated to the actual CEB peak window, which won't
+    // always line up with when this is being judged. This lets a demo
+    // operator force the mode instead of only being able to show it live
+    // between 17:35-20:00. Clearly a demo affordance, not part of the AI's
+    // real decision logic — it short-circuits the wall-clock check only,
+    // every other computation (chart timing, explainability text, savings)
+    // still runs for real off whichever mode is active.
+    debugModeOverride = null;
+    setDebugMode(mode) {
+        this.debugModeOverride = mode;
+    }
     setRule(ruleId, enabled) {
         const rule = this.rules[ruleId];
         if (!rule)
@@ -92,24 +105,36 @@ export class EnergyOptimizer {
         else if (preCoolOn && nowMin >= precoolStartMin && nowMin < PEAK_START_MIN) {
             mode = 'PRE_COOLING';
         }
+        if (this.debugModeOverride) {
+            mode = this.debugModeOverride;
+        }
         // Cycle saving ticks up through the eco-float window (progress-based,
         // not wall-clock-accumulated across days) so the number visibly moves
         // during a live demo instead of sitting static.
         let cycleSavingUsd = 0;
         if (mode === 'ECO_FLOAT') {
-            const progress = Math.min(1, (nowMin - PEAK_START_MIN) / (PEAK_END_MIN - PEAK_START_MIN));
+            // Clamped both ends: the debug override can force this mode outside
+            // the real peak window, where (nowMin - PEAK_START_MIN) would
+            // otherwise go negative.
+            const progress = Math.max(0, Math.min(1, (nowMin - PEAK_START_MIN) / (PEAK_END_MIN - PEAK_START_MIN)));
             cycleSavingUsd = Math.round(progress * 4.18 * 100) / 100;
         }
-        const bannerVisible = mode !== 'IDLE' && nowMin < BANNER_CLEAR_MIN;
+        const isDemoOverride = this.debugModeOverride !== null;
+        const bannerVisible = mode !== 'IDLE' && (isDemoOverride || nowMin < BANNER_CLEAR_MIN);
         let strategyText;
         let explainability;
+        const demoSuffix = isDemoOverride
+            ? ` (Judge demo control: mode forced — real wall-clock time is ${fmtLabel(nowMin)}, outside the actual CEB peak band.)`
+            : '';
         if (mode === 'ECO_FLOAT') {
             strategyText = `Living Room AC eco-float is currently initiated to bypass surge rates. Estimated cycle saving of $${cycleSavingUsd.toFixed(2)} during grid peak.`;
-            explainability = `CEB Peak Defender capped Living Room AC draw at ${3.2}kW because the wall-clock time (${fmtLabel(nowMin)}) falls inside the CEB domestic Time-of-Use peak band (${fmtLabel(PEAK_START_MIN)}–${fmtLabel(PEAK_END_MIN)}). Target temperature is allowed to float upward within comfort range instead of holding a fixed setpoint, cutting compressor duty cycles without shutting the unit off.`;
+            explainability = isDemoOverride
+                ? `CEB Peak Defender is capping Living Room AC draw at ${3.2}kW, simulating the CEB domestic Time-of-Use peak band (${fmtLabel(PEAK_START_MIN)}–${fmtLabel(PEAK_END_MIN)}).${demoSuffix} Target temperature floats upward within comfort range instead of a fixed setpoint, cutting compressor duty cycles without shutting the unit off.`
+                : `CEB Peak Defender capped Living Room AC draw at ${3.2}kW because the wall-clock time (${fmtLabel(nowMin)}) falls inside the CEB domestic Time-of-Use peak band (${fmtLabel(PEAK_START_MIN)}–${fmtLabel(PEAK_END_MIN)}). Target temperature is allowed to float upward within comfort range instead of holding a fixed setpoint, cutting compressor duty cycles without shutting the unit off.`;
         }
         else if (mode === 'PRE_COOLING') {
             strategyText = `Home is pre-cooling to 23°C ahead of tonight's ${fmtLabel(PEAK_START_MIN)} CEB peak window, so comfort holds without drawing power once peak pricing starts.`;
-            explainability = `Thermal Pre-Cooling started at ${fmtLabel(precoolStartMin)} (${PRECOOL_LEAD_MIN} min before the CEB peak band) to bank cooling ahead of the rate change, based on the unit's measured thermal decay rate.`;
+            explainability = `Thermal Pre-Cooling started at ${fmtLabel(precoolStartMin)} (${PRECOOL_LEAD_MIN} min before the CEB peak band) to bank cooling ahead of the rate change, based on the unit's measured thermal decay rate.${demoSuffix}`;
         }
         else {
             strategyText = 'No active peak-tariff strategy right now — standard comfort control.';

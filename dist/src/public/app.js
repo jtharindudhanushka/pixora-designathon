@@ -898,6 +898,25 @@ async function toggleEnergyRule(ruleId, enabled) {
   }
 }
 
+async function setEnergyDebugMode(mode) {
+  try {
+    const res = await fetch('/api/energy/debug-mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      renderEnergyStatus(data.status);
+      showToast(mode
+        ? `✦ Judge demo: CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
+        : '✦ CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
+    }
+  } catch (err) {
+    console.error('Energy debug-mode error:', err);
+  }
+}
+
 function openPassModal() {
   showPassStep(1);
   // Reflect real current time immediately instead of the static markup
