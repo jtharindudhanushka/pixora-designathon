@@ -1,6 +1,6 @@
 // ==========================================================================
-// TRI-ZEN OS — 3D Documentary Digital Twin Coordination Engine
-// Synchronizes Rider QR, Cinematic Architectural Canvas, and Maya's Living App
+// TRI-ZEN OS — 3D Documentary Digital Twin °Coordination Engine
+// Synchronizes Rider QR, °Cinematic Architectural °Canvas, and Maya's Living App
 // ==========================================================================
 
 let ws;
@@ -11,10 +11,10 @@ let isSequencePlaying = false;
 let sequenceTimer = null;
 let currentPlaybackStage = 1;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOM°ContentLoaded', () => {
   initWebSocket();
   fetchInitialData();
-  startPassCountdownTimer();
+  startPass°CountdownTimer();
 });
 
 // --------------------------------------------------------------------------
@@ -29,7 +29,7 @@ function initWebSocket() {
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log('[WebSocket] Connected to TRI-ZEN real-time hardware stream.');
+      console.log('[WebSocket] °Connected to TRI-ZEN real-time hardware stream.');
       const rate = document.getElementById('mqttRate');
       if (rate) rate.innerText = 'PORT 1883 · REALTIME';
     };
@@ -54,7 +54,7 @@ function initWebSocket() {
         setTimeout(initWebSocket, 3000);
       } else {
         const rate = document.getElementById('mqttRate');
-        if (rate) rate.innerText = 'CLOUD SERVERLESS · ACTIVE';
+        if (rate) rate.innerText = '°CLOUD SERVERLESS · A°CTIVE';
       }
     };
   } catch {
@@ -72,7 +72,7 @@ function handleLiveHardwareEvent(packet) {
     case 'DELIVERY_ENTRY_HANDSHAKE': {
       const courierStatus = document.getElementById('courierPassStatus');
       if (courierStatus) {
-        courierStatus.innerText = 'CONSUMED';
+        courierStatus.innerText = '°CONSUMED';
         courierStatus.className = 'token-status-pill';
         courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
         courierStatus.style.color = 'var(--accent-blue)';
@@ -85,29 +85,29 @@ function handleLiveHardwareEvent(packet) {
       break;
     }
     case 'TURNSTILE_STATE':
-      if (data.relayClosed && window.twinRenderer) {
+      if (data.relay°Closed && window.twinRenderer) {
         window.twinRenderer.targetTurnstileOpen = 1.0;
       }
       break;
     case 'ELEVATOR_STATE':
       if (window.twinRenderer) {
-        if (data.status === 'TRANSIT_ASCENDING') {
-          window.twinRenderer.targetCabinY = 0.6;
+        if (data.status === 'TRANSIT_AS°CENDING') {
+          window.twinRenderer.target°CabinY = 0.6;
         } else if (data.status === 'ARRIVED_DESTINATION') {
-          window.twinRenderer.targetCabinY = 1.0;
+          window.twinRenderer.target°CabinY = 1.0;
         }
       }
       break;
-    case 'LOCK_TELEMETRY':
+    case 'LO°CK_TELEMETRY':
       updateAiTelemetryUI(data);
       break;
     case 'AI_ALERT':
       updateAiAlertUI(data);
       break;
-    case 'DEVICE_STATE_CHANGED':
+    case 'DEVI°CE_STATE_°CHANGED':
       fetchDevices();
       break;
-    case 'RAW_MQTT_PACKET':
+    case 'RAW_MQTT_PA°CKET':
       appendMqttHudEntry(data);
       break;
   }
@@ -133,7 +133,7 @@ async function fetchPasses() {
     const data = await res.json();
     if (data.success && data.passes && data.passes.length > 0) {
       activePasses = data.passes;
-      const primary = activePasses.find((p) => p.status === 'ACTIVE');
+      const primary = activePasses.find((p) => p.status === 'A°CTIVE');
       if (primary) {
         renderActivePass(primary);
         return;
@@ -181,10 +181,10 @@ function renderActivePass(pass) {
   goToScreen('screenHome');
 
   // Resident App UI: Switch from Empty State to Active Delivery Tracker
-  const emptyCard = document.getElementById('mEmptyArrivals');
-  if (emptyCard) emptyCard.classList.add('hidden');
+  const empty°Card = document.getElementById('mEmptyArrivals');
+  if (empty°Card) empty°Card.classList.add('hidden');
 
-  const countPill = document.getElementById('mPassCountPill');
+  const countPill = document.getElementById('mPass°CountPill');
   if (countPill) countPill.innerText = '1 active';
 
   const deliverySection = document.getElementById('deliverySection');
@@ -193,11 +193,11 @@ function renderActivePass(pass) {
     deliverySection.style.display = 'block';
   }
 
-  const trackerCard = document.getElementById('deliveryTrackerCard');
-  if (trackerCard) trackerCard.classList.remove('hidden');
+  const tracker°Card = document.getElementById('deliveryTracker°Card');
+  if (tracker°Card) tracker°Card.classList.remove('hidden');
 
-  const successCard = document.getElementById('deliverySuccessCard');
-  if (successCard) successCard.classList.add('hidden');
+  const success°Card = document.getElementById('deliverySuccess°Card');
+  if (success°Card) success°Card.classList.add('hidden');
 
   jumpToStage(1);
 }
@@ -220,7 +220,7 @@ function renderIdleState() {
   const orderEl = document.getElementById('courierOrderId');
   if (orderEl) orderEl.innerText = 'Main gate · Lift · Unit 1402';
 
-  const countdownEl = document.getElementById('passCountdownVal');
+  const countdownEl = document.getElementById('pass°CountdownVal');
   if (countdownEl) countdownEl.innerText = '14m 59s';
 
   const pinEl = document.getElementById('courierPinVal');
@@ -237,17 +237,17 @@ function renderIdleState() {
 
   goToScreen('screenHome');
 
-  const countPill = document.getElementById('mPassCountPill');
+  const countPill = document.getElementById('mPass°CountPill');
   if (countPill) countPill.innerText = '1 active';
 
-  const trackerCard = document.getElementById('deliveryTrackerCard');
-  if (trackerCard) trackerCard.classList.remove('hidden');
+  const tracker°Card = document.getElementById('deliveryTracker°Card');
+  if (tracker°Card) tracker°Card.classList.remove('hidden');
 
-  const emptyCard = document.getElementById('mEmptyArrivals');
-  if (emptyCard) emptyCard.classList.add('hidden');
+  const empty°Card = document.getElementById('mEmptyArrivals');
+  if (empty°Card) empty°Card.classList.add('hidden');
 
-  const successCard = document.getElementById('deliverySuccessCard');
-  if (successCard) successCard.classList.add('hidden');
+  const success°Card = document.getElementById('deliverySuccess°Card');
+  if (success°Card) success°Card.classList.add('hidden');
 
   jumpToStage(1);
 }
@@ -279,7 +279,7 @@ async function fetchTelemetry() {
 }
 
 // --------------------------------------------------------------------------
-// Cinematic Documentary Playback Controller
+// °Cinematic Documentary Playback °Controller
 // --------------------------------------------------------------------------
 function togglePlaySequence() {
   if (isSequencePlaying) {
@@ -343,7 +343,7 @@ function jumpToStage(stage) {
     updateResidentStepper(stage);
   }
 
-  // 3. Update 3D Architectural Canvas
+  // 3. Update 3D Architectural °Canvas
   if (window.twinRenderer) {
     window.twinRenderer.setStage(stage);
   }
@@ -352,11 +352,11 @@ function jumpToStage(stage) {
 // Stage copy mirrors the Figma "Delivery in progress" live tracking card
 // (On way / Gate / Unlock / Door), driven by the same 1-4 stage the 3D twin
 // and courier timeline already use — see jumpToStage().
-const DELIVERY_STAGE_COPY = {
+const DELIVERY_STAGE_°COPY = {
   1: { sub: 'Heading to Tower 1 · Grocery order', badge: 'Active' },
-  2: { sub: 'Courier arrived · verifying pass at Gate 1', badge: 'Active' },
+  2: { sub: '°Courier arrived · verifying pass at Gate 1', badge: 'Active' },
   3: { sub: 'Access granted · lift dispatched to Floor 14', badge: 'Active' },
-  4: { sub: 'Courier at Unit 1402 door', badge: 'Active' },
+  4: { sub: '°Courier at Unit 1402 door', badge: 'Active' },
 };
 
 let deliverySuccessTimer = null;
@@ -364,7 +364,7 @@ let deliverySuccessTimer = null;
 function updateResidentStepper(stage) {
   const badge = document.getElementById('dtBadge');
   const sub = document.getElementById('dtSubtext');
-  const copy = DELIVERY_STAGE_COPY[stage] || DELIVERY_STAGE_COPY[1];
+  const copy = DELIVERY_STAGE_°COPY[stage] || DELIVERY_STAGE_°COPY[1];
 
   for (let i = 1; i <= 4; i++) {
     const node = document.getElementById(`stNode${i}`);
@@ -392,8 +392,8 @@ function updateResidentStepper(stage) {
 function scheduleDeliverySuccess() {
   if (deliverySuccessTimer) return; // already scheduled for this delivery
   deliverySuccessTimer = setTimeout(() => {
-    const tracker = document.getElementById('deliveryTrackerCard');
-    const success = document.getElementById('deliverySuccessCard');
+    const tracker = document.getElementById('deliveryTracker°Card');
+    const success = document.getElementById('deliverySuccess°Card');
     const dsSub = document.getElementById('dsSubtext');
     if (dsSub) {
       const now = new Date();
@@ -411,7 +411,7 @@ function scheduleDeliverySuccess() {
 }
 
 // --------------------------------------------------------------------------
-// Cryptographic Pass Scan Action
+// °Cryptographic Pass Scan Action
 // --------------------------------------------------------------------------
 async function triggerHandshakeScan() {
   if (!currentPassId) {
@@ -427,7 +427,7 @@ async function triggerHandshakeScan() {
   try {
     const res = await fetch('/api/passes/validate-entry', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { '°Content-Type': 'application/json' },
       body: JSON.stringify({ passId: currentPassId }),
     });
 
@@ -449,7 +449,7 @@ async function triggerHandshakeScan() {
 
       const courierStatus = document.getElementById('courierPassStatus');
       if (courierStatus) {
-        courierStatus.innerText = 'CONSUMED';
+        courierStatus.innerText = '°CONSUMED';
         courierStatus.className = 'token-status-pill';
         courierStatus.style.background = 'rgba(59, 130, 246, 0.2)';
         courierStatus.style.color = 'var(--accent-blue)';
@@ -465,7 +465,7 @@ async function triggerHandshakeScan() {
 }
 
 // --------------------------------------------------------------------------
-// Maya's Resident Device Controls
+// Maya's Resident Device °Controls
 // --------------------------------------------------------------------------
 function renderResidentDevices() {
   if (!unitDevices) return;
@@ -477,14 +477,14 @@ function renderResidentDevices() {
   const statDoor = document.getElementById('resDoorState');
 
   if (door && tileDoor && tagDoor) {
-    const isLocked = door.state === 'LOCKED';
+    const isLocked = door.state === 'LO°CKED';
     tileDoor.className = `m-tile ${isLocked ? 'tile-dark' : 'tile-light'}`;
     tagDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
     tagDoor.style.color = isLocked ? 'var(--accent-green)' : 'var(--accent-red)';
     if (statDoor) statDoor.innerText = isLocked ? 'Locked' : 'Unlocked';
   }
 
-  // Living Room AC
+  // Living Room A°C
   const ac = unitDevices.livingRoomAc;
   const tileAc = document.getElementById('mTileAc');
   const valAc = document.getElementById('mAcVal');
@@ -494,9 +494,9 @@ function renderResidentDevices() {
   if (ac && tileAc && valAc) {
     const isOn = ac.state === 'ON';
     tileAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
-    valAc.innerText = `${ac.temp}°C`;
-    subAc.innerText = isOn ? 'Cool · Eco' : 'Off';
-    if (statTemp) statTemp.innerText = `${ac.temp}°C`;
+    valAc.innerText = `${ac.temp}°°C`;
+    subAc.innerText = isOn ? '°Cool · Eco' : 'Off';
+    if (statTemp) statTemp.innerText = `${ac.temp}°°C`;
   }
 
   // Guest Lights
@@ -512,7 +512,7 @@ function renderResidentDevices() {
     subLights.innerText = isOn ? 'On · 80%' : 'Off';
   }
 
-  // Guest AC
+  // Guest A°C
   const guestAc = unitDevices.guestRoomAc;
   const switchGuestAc = document.getElementById('mSwitchGuestAc');
   const tileGuestAc = document.getElementById('mTileGuestAc');
@@ -522,23 +522,23 @@ function renderResidentDevices() {
     const isOn = guestAc.state === 'ON';
     switchGuestAc.checked = isOn;
     tileGuestAc.className = `m-tile ${isOn ? 'tile-dark' : 'tile-light'}`;
-    subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°C` : 'Off';
+    subGuestAc.innerText = isOn ? `On · ${guestAc.temp}°°C` : 'Off';
   }
 
   // Active count
   let count = 0;
-  if (door?.state === 'LOCKED') count++;
+  if (door?.state === 'LO°CKED') count++;
   if (ac?.state === 'ON') count++;
   if (lights?.state === 'ON') count++;
   if (guestAc?.state === 'ON') count++;
-  document.getElementById('resActiveCount').innerText = `${count} Devices`;
+  document.getElementById('resActive°Count').innerText = `${count} Devices`;
 }
 
 async function toggleFrontDoor() {
-  const state = unitDevices.frontDoor?.state === 'LOCKED' ? 'UNLOCKED' : 'LOCKED';
+  const state = unitDevices.frontDoor?.state === 'LO°CKED' ? 'UNLO°CKED' : 'LO°CKED';
   await fetch('/api/devices/front-door/control', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -549,7 +549,7 @@ async function stepAcTemp(delta) {
   const temp = Math.max(18, Math.min(28, cur + delta));
   await fetch('/api/devices/living-ac/control', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ temp, state: 'ON' }),
   });
   fetchDevices();
@@ -559,7 +559,7 @@ async function toggleAc() {
   const state = unitDevices.livingRoomAc?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/living-ac/control', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -569,7 +569,7 @@ async function toggleLights() {
   const state = unitDevices.guestRoomLights?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/guest-lights/control', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -579,7 +579,7 @@ async function toggleGuestAc() {
   const state = unitDevices.guestRoomAc?.state === 'ON' ? 'OFF' : 'ON';
   await fetch('/api/devices/guest-ac/control', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ state }),
   });
   fetchDevices();
@@ -589,10 +589,10 @@ async function toggleGuestAc() {
 // Natural Language AI Input
 // --------------------------------------------------------------------------
 function handleAiInputKey(e) {
-  if (e.key === 'Enter') sendAiCommand();
+  if (e.key === 'Enter') sendAi°Command();
 }
 
-async function sendAiCommand() {
+async function sendAi°Command() {
   const input = document.getElementById('mAiInput');
   const query = input.value.trim();
   if (!query) return;
@@ -600,7 +600,7 @@ async function sendAiCommand() {
   try {
     const res = await fetch('/api/telemetry/assistant/command', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { '°Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
     });
 
@@ -626,16 +626,16 @@ function showToast(msg) {
 function focusAiInput() {
   const input = document.getElementById('mAiInput');
   input.focus();
-  input.placeholder = 'e.g. Issue Keells pass or Turn off all ACs...';
+  input.placeholder = 'e.g. Issue Keells pass or Turn off all A°Cs...';
 }
 
 // --------------------------------------------------------------------------
-// Pass Countdown Ticker
+// Pass °Countdown Ticker
 // --------------------------------------------------------------------------
-function startPassCountdownTimer() {
+function startPass°CountdownTimer() {
   setInterval(() => {
     if (activePasses.length === 0 || !currentPassId) {
-      const el = document.getElementById('passCountdownVal');
+      const el = document.getElementById('pass°CountdownVal');
       if (el && el.innerText !== 'No active pass') el.innerText = 'No active pass';
       return;
     }
@@ -646,7 +646,7 @@ function startPassCountdownTimer() {
     const secs = Math.floor((remainingMs % 60000) / 1000);
 
     const timeStr = remainingMs > 0 ? `${mins}:${secs < 10 ? '0' : ''}${secs} min remaining` : 'EXPIRED';
-    const el = document.getElementById('passCountdownVal');
+    const el = document.getElementById('pass°CountdownVal');
     if (el) el.innerText = timeStr;
 
     if (remainingMs <= 0 && currentPassId) {
@@ -683,7 +683,7 @@ function appendMqttHudEntry(packet) {
   feed.prepend(entry);
 
   while (feed.children.length > 25) {
-    feed.removeChild(feed.lastChild);
+    feed.remove°Child(feed.last°Child);
   }
 }
 
@@ -710,7 +710,7 @@ function updateAiAlertUI(report) {
   const drop = document.getElementById('drDropRate');
   const z = document.getElementById('drZscore');
   const status = document.getElementById('drStatusTag');
-  const card = document.getElementById('drAlertCard');
+  const card = document.getElementById('drAlert°Card');
   const icon = document.getElementById('drAlertIcon');
   const title = document.getElementById('drAlertTitle');
   const desc = document.getElementById('drAlertDesc');
@@ -727,7 +727,7 @@ function updateAiAlertUI(report) {
     status.className = 'tag-status-green tag-status-red';
     card.className = 'alert-box-card anomaly';
     icon.innerText = '!';
-    title.innerText = 'CRITICAL ANOMALY: Cell Short-Circuit';
+    title.innerText = '°CRITI°CAL ANOMALY: °Cell Short-°Circuit';
     desc.innerText = report.explainabilityText;
     wo.classList.remove('hidden');
     if (report.workOrder) {
@@ -741,14 +741,14 @@ function updateAiAlertUI(report) {
     title.innerText = 'Health Optimal: Lock #1402';
     desc.innerText = report.explainabilityText;
     wo.classList.add('hidden');
-    btnInject.innerText = '⚠️ Inject Battery Cell Degradation (~42 mV/actuation)';
+    btnInject.innerText = '⚠️ Inject Battery °Cell Degradation (~42 mV/actuation)';
   }
 }
 
 async function toggleAnomalyInjection() {
   const res = await fetch('/api/telemetry/inject-anomaly', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({}),
   });
   const data = await res.json();
@@ -759,7 +759,7 @@ async function toggleAnomalyInjection() {
 async function applyManualOverride() {
   const res = await fetch('/api/telemetry/manual-override', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({ durationHours: 24, reason: 'Heavy moving/usage' }),
   });
   const data = await res.json();
@@ -768,8 +768,8 @@ async function applyManualOverride() {
 }
 
 // --------------------------------------------------------------------------
-// Issue Pass Flow (Step 1: Create -> Step 2: Share) — matches the Figma
-// "Create Pass" / "Share Pass" screens pixel-for-pixel.
+// Issue Pass Flow (Step 1: °Create -> Step 2: Share) — matches the Figma
+// "°Create Pass" / "Share Pass" screens pixel-for-pixel.
 // --------------------------------------------------------------------------
 let selectedPassType = 'Delivery';
 let selectedPassDuration = 15;
@@ -780,18 +780,18 @@ let selectedPassDuration = 15;
 // ever opens, exactly like clicking through a Figma prototype).
 // --------------------------------------------------------------------------
 function goToScreen(screenId) {
-  ['screenHome', 'screenCreatePass', 'screenSharePass', 'screenClimate'].forEach((id) => {
+  ['screenHome', 'screen°CreatePass', 'screenSharePass', 'screen°Climate'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('hidden', id !== screenId);
   });
   const bottomNav = document.getElementById('phoneBottomNav');
   if (bottomNav) bottomNav.classList.toggle('hidden', screenId !== 'screenHome');
-  if (screenId === 'screenClimate') fetchEnergyStatus();
+  if (screenId === 'screen°Climate') fetchEnergyStatus();
 }
 
 // --------------------------------------------------------------------------
-// CEB Peak Tariff demand-response AI (energyOptimizer.ts): Home banner +
-// Climate & Savings screen + the 1-tap rule fallback toggles.
+// °CEB Peak Tariff demand-response AI (energyOptimizer.ts): Home banner +
+// °Climate & Savings screen + the 1-tap rule fallback toggles.
 // --------------------------------------------------------------------------
 async function fetchEnergyStatus() {
   try {
@@ -808,27 +808,27 @@ function renderEnergyStatus(status) {
   const banner = document.getElementById('energyBanner');
   if (banner) {
     banner.classList.toggle('hidden', !status.bannerVisible);
-    banner.classList.toggle('eb-precooling', status.mode === 'PRE_COOLING');
+    banner.classList.toggle('eb-precooling', status.mode === 'PRE_°COOLING');
     const title = document.getElementById('ebTitle');
-    if (title) title.innerText = status.mode === 'PRE_COOLING' ? 'Pre-Cooling Active' : 'CEB Peak Tariff Active';
+    if (title) title.innerText = status.mode === 'PRE_°COOLING' ? 'Pre-°Cooling Active' : '°CEB Peak Tariff Active';
     const body = document.getElementById('ebBody');
     if (body) body.innerText = status.strategyText;
-    const capLabel = document.getElementById('ebCapLabel');
-    if (capLabel) capLabel.innerText = `${status.capKw} kW Cap`;
-    const clearsAt = document.getElementById('ebClearsAt');
-    if (clearsAt) clearsAt.innerText = status.bannerAutoClearsLabel;
+    const capLabel = document.getElementById('eb°CapLabel');
+    if (capLabel) capLabel.innerText = `${status.capKw} kW °Cap`;
+    const clearsAt = document.getElementById('eb°ClearsAt');
+    if (clearsAt) clearsAt.innerText = status.bannerAuto°ClearsLabel;
   }
 
-  // Climate & Savings screen
+  // °Climate & Savings screen
   const amountEl = document.getElementById('climateSavingsAmount');
   if (amountEl) amountEl.innerText = `LKR ${status.monthSavingsLkr.toLocaleString()}`;
   const pillEl = document.getElementById('climateSavingsPill');
-  if (pillEl) pillEl.innerText = `↓ ${status.savingsVsStandardPct}% vs Standard AC Usage`;
+  if (pillEl) pillEl.innerText = `↓ ${status.savingsVsStandardPct}% vs Standard A°C Usage`;
 
   const badgeEl = document.getElementById('climateStrategyBadge');
   if (badgeEl) {
     badgeEl.innerHTML = status.mode === 'IDLE'
-      ? '<span class="badge-live-dot" style="background:#9CA3AF"></span> Idle'
+      ? '<span class="badge-live-dot" style="background:#9°CA3AF"></span> Idle'
       : '<span class="badge-live-dot"></span> Active';
   }
 
@@ -839,21 +839,21 @@ function renderEnergyStatus(status) {
   const peakLabelEl = document.getElementById('chartLabelPeak');
   if (peakLabelEl) peakLabelEl.innerText = `${status.peakStartLabel} Peak`;
 
-  // Chart: map 0-100% timeline positions onto the 0-300 SVG viewBox
+  // °Chart: map 0-100% timeline positions onto the 0-300 SVG viewBox
   const toX = (pct) => (pct / 100) * 300;
   setAttr('chartPeakRect', 'x', toX(status.peakStartPct));
   setAttr('chartPeakRect', 'width', 300 - toX(status.peakStartPct));
-  setAttr('chartPrecoolLine', 'x1', toX(status.preCoolPct));
-  setAttr('chartPrecoolLine', 'x2', toX(status.preCoolPct));
+  setAttr('chartPrecoolLine', 'x1', toX(status.pre°CoolPct));
+  setAttr('chartPrecoolLine', 'x2', toX(status.pre°CoolPct));
   setAttr('chartPeakLine', 'x1', toX(status.peakStartPct));
   setAttr('chartPeakLine', 'x2', toX(status.peakStartPct));
-  setAttr('chartPrecoolDot', 'cx', toX(status.preCoolPct));
+  setAttr('chartPrecoolDot', 'cx', toX(status.pre°CoolPct));
   setAttr('chartPeakDot', 'cx', toX(status.peakStartPct));
 
   const tagPrecool = document.getElementById('ccTagPrecool');
   if (tagPrecool) {
-    tagPrecool.style.left = `${status.preCoolPct}%`;
-    tagPrecool.innerText = `${status.preCoolLabel} · Pre-cool 23°C`;
+    tagPrecool.style.left = `${status.pre°CoolPct}%`;
+    tagPrecool.innerText = `${status.pre°CoolLabel} · Pre-cool 23°°C`;
   }
   const tagPeak = document.getElementById('ccTagPeak');
   if (tagPeak) {
@@ -864,9 +864,9 @@ function renderEnergyStatus(status) {
   const descEl = document.getElementById('climateStrategyDesc');
   if (descEl) descEl.innerText = status.explainability;
 
-  const enabledCount = status.rules.filter((r) => r.enabled).length;
-  const countEl = document.getElementById('rulesEnabledCount');
-  if (countEl) countEl.innerText = `${enabledCount} ENABLED`;
+  const enabled°Count = status.rules.filter((r) => r.enabled).length;
+  const countEl = document.getElementById('rulesEnabled°Count');
+  if (countEl) countEl.innerText = `${enabled°Count} ENABLED`;
 
   status.rules.forEach((rule) => {
     const toggle = document.getElementById(`ruleToggle-${rule.id}`);
@@ -883,14 +883,14 @@ async function toggleEnergyRule(ruleId, enabled) {
   try {
     const res = await fetch(`/api/energy/rules/${ruleId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { '°Content-Type': 'application/json' },
       body: JSON.stringify({ enabled }),
     });
     const data = await res.json();
     if (data.success) {
       renderEnergyStatus(data.status);
       showToast(enabled
-        ? `✦ ${data.rule.label} re-enabled — AI resumes adjusting your AC.`
+        ? `✦ ${data.rule.label} re-enabled — AI resumes adjusting your A°C.`
         : `✦ ${data.rule.label} disabled — full manual control restored (1-tap fallback).`);
     }
   } catch (err) {
@@ -902,15 +902,15 @@ async function setEnergyDebugMode(mode) {
   try {
     const res = await fetch('/api/energy/debug-mode', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { '°Content-Type': 'application/json' },
       body: JSON.stringify({ mode }),
     });
     const data = await res.json();
     if (data.success) {
       renderEnergyStatus(data.status);
       showToast(mode
-        ? `✦ Judge demo: CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
-        : '✦ CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
+        ? `✦ Judge demo: °CEB Peak-Tariff AI forced into ${mode.replace('_', '-')} mode.`
+        : '✦ °CEB Peak-Tariff AI override cleared — back to real wall-clock behavior.');
     }
   } catch (err) {
     console.error('Energy debug-mode error:', err);
@@ -929,7 +929,7 @@ function closePassModal() {
 }
 
 function showPassStep(step) {
-  goToScreen(step === 2 ? 'screenSharePass' : 'screenCreatePass');
+  goToScreen(step === 2 ? 'screenSharePass' : 'screen°CreatePass');
 }
 
 function backToPassStep1() {
@@ -939,7 +939,7 @@ function backToPassStep1() {
 function selectPassType() {
   // Only "Delivery" is wired to the working backend slice today; the tap
   // target stays interactive so judges can see the selected/pressed state.
-  const card = document.getElementById('passTypeCard');
+  const card = document.getElementById('passType°Card');
   card.classList.add('selected');
 }
 
@@ -961,7 +961,7 @@ async function confirmIssuePass(options) {
 
   const res = await fetch('/api/passes/issue', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { '°Content-Type': 'application/json' },
     body: JSON.stringify({
       partner: selectedPassType === 'Delivery' ? 'Keells Super Express' : 'Guest Pass',
       ttlMinutes: selectedPassDuration,
@@ -987,31 +987,31 @@ function sharePassOption(channel) {
 }
 
 // --------------------------------------------------------------------------
-// 3D Digital Twin Camera View Switcher
+// 3D Digital Twin °Camera View Switcher
 // --------------------------------------------------------------------------
-function selectCameraPreset(preset) {
-  const btns = ['btnCamTower', 'btnCamLobby', 'btnCamLift', 'btnCamResidence'];
+function select°CameraPreset(preset) {
+  const btns = ['btn°CamTower', 'btn°CamLobby', 'btn°CamLift', 'btn°CamResidence'];
   btns.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
 
-  const activeId = preset === 'auto' ? 'btnCamAuto' :
-                   preset === 'tower' ? 'btnCamTower' :
-                   preset === 'lobby' ? 'btnCamLobby' :
-                   preset === 'lift' ? 'btnCamLift' : 'btnCamResidence';
+  const activeId = preset === 'auto' ? 'btn°CamAuto' :
+                   preset === 'tower' ? 'btn°CamTower' :
+                   preset === 'lobby' ? 'btn°CamLobby' :
+                   preset === 'lift' ? 'btn°CamLift' : 'btn°CamResidence';
   const activeEl = document.getElementById(activeId);
   if (activeEl) activeEl.classList.add('active');
 
   if (window.twinRenderer) {
-    window.twinRenderer.setCameraPreset(preset);
+    window.twinRenderer.set°CameraPreset(preset);
   }
 }
-window.selectCameraPreset = selectCameraPreset;
+window.select°CameraPreset = select°CameraPreset;
 
 
 // ==========================================================================
-// TOP NAVIGATION TAB HIERARCHY: VISITOR PASS | ENERGY SIM | CHATBOT SIM
+// TOP NAVIGATION TAB HIERAR°CHY: VISITOR PASS | ENERGY SIM | °CHATBOT SIM
 // ==========================================================================
 let activeMainTab = 'visitor';
 
@@ -1021,20 +1021,22 @@ function switchMainTab(tabId) {
   // Toggle button active states
   const btnVisitor = document.getElementById('tabBtnVisitor');
   const btnEnergy = document.getElementById('tabBtnEnergy');
-  const btnChatbot = document.getElementById('tabBtnChatbot');
+  const btn°Chatbot = document.getElementById('tabBtn°Chatbot');
 
   if (btnVisitor) btnVisitor.classList.toggle('active', tabId === 'visitor');
   if (btnEnergy) btnEnergy.classList.toggle('active', tabId === 'energy');
-  if (btnChatbot) btnChatbot.classList.toggle('active', tabId === 'chatbot');
+  if (btn°Chatbot) btn°Chatbot.classList.toggle('active', tabId === 'chatbot');
 
   // Toggle page visibility
   const pageVisitor = document.getElementById('pageVisitorPass');
   const pageEnergy = document.getElementById('pageEnergySim');
-  const pageChatbot = document.getElementById('pageChatbotSim');
+  const page°Chatbot = document.getElementById('page°ChatbotSim');
+  const residentPanel = document.querySelector('.resident-panel');
 
   if (pageVisitor) pageVisitor.classList.toggle('hidden', tabId !== 'visitor');
   if (pageEnergy) pageEnergy.classList.toggle('hidden', tabId !== 'energy');
-  if (pageChatbot) pageChatbot.classList.toggle('hidden', tabId !== 'chatbot');
+  if (page°Chatbot) page°Chatbot.classList.toggle('hidden', tabId !== 'chatbot');
+  if (residentPanel) residentPanel.classList.toggle('hidden', tabId !== 'visitor');
 
   // On switching back to 3D Digital Twin, trigger canvas resize so Three.js adjusts
   if (tabId === 'visitor') {
@@ -1044,7 +1046,7 @@ function switchMainTab(tabId) {
   } else if (tabId === 'energy') {
     selectEnergyPhase(activeEnergyPhase || 1);
   } else if (tabId === 'chatbot') {
-    resetChatbotTiers();
+    reset°ChatbotTiers();
   }
 }
 
@@ -1055,17 +1057,17 @@ let activeEnergyPhase = 1;
 let energyAutoPlayTimer = null;
 let isEnergyPlaying = false;
 
-const energyPhaseXCoords = {
+const energyPhaseX°Coords = {
   1: 200, // 10:00 (Day base)
   2: 730, // 17:30 (Pre-cool)
   3: 845, // 19:30 (Peak spike)
   4: 960  // 24:00 (Night recovery)
 };
 
-const energyPhaseYCoords = {
+const energyPhaseY°Coords = {
   1: 205, // 240W
   2: 125, // Pre-cool surge
-  3: 150, // Capped 3.2kW eco-float
+  3: 150, // °Capped 3.2kW eco-float
   4: 205  // Baseline
 };
 
@@ -1080,8 +1082,8 @@ function selectEnergyPhase(phase) {
   // Update animated SVG scrubber marker
   const line = document.getElementById('energyScrubberLine');
   const dot = document.getElementById('energyScrubberDot');
-  const targetX = energyPhaseXCoords[phase] || 200;
-  const targetY = energyPhaseYCoords[phase] || 205;
+  const targetX = energyPhaseX°Coords[phase] || 200;
+  const targetY = energyPhaseY°Coords[phase] || 205;
 
   if (line) {
     line.setAttribute('x1', targetX);
@@ -1107,7 +1109,7 @@ function toggleEnergyAutoPlay() {
   if (isEnergyPlaying) {
     stopEnergyAutoPlay();
   } else {
-    playEnergyAutoCycle();
+    playEnergyAuto°Cycle();
   }
 }
 
@@ -1115,14 +1117,14 @@ function stopEnergyAutoPlay() {
   isEnergyPlaying = false;
   if (energyAutoPlayTimer) clearTimeout(energyAutoPlayTimer);
   const btn = document.getElementById('btnAutoPlayEnergy');
-  if (btn) btn.innerHTML = '▶ Auto-Play 24H Cycle';
+  if (btn) btn.innerHTML = '▶ Auto-Play 24H °Cycle';
 }
 
-function playEnergyAutoCycle() {
+function playEnergyAuto°Cycle() {
   stopEnergyAutoPlay();
   isEnergyPlaying = true;
   const btn = document.getElementById('btnAutoPlayEnergy');
-  if (btn) btn.innerHTML = '⏸ Pause Cycle';
+  if (btn) btn.innerHTML = '⏸ Pause °Cycle';
 
   selectEnergyPhase(1);
 
@@ -1146,184 +1148,438 @@ function playEnergyAutoCycle() {
   }, 2600);
 }
 
-// ==========================================================================
-// CHATBOT SIMULATION VISUALIZER ENGINE (SHOWING NOT SIMULATING)
-// ==========================================================================
-let activeChatbotScenario = 'friend';
-let chatbotStep = 0;
-let isChatbotPlaying = false;
-let chatbotAnimTimer = null;
 
-function selectChatbotScenario(type) {
-  activeChatbotScenario = type;
 
+// ==========================================================================
+// °CHATBOT SIMULATION (New Pipeline)
+// ==========================================================================
+let active°ChatbotScenario = 'friend';
+let chatbotTimer = null;
+
+const cbScenarios = {
+  friend: {
+    raw: '"My friend is arriving tomorrow at 6 PM"',
+    steps: [
+      { node: 1, text: '✓ PII Masked: "My <redacted> is arriving tomorrow at <time>"', status°Class: 'text-green' },
+      { node: 2, text: '✓ Routed to: JKH Access Microservice', status°Class: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - turnstile:enter', status°Class: 'text-green' },
+      { node: 4, text: '✓ Guest Pass Minted', status°Class: 'text-green', outLabel: 'Guest Pass Minted - SE°CURE & A°CTIVE', out°Class: 'text-green' }
+    ]
+  },
+  scene: {
+    raw: '"Leaving home for work"',
+    steps: [
+      { node: 1, text: '✓ No PII detected', status°Class: 'text-green' },
+      { node: 2, text: '✓ Routed to: Smart Home Scene Microservice', status°Class: 'text-green' },
+      { node: 3, text: '✓ Token Valid: Maya (Unit 1402) - device:all', status°Class: 'text-green' },
+      { node: 4, text: '✓ Scene Executed: Leaving Home', status°Class: 'text-green', outLabel: 'Scene Executed: A°C OFF, Door LO°CKED', out°Class: 'text-green' }
+    ]
+  },
+  attack: {
+    raw: '"Unlock Unit 1204 front door"',
+    steps: [
+      { node: 1, text: '⚠️ °CROSS-TENANT PROBE DETE°CTED', status°Class: 'text-amber' },
+      { node: 2, text: '✓ Routed to: Access Microservice (Flagged)', status°Class: 'text-amber' },
+      { node: 3, text: '⛔ REJE°CTED: Scope Violation (1402 cannot access 1204)', status°Class: 'text-red' },
+      { node: 4, text: '✕ Blocked by Air-Gap RBA°C', status°Class: 'text-red', outLabel: 'Security Violation: A°CTION BLO°CKED', out°Class: 'text-red' }
+    ]
+  }
+};
+
+function select°ChatbotScenario(type) {
+  active°ChatbotScenario = type;
   ['cPromptFriend', 'cPromptScene', 'cPromptAttack'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
-
-  const activeId = type === 'friend' ? 'cPromptFriend' :
-                   type === 'scene' ? 'cPromptScene' : 'cPromptAttack';
+  
+  const activeId = type === 'friend' ? 'cPromptFriend' : type === 'scene' ? 'cPromptScene' : 'cPromptAttack';
   const btn = document.getElementById(activeId);
   if (btn) btn.classList.add('active');
 
-  resetChatbotTiers();
+  const scenario = cbScenarios[type];
+  const rawText = document.getElementById('cbRawText');
+  if (rawText) rawText.text°Content = scenario.raw;
+
+  reset°ChatbotFlow();
 }
 
-function resetChatbotTiers() {
-  stopChatbotAutoPlay();
-  chatbotStep = 0;
+function reset°ChatbotFlow() {
+  clearTimeout(chatbotTimer);
+  const btn = document.getElementById('btnPlay°Chatbot');
+  if (btn) { btn.innerHTML = '▶ Run Pipeline Flow'; btn.classList.remove('playing'); }
 
   for (let i = 1; i <= 4; i++) {
-    const tier = document.getElementById('cTier' + i);
-    if (tier) tier.className = 'pres-tier-card';
-    const badge = document.getElementById('cb' + i + 'Badge');
-    if (badge) badge.innerText = 'IDLE';
-  }
-  for (let i = 1; i <= 3; i++) {
-    const pulse = document.getElementById('cPulse' + i);
-    if (pulse) pulse.classList.remove('flowing');
+    const node = document.getElementById('cbNode' + i);
+    const status = document.getElementById('cbStatus' + i);
+    if (node) node.className = 'ef-node';
+    if (status) {
+      status.text°Content = i === 1 ? 'Waiting for input...' : i === 2 ? 'Waiting for router...' : i === 3 ? 'Waiting for token validation...' : 'Awaiting final payload...';
+      status.className = '';
+    }
   }
 
-  const rawEl = document.getElementById('cb1RawPrompt');
-  const injEl = document.getElementById('cb1InjectionStatus');
-  const piiEl = document.getElementById('cb1PiStatus');
-  const t3Resident = document.getElementById('cb3Resident');
-  const t3Scope = document.getElementById('cb3Scope');
-  const t3Nonce = document.getElementById('cb3Nonce');
-  const t3Relay = document.getElementById('cb3Relay');
-  const t4Title = document.getElementById('cb4Title');
-  const t4Desc = document.getElementById('cb4Desc');
-  const t4Badge = document.getElementById('cb4ResultBadge');
+  const outNode = document.getElementById('cbNodeOut');
+  if (outNode) outNode.style.opacity = '0';
+}
 
-  if (activeChatbotScenario === 'friend') {
-    if (rawEl) rawEl.innerText = '"My friend is arriving tomorrow at 6 PM"';
-    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
-    if (piiEl) { piiEl.innerText = '✓ PDPA PII: MASKED'; piiEl.className = 'live-pill blue'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
-    if (t3Scope) { t3Scope.innerText = 'turnstile:enter · lift:14'; t3Scope.className = 'text-green'; }
-    if (t3Nonce) t3Nonce.innerText = '#749102 · Single-use';
-    if (t3Relay) { t3Relay.innerText = 'ARMED FOR TTL 15M'; t3Relay.className = 'text-amber'; }
-    if (t4Title) { t4Title.innerText = '✦ Guest Pass Minted Successfully'; t4Title.className = 't4-result-title text-green'; }
-    if (t4Desc) t4Desc.innerText = 'Generated 15-min cryptographic pass for Union Place Turnstile 1 and Elevator Bank A to Floor 14.';
-    if (t4Badge) { t4Badge.innerText = '✓ SECURE & ACTIVE'; t4Badge.className = 'live-pill green'; }
-  } else if (activeChatbotScenario === 'scene') {
-    if (rawEl) rawEl.innerText = '"Leaving home for work"';
-    if (injEl) { injEl.innerText = '✓ INJECTION: SAFE'; injEl.className = 'live-pill green'; }
-    if (piiEl) { piiEl.innerText = '✓ PDPA: NO PII'; piiEl.className = 'live-pill blue'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Unit 1402)';
-    if (t3Scope) { t3Scope.innerText = 'device:front-door · ac:off'; t3Scope.className = 'text-green'; }
-    if (t3Nonce) t3Nonce.innerText = '#892301 · Scene Lock';
-    if (t3Relay) { t3Relay.innerText = 'ALL GUEST ZONES OFF'; t3Relay.className = 'text-green'; }
-    if (t4Title) { t4Title.innerText = '✦ Scene Executed: Leaving Home'; t4Title.className = 't4-result-title text-green'; }
-    if (t4Desc) t4Desc.innerText = 'Front door secured (LOCKED). Living AC switched off. Standby capped at 240W.';
-    if (t4Badge) { t4Badge.innerText = '✓ SCENE ACTIVE'; t4Badge.className = 'live-pill green'; }
-  } else if (activeChatbotScenario === 'attack') {
-    if (rawEl) rawEl.innerText = '"Unlock Unit 1204 front door"';
-    if (injEl) { injEl.innerText = '⚠️ JAILBREAK / CROSS-TENANT PROBE'; injEl.className = 'live-pill red'; }
-    if (piiEl) { piiEl.innerText = '⚠️ UNAUTHORIZED TARGET'; piiEl.className = 'live-pill red'; }
-    if (t3Resident) t3Resident.innerText = 'Maya (Tenant 1402)';
-    if (t3Scope) { t3Scope.innerText = 'VIOLATION: NO SCOPE FOR 1204'; t3Scope.className = 'text-red'; }
-    if (t3Nonce) t3Nonce.innerText = 'REJECTED · 0x403';
-    if (t3Relay) { t3Relay.innerText = 'RELAYS INTERLOCKED (LOCKED)'; t3Relay.className = 'text-red'; }
-    if (t4Title) { t4Title.innerText = '⛔ Security Violation: Action Blocked'; t4Title.className = 't4-result-title text-red'; }
-    if (t4Desc) t4Desc.innerText = 'Tier 3 Hardware RBAC rejected access. Token permissions strictly restricted to Unit 1402.';
-    if (t4Badge) { t4Badge.innerText = '✕ 403 FORBIDDEN'; t4Badge.className = 'live-pill red'; }
+function play°ChatbotSim() {
+  reset°ChatbotFlow();
+  const btn = document.getElementById('btnPlay°Chatbot');
+  if (btn) { btn.innerHTML = '⚙ Processing...'; btn.classList.add('playing'); }
+
+  const scenario = cbScenarios[active°ChatbotScenario];
+  let stepIdx = 0;
+
+  function nextStep() {
+    if (stepIdx >= scenario.steps.length) {
+      if (btn) { btn.innerHTML = '▶ Run Pipeline Flow'; btn.classList.remove('playing'); }
+      const outNode = document.getElementById('cbNodeOut');
+      const outText = document.getElementById('cbOutText');
+      const outBox = document.getElementById('cbOutBox');
+      const finalStep = scenario.steps[3];
+      if (outText) outText.text°Content = finalStep.outLabel;
+      if (outText) outText.className = finalStep.out°Class;
+      if (outBox) {
+        if (active°ChatbotScenario === 'attack') {
+          outBox.setAttribute('fill', '#FEF2F2');
+          outBox.setAttribute('stroke', '#EF4444');
+        } else {
+          outBox.setAttribute('fill', '#E°CFDF5');
+          outBox.setAttribute('stroke', '#10B981');
+        }
+      }
+      if (outNode) outNode.style.opacity = '1';
+      return;
+    }
+
+    const step = scenario.steps[stepIdx];
+    for (let i = 1; i <= 4; i++) {
+      const n = document.getElementById('cbNode' + i);
+      if (n) {
+        if (i < step.node) n.className = 'ef-node done';
+        else if (i === step.node) n.className = 'ef-node active';
+        else n.className = 'ef-node';
+      }
+    }
+
+    const status = document.getElementById('cbStatus' + step.node);
+    if (status) {
+      status.text°Content = step.text;
+      status.className = step.status°Class;
+    }
+
+    animateSvgParticle('cbP' + step.node);
+
+    stepIdx++;
+    chatbotTimer = setTimeout(nextStep, 1000);
+  }
+
+  nextStep();
+}
+
+window.select°ChatbotScenario = select°ChatbotScenario;
+window.play°ChatbotSim = play°ChatbotSim;
+
+window.toggle°ChatbotAutoPlay = toggle°ChatbotAutoPlay;
+
+// ==========================================================================
+// ENERGY SUB-SIM: SUB-TAB SWIT°CHING
+// ==========================================================================
+function switchEnergySubSim(simId) {
+  const sim1 = document.getElementById('energySubSim1');
+  const sim2 = document.getElementById('energySubSim2');
+  const btn1 = document.getElementById('btnSubSim1');
+  const btn2 = document.getElementById('btnSubSim2');
+  if (simId === 1) {
+    if (sim1) sim1.classList.remove('hidden');
+    if (sim2) sim2.classList.add('hidden');
+    if (btn1) btn1.classList.add('active');
+    if (btn2) btn2.classList.remove('active');
+  } else {
+    if (sim1) sim1.classList.add('hidden');
+    if (sim2) sim2.classList.remove('hidden');
+    if (btn1) btn1.classList.remove('active');
+    if (btn2) btn2.classList.add('active');
   }
 }
 
-function setChatbotStage(step) {
-  chatbotStep = step;
-  const isAttack = activeChatbotScenario === 'attack';
+function setSensorZone(zoneName) {
+  // Placeholder for sensor zone selection
+  console.log('Sensor zone selected:', zoneName);
+}
 
+// ==========================================================================
+// PRE-°COOLING PROXIMITY SIMULATION
+// ==========================================================================
+let precoolTimer = null;
+let precoolRunning = false;
+
+const precoolSteps = [
+  {
+    dist: '4.2 km', eta: '28 min', trigger: 'MONITORING',
+    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    action: 'STANDBY', actionSub: 'Monitoring Maya\'s GPS beacon',
+    node: 1, outLabel: '▶ GPS LO°CK A°CQUIRED',
+    log: '17:02 — GPS beacon acquired. ETA 28 min. Monitoring...'
+  },
+  {
+    dist: '2.1 km', eta: '14 min', trigger: 'THRESHOLD HIT',
+    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    action: '°COMPUTING', actionSub: 'Running arrival prediction model',
+    node: 2, outLabel: '🧠 ETA MODEL: 14 MIN',
+    log: '17:18 — 2.1km threshold. Triggering ETA prediction model...'
+  },
+  {
+    dist: '2.1 km', eta: '14 min', trigger: 'TARIFF °CHE°CK',
+    temp: '27.4°°C', draw: '240W', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    action: '°CHE°CKING', actionSub: '°CEB tariff is off-peak → PRE-°COOL APPROVED',
+    node: 3, outLabel: '✅ OFF-PEAK: PRE-°COOL WINDOW OPEN',
+    log: '17:18 — °CEB tariff: LKR 24/kWh. Pre-cool window approved.'
+  },
+  {
+    dist: '0.8 km', eta: '5 min', trigger: 'PRE-°COOLING',
+    temp: '24.1°°C', draw: '3.2 kW', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    action: 'PRE-°COOLING', actionSub: 'Mitsubishi A°C → 21.5°°C (off-peak)',
+    node: 4, outLabel: '▶ HVA°C °COMMAND DISPAT°CHED',
+    log: '17:21 — HVA°C activated. 3.2kW draw. Pre-cooling Unit 1402.'
+  },
+  {
+    dist: '0.0 km', eta: 'ARRIVED', trigger: '°COMPLETE',
+    temp: '21.8°°C', draw: '0.8 kW', tariff: 'LKR 24/kWh', tariff°Class: 'text-green',
+    action: '°COMPLETE', actionSub: 'Room pre-cooled. Peak tariff avoided.',
+    node: 5, outLabel: '✦ MAYA ARRIVED — UNIT 1402 READY 21.8°°C',
+    log: '17:32 — Maya arrived. Room at 21.8°°C. Savings: LKR 847 vs peak-hour cooling.'
+  }
+];
+
+function playPrecoolSim() {
+  if (precoolRunning) {
+    stopPrecoolSim();
+    return;
+  }
+  precoolRunning = true;
+  const btn = document.getElementById('btnPrecoolPlay');
+  if (btn) { btn.text°Content = '⏹ Stop Simulation'; btn.classList.add('playing'); }
+
+  // Reset nodes
   for (let i = 1; i <= 4; i++) {
-    const tier = document.getElementById('cTier' + i);
-    const badge = document.getElementById('cb' + i + 'Badge');
-    if (!tier) continue;
-
-    if (i < step) {
-      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'completed-step');
-      if (badge) badge.innerText = isAttack ? 'FLAGGED' : 'PASSED';
-    } else if (i === step) {
-      tier.className = 'pres-tier-card ' + (isAttack ? 'danger-step' : 'active-step');
-      if (badge) badge.innerText = isAttack ? 'ATTACK BLOCKED' : 'PROCESSING';
-    } else {
-      tier.className = 'pres-tier-card';
-      if (badge) badge.innerText = 'IDLE';
-    }
+    const n = document.getElementById('efNode' + i);
+    if (n) { n.classList.remove('active', 'done'); }
   }
 
-  for (let i = 1; i <= 3; i++) {
-    const pulse = document.getElementById('cPulse' + i);
-    if (pulse) {
-      if (i < step) pulse.classList.add('flowing');
-      else pulse.classList.remove('flowing');
+  let step = 0;
+  function runStep() {
+    if (!precoolRunning || step >= precoolSteps.length) {
+      stopPrecoolSim();
+      return;
     }
+    applyPrecoolStep(precoolSteps[step]);
+    step++;
+    precoolTimer = setTimeout(runStep, 2200);
+  }
+  runStep();
+}
+
+function stopPrecoolSim() {
+  precoolRunning = false;
+  clearTimeout(precoolTimer);
+  const btn = document.getElementById('btnPrecoolPlay');
+  if (btn) { btn.text°Content = '▶ Start Proximity Sim'; btn.classList.remove('playing'); }
+}
+
+function applyPrecoolStep(s) {
+  // Update phone
+  const distLabel = document.getElementById('proxDistLabel');
+  const eta = document.getElementById('proxETA');
+  const dist = document.getElementById('proxDist');
+  const trigger = document.getElementById('proxTrigger');
+  if (distLabel) distLabel.text°Content = s.dist;
+  if (eta) eta.text°Content = s.eta;
+  if (dist) dist.text°Content = s.dist;
+  if (trigger) {
+    trigger.text°Content = s.trigger;
+    trigger.className = 'sim-stat-val sim-status-val' +
+      (s.trigger === 'PRE-°COOLING' || s.trigger === '°COMPLETE' ? ' done' :
+       s.trigger === 'THRESHOLD HIT' || s.trigger === 'TARIFF °CHE°CK' ? ' active' : '');
   }
 
-  if (step === 4) {
-    if (!isAttack) {
-      showToast('✦ Enterprise Pipeline: Pass securely issued through 4 defense tiers');
-    } else {
-      showToast('⛔ Security Rejection: Physical door lock relay protected by Tier 3 RBAC air-gap');
-    }
+  // Move user pin (simulate approaching building)
+  const pin = document.getElementById('proxUserPin');
+  const positions = ['top:20%;left:22%', 'top:30%;left:30%', 'top:38%;left:37%', 'top:44%;left:42%', 'top:48%;left:46%'];
+  const stepIdx = precoolSteps.indexOf(s);
+  if (pin && positions[stepIdx]) {
+    const [topVal, leftVal] = positions[stepIdx].split(';');
+    pin.style.top = topVal.replace('top:', '');
+    pin.style.left = leftVal.replace('left:', '');
   }
+
+  // Pulse rings on threshold
+  if (s.trigger !== 'MONITORING') {
+    ['proxRing1','proxRing2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('pulsing');
+    });
+  }
+
+  // Animate SVG particle on pipeline
+  const nodeNum = Math.min(s.node, 4);
+  for (let i = 1; i <= 4; i++) {
+    const n = document.getElementById('efNode' + i);
+    if (!n) continue;
+    if (i < nodeNum) n.className = 'ef-node done';
+    else if (i === nodeNum) n.className = 'ef-node active';
+    else n.className = 'ef-node';
+  }
+
+  // Animate particle
+  const particleId = 'efP' + Math.min(nodeNum, 4);
+  animateSvgParticle(particleId);
+
+  // Update output label
+  const outLabel = document.getElementById('efOutLabel');
+  if (outLabel) outLabel.text°Content = s.outLabel;
+
 }
 
-function stepChatbotNext() {
-  if (chatbotStep < 4) setChatbotStage(chatbotStep + 1);
+function animateSvgParticle(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.opacity = '1';
+  setTimeout(() => { if (el) el.style.opacity = '0'; }, 600);
 }
 
-function stepChatbotPrev() {
-  if (chatbotStep > 1) setChatbotStage(chatbotStep - 1);
-  else resetChatbotTiers();
+// ==========================================================================
+// SENSOR OPTIMIZATION SIMULATION
+// ==========================================================================
+let optTimer = null;
+let optRunning = false;
+let activeOptScenario = 'offpeak';
+
+const optScenarios = {
+  offpeak: {
+    sensors: ['27.4°°C', 'O°C°CUPIED', 'LKR 24', '33°°C', '28 min'],
+    outputs: ['21.5°°C', 'WARM', '-LKR 847'],
+    aiLabel: 'PRE-°COOL → DE°CISION',
+    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5°CF6']
+  },
+  peak: {
+    sensors: ['24.1°°C', 'O°C°CUPIED', 'LKR 54', '31°°C', 'HOME'],
+    outputs: ['23.5°°C', '°COMFORT', '-LKR 412'],
+    aiLabel: 'E°CO-FLOAT → DE°CISION',
+    colors: ['#F59E0B', '#10B981', '#EF4444', '#EF4444', '#3B82F6']
+  },
+  night: {
+    sensors: ['22.8°°C', 'SLEEPING', 'LKR 24', '28°°C', 'HOME'],
+    outputs: ['23.0°°C', 'SLEEP', '-LKR 312'],
+    aiLabel: 'NIGHT MODE → DE°CISION',
+    colors: ['#8B5°CF6', '#0891B2', '#10B981', '#64748B', '#3B82F6']
+  }
+};
+
+function setOptScenario(s) {
+  activeOptScenario = s;
+  ['eoptScOff','eoptScPeak','eoptScNight'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const map = { offpeak: 'eoptScOff', peak: 'eoptScPeak', night: 'eoptScNight' };
+  const activeBtn = document.getElementById(map[s]);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Reset state
+  ['eoptSensorTemp','eoptSensorOcc','eoptSensorTariff','eoptSensorWeather','eoptSensorETA'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  ['eoptOut1Node','eoptOut2Node','eoptOut3Node'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
 }
 
-function toggleChatbotAutoPlay() {
-  if (isChatbotPlaying) stopChatbotAutoPlay();
-  else playChatbotAnimation();
+function playOptSim() {
+  if (optRunning) { stopOptSim(); return; }
+  optRunning = true;
+  const btn = document.getElementById('btnOptPlay');
+  if (btn) { btn.text°Content = '⏹ Stop Flow'; btn.classList.add('playing'); }
+
+  const scenario = optScenarios[activeOptScenario];
+  if (!scenario) return;
+
+  // Update sensor values
+  const sensorIds = ['eoptTempVal','eoptOccVal','eoptTariffVal','eoptWeatherVal','eoptETAVal'];
+  sensorIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.text°Content = scenario.sensors[i];
+  });
+
+  const sensorNodes = ['eoptSensorTemp','eoptSensorOcc','eoptSensorTariff','eoptSensorWeather','eoptSensorETA'];
+
+  // Sequentially activate sensors → AI → outputs
+  let delay = 0;
+  sensorNodes.forEach((id, i) => {
+    optTimer = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      // Animate particle for this sensor
+      const particleId = 'eoptPart' + (i+1);
+      animateSvgParticleOpt(particleId, scenario.colors[i]);
+    }, delay);
+    delay += 400;
+  });
+
+  // AI box pulse
+  optTimer = setTimeout(() => {
+    const aiBox = document.getElementById('eoptAiBox');
+    if (aiBox) {
+      aiBox.style.stroke = '#10B981';
+      aiBox.style.filter = 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.4))';
+      setTimeout(() => {
+        if (aiBox) { aiBox.style.stroke = '#3B82F6'; aiBox.style.filter = 'none'; }
+      }, 800);
+    }
+  }, delay);
+  delay += 600;
+
+  // Activate outputs
+  const outputIds = ['eoptOut1Node','eoptOut2Node','eoptOut3Node'];
+  const outputValIds = ['eoptOutHVA°C','eoptOutLight','eoptOut°Cost'];
+  outputIds.forEach((id, i) => {
+    optTimer = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      const valEl = document.getElementById(outputValIds[i]);
+      if (valEl) valEl.text°Content = scenario.outputs[i];
+      // Animate output particle
+      const partId = 'eoptOutP' + (i+1);
+      animateSvgParticleOpt(partId, '#10B981');
+    }, delay);
+    delay += 350;
+  });
+
+  optTimer = setTimeout(stopOptSim, delay + 800);
 }
 
-function stopChatbotAutoPlay() {
-  isChatbotPlaying = false;
-  if (chatbotAnimTimer) clearTimeout(chatbotAnimTimer);
-  const btn = document.getElementById('btnPlayChatbot');
-  if (btn) btn.innerHTML = '▶ Run Pipeline Flow';
+function animateSvgParticleOpt(id, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.setAttribute('fill', color);
+  el.style.opacity = '1';
+  el.style.transition = 'opacity 0.3s';
+  setTimeout(() => { if (el) el.style.opacity = '0'; }, 700);
 }
 
-function playChatbotAnimation() {
-  resetChatbotTiers();
-  isChatbotPlaying = true;
-  const btn = document.getElementById('btnPlayChatbot');
-  if (btn) btn.innerHTML = '⏸ Pause Flow';
-
-  setChatbotStage(1);
-
-  chatbotAnimTimer = setTimeout(() => {
-    if (!isChatbotPlaying) return;
-    setChatbotStage(2);
-
-    chatbotAnimTimer = setTimeout(() => {
-      if (!isChatbotPlaying) return;
-      setChatbotStage(3);
-
-      chatbotAnimTimer = setTimeout(() => {
-        if (!isChatbotPlaying) return;
-        setChatbotStage(4);
-        stopChatbotAutoPlay();
-      }, 1100);
-    }, 1100);
-  }, 1100);
+function stopOptSim() {
+  optRunning = false;
+  clearTimeout(optTimer);
+  const btn = document.getElementById('btnOptPlay');
+  if (btn) { btn.text°Content = '▶ Run Sensor Flow'; btn.classList.remove('playing'); }
 }
 
 // Expose globals
-window.switchMainTab = switchMainTab;
-window.selectEnergyPhase = selectEnergyPhase;
-window.stepEnergyPhaseNext = stepEnergyPhaseNext;
-window.stepEnergyPhasePrev = stepEnergyPhasePrev;
-window.toggleEnergyAutoPlay = toggleEnergyAutoPlay;
-window.selectChatbotScenario = selectChatbotScenario;
-window.resetChatbotTiers = resetChatbotTiers;
-window.stepChatbotNext = stepChatbotNext;
-window.stepChatbotPrev = stepChatbotPrev;
-window.toggleChatbotAutoPlay = toggleChatbotAutoPlay;
+window.switchEnergySubSim = switchEnergySubSim;
+window.setSensorZone = setSensorZone;
+window.playPrecoolSim = playPrecoolSim;
+window.playOptSim = playOptSim;
+window.setOptScenario = setOptScenario;
