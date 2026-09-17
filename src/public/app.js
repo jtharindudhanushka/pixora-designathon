@@ -290,7 +290,7 @@ function togglePlaySequence() {
 }
 
 async function startSequencePlayback() {
-  selectCameraPreset('auto');
+  if (window.twinRenderer) window.twinRenderer.cameraMode = 'auto';
   if (!currentPassId) {
     await confirmIssuePass({ silent: true });
   }
@@ -990,7 +990,7 @@ function sharePassOption(channel) {
 // 3D Digital Twin Camera View Switcher
 // --------------------------------------------------------------------------
 function selectCameraPreset(preset) {
-  const btns = ['btnCamAuto', 'btnCamTower', 'btnCamLobby', 'btnCamLift', 'btnCamResidence'];
+  const btns = ['btnCamTower', 'btnCamLobby', 'btnCamLift', 'btnCamResidence'];
   btns.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');

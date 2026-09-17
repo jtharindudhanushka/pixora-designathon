@@ -41,10 +41,7 @@
     </nav>
 
     <div class="nav-right">
-      <button class="btn-telemetry-pill" id="btnTelemetryPill" onclick="toggleAiDrawer()">
-        <span class="pulse-dot"></span>
-        <span>AI Predictive Health</span>
-      </button>
+      
       <div class="mqtt-badge">
         <span class="status-indicator"></span>
         <span>MQTT: 1883</span>
@@ -214,8 +211,7 @@
       <div class="blueprint-canvas-container">
         <!-- Floating Camera Presets Bar -->
         <div class="camera-toolbar" id="cameraToolbar">
-          <button class="cam-btn active" id="btnCamAuto" onclick="selectCameraPreset('auto')" title="Auto-direct camera based on simulation stage">🎥 Auto Director</button>
-          <button class="cam-btn" id="btnCamTower" onclick="selectCameraPreset('tower')" title="Full 53-Storey High-Rise View">🏛 Tower</button>
+          <button class="cam-btn active" id="btnCamTower" onclick="selectCameraPreset('tower')" title="Full 53-Storey High-Rise View">🏛 Tower</button>
           <button class="cam-btn" id="btnCamLobby" onclick="selectCameraPreset('lobby')" title="Ground Lobby and Turnstiles">🚪 Lobby</button>
           <button class="cam-btn" id="btnCamLift" onclick="selectCameraPreset('lift')" title="High-Speed Mitsubishi Elevator Core">🛗 Lift Core</button>
           <button class="cam-btn" id="btnCamResidence" onclick="selectCameraPreset('residence')" title="Floor 14 Unit 1402 Cutaway Suite">🏠 Unit 1402</button>
@@ -228,9 +224,6 @@
           <span class="callout-pulse"></span>
           <span class="callout-text">DESTINATION: UNIT 1402 · MAYA</span>
         </div>
-        <div class="canvas-overlay-guide" id="canvasOverlayGuide">
-          <div class="overlay-stage-tag" id="overlayStageTag">STAGE 1: COURIER ARRIVAL AT LOBBY PERIMETER</div>
-          <div class="overlay-stage-desc" id="overlayStageDesc">Awaiting cryptographic token verification at Union Place turnstile...</div>
         </div>
       </div>
     </section>
@@ -772,5 +765,312 @@
 
   
   
+
+  <!-- ================================================================= -->
+  <!-- TAB 2: ENERGY SIM (CEB Demand-Response, Peak Shaving & 24h Grid)   -->
+  <!-- ================================================================= -->
+  <div id="pageEnergySim" class="main-tab-page hidden">
+    <div class="pres-page-container">
+      <!-- Executive Header -->
+      <div class="pres-page-header">
+        <div class="pres-header-left">
+          <div class="pres-header-pill amber">COLOMBO 02 MUNICIPAL GRID · TIME-OF-USE (TOU) DEMAND RESPONSE</div>
+          <h1 class="pres-page-title">CEB Energy Grid Optimization &amp; Peak-Tariff Shaving</h1>
+          <p class="pres-page-subtitle">Autonomous building-envelope thermal mass storage pre-cooling and 3.2 kW compressor eco-floating during Colombo peak tariff hours.</p>
+        </div>
+        <div class="pres-header-controls">
+          <button class="pres-btn-control" onclick="stepEnergyPhasePrev()">⏮ Prev Phase</button>
+          <button class="pres-btn-action amber" id="btnAutoPlayEnergy" onclick="toggleEnergyAutoPlay()">▶ Auto-Play 24H Cycle</button>
+          <button class="pres-btn-control" onclick="stepEnergyPhaseNext()">Next Phase ⏭</button>
+          <button class="pres-btn-control subtle" onclick="selectEnergyPhase(1)">⟲ Reset</button>
+        </div>
+      </div>
+
+      <!-- High-Impact Big Metric Cards (Projector-Ready) -->
+      <div class="pres-metrics-row">
+        <div class="pres-metric-card">
+          <span class="pm-lbl">RESIDENT COST REDUCTION</span>
+          <div class="pm-val text-green" id="emSavingsAmount">LKR 16,450</div>
+          <span class="pm-sub">↓ 34% Average Monthly AC Bill Savings</span>
+        </div>
+        <div class="pres-metric-card">
+          <span class="pm-lbl">PEAK LOAD SHAVED PER UNIT</span>
+          <div class="pm-val text-amber">-1.8 kW</div>
+          <span class="pm-sub">Compressor draw capped during 18:00–22:30 spike</span>
+        </div>
+        <div class="pres-metric-card">
+          <span class="pm-lbl">AGGREGATE CEB GRID RELIEF</span>
+          <div class="pm-val text-cyan">1.98 MW</div>
+          <span class="pm-sub">Across 1,100 Tri-Zen Union Place residences</span>
+        </div>
+        <div class="pres-metric-card">
+          <span class="pm-lbl">THERMAL ENVELOPE BUFFER</span>
+          <div class="pm-val text-green">2.8°C</div>
+          <span class="pm-sub">Pre-cooled concrete core retains comfort 4.5 hours</span>
+        </div>
+      </div>
+
+      <!-- 24-Hour Daylight & Grid Tariff Timeline Cards -->
+      <div class="pres-timeline-grid">
+        <!-- Phase 1 -->
+        <div class="pres-phase-card active" id="energyPhase1" onclick="selectEnergyPhase(1)">
+          <div class="phase-card-top">
+            <span class="phase-pill">PHASE 01 · OFF-PEAK</span>
+            <span class="phase-time">08:00 – 17:30</span>
+          </div>
+          <div class="phase-title">Daytime Base Load</div>
+          <p class="phase-desc">Standard low off-peak tariff (LKR 24/kWh). Apartment HVAC runs on 240W idling standby while residents are at work.</p>
+          <div class="phase-status-chip">GRID: NORMAL · LKR 24/kWh</div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="pres-phase-card" id="energyPhase2" onclick="selectEnergyPhase(2)">
+          <div class="phase-card-top">
+            <span class="phase-pill green">PHASE 02 · PRE-COOL</span>
+            <span class="phase-time">17:30 – 18:00</span>
+          </div>
+          <div class="phase-title">Thermal Pre-Cooling Window</div>
+          <p class="phase-desc">Predictive AI activates Living AC at 21.5°C before the 18:00 tariff hike, utilizing cheap off-peak electricity as a thermal battery.</p>
+          <div class="phase-status-chip green">PRE-COOLING · 21.5°C ACTIVE</div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="pres-phase-card" id="energyPhase3" onclick="selectEnergyPhase(3)">
+          <div class="phase-card-top">
+            <span class="phase-pill amber">PHASE 03 · PEAK TARIFF</span>
+            <span class="phase-time">18:00 – 22:30</span>
+          </div>
+          <div class="phase-title">CEB Peak Tariff Spike (LKR 54/kWh)</div>
+          <p class="phase-desc">Evening rate surges by 125%. AI throttles AC into Eco-Float (23.5°C), capping compressor to 3.2kW to protect resident wallets and grid.</p>
+          <div class="phase-status-chip amber">ECO-FLOAT · PEAK CAPPED 3.2kW</div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="pres-phase-card" id="energyPhase4" onclick="selectEnergyPhase(4)">
+          <div class="phase-card-top">
+            <span class="phase-pill cyan">PHASE 04 · NIGHT</span>
+            <span class="phase-time">22:30 – 08:00</span>
+          </div>
+          <div class="phase-title">Night Baseline &amp; Recovery</div>
+          <p class="phase-desc">Off-peak rates return. Night comfort mode maintains 23.0°C. Total daily grid peak shaved with zero resident effort.</p>
+          <div class="phase-status-chip cyan">NIGHT COMFORT · 23.0°C</div>
+        </div>
+      </div>
+
+      <!-- Animated 24-Hour Load & Tariff Comparison Curve -->
+      <div class="pres-chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Colombo 02 24-Hour Load Curve: Traditional Surge vs. Tri-Zen Peak Shaving</div>
+            <div class="chart-sub">Visualizing how autonomous pre-cooling shifts energy demand away from Colombo's critical 18:00–22:30 peak window</div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="swatch red-dash"></span> Traditional Surge (No AI, 5.2 kW spike)</span>
+            <span class="legend-item"><span class="swatch green-solid"></span> Tri-Zen Demand-Response (Pre-cooled + 3.2 kW Cap)</span>
+            <span class="legend-item"><span class="swatch amber-area"></span> CEB Evening Peak Tariff Window</span>
+          </div>
+        </div>
+
+        <!-- SVG 24H Load Comparison -->
+        <div class="chart-svg-container">
+          <svg viewBox="0 0 1000 240" class="energy-load-svg" preserveAspectRatio="none">
+            <rect x="750" y="20" width="190" height="200" fill="rgba(245, 158, 11, 0.08)" rx="8" />
+            <text x="845" y="42" fill="#D97706" font-size="12" font-family="monospace" font-weight="700" text-anchor="middle">CEB PEAK: LKR 54/kWh</text>
+
+            <line x1="60" y1="220" x2="960" y2="220" stroke="#E2E8F0" stroke-width="1.5" />
+            <line x1="60" y1="160" x2="960" y2="160" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="4,4" />
+            <line x1="60" y1="100" x2="960" y2="100" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="4,4" />
+            <line x1="60" y1="40" x2="960" y2="40" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="4,4" />
+
+            <text x="45" y="224" fill="#94A3B8" font-size="11" font-family="monospace" text-anchor="end">0 kW</text>
+            <text x="45" y="164" fill="#94A3B8" font-size="11" font-family="monospace" text-anchor="end">2 kW</text>
+            <text x="45" y="104" fill="#94A3B8" font-size="11" font-family="monospace" text-anchor="end">4 kW</text>
+            <text x="45" y="44" fill="#94A3B8" font-size="11" font-family="monospace" text-anchor="end">6 kW</text>
+
+            <path d="M 60,205 C 200,205 350,205 500,205 C 650,205 720,200 750,90 C 780,50 840,45 880,70 C 920,130 940,190 960,200" 
+                  fill="none" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6,4" />
+
+            <path d="M 60,205 C 200,205 450,205 680,205 C 710,140 740,120 750,150 C 780,150 850,150 940,165 C 950,190 955,200 960,205" 
+                  fill="none" stroke="#10B981" stroke-width="3.5" />
+
+            <line id="energyScrubberLine" x1="200" y1="20" x2="200" y2="220" stroke="#0284C7" stroke-width="2.5" />
+            <circle id="energyScrubberDot" cx="200" cy="205" r="6" fill="#0284C7" stroke="#FFFFFF" stroke-width="2" />
+
+            <text x="60" y="235" fill="#64748B" font-size="11" font-family="monospace">08:00</text>
+            <text x="285" y="235" fill="#64748B" font-size="11" font-family="monospace">12:00</text>
+            <text x="510" y="235" fill="#64748B" font-size="11" font-family="monospace">16:00</text>
+            <text x="730" y="235" fill="#10B981" font-size="11" font-family="monospace" font-weight="700">17:30 (PRE-COOL)</text>
+            <text x="845" y="235" fill="#D97706" font-size="11" font-family="monospace" font-weight="700">19:00 (PEAK)</text>
+            <text x="960" y="235" fill="#64748B" font-size="11" font-family="monospace" text-anchor="end">24:00</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Architectural Explainability Box -->
+      <div class="pres-explain-box">
+        <div class="peb-head">
+          <span class="peb-badge">EXPLAINABLE AI ENGINE</span>
+          <h3>How Tri-Zen Cuts Electricity Bills by 34% Without Sacrificing Resident Comfort</h3>
+        </div>
+        <div class="peb-grid">
+          <div class="peb-col">
+            <h4 class="text-red">Without AI Demand-Response</h4>
+            <p>Residents arrive home at 18:00, turn their AC down to 18°C simultaneously. 1,100 compressor units draw maximum power (5.2 kW each) during CEB's most expensive peak pricing (LKR 54/kWh), stressing Colombo 02 substation transformers.</p>
+          </div>
+          <div class="peb-col highlight">
+            <h4 class="text-green">With Tri-Zen Smart Living OS</h4>
+            <p>The system uses building thermal mass storage. Concrete slabs and walls are pre-cooled at 17:30 while rates are LKR 24/kWh. When peak tariff hits at 18:00, compressors float smoothly at 3.2 kW. The room remains cool (22.5°C), saving LKR 16,450 every month.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- TAB 3: CHATBOT SIM (Enterprise Defense-in-Depth Guardrails Pipeline) -->
+  <!-- ================================================================= -->
+  <div id="pageChatbotSim" class="main-tab-page hidden">
+    <div class="pres-page-container">
+      <!-- Executive Header -->
+      <div class="pres-page-header">
+        <div class="pres-header-left">
+          <div class="pres-header-pill cyan">ENTERPRISE DEFENSE-IN-DEPTH · CONGLOMERATE SKILL MESH</div>
+          <h1 class="pres-page-title">Enterprise AI Chatbot Guardrails &amp; Skill Mesh Pipeline</h1>
+          <p class="pres-page-subtitle">Demonstrating how John Keells Holdings (JKH) deploys conversational AI with Sri Lanka PDPA compliance, semantic skill routing, and a strict physical hardware air-gap.</p>
+        </div>
+        <div class="pres-header-controls">
+          <button class="pres-btn-control" onclick="stepChatbotPrev()">⏮ Prev Tier</button>
+          <button class="pres-btn-action cyan" id="btnPlayChatbot" onclick="toggleChatbotAutoPlay()">▶ Run Pipeline Flow</button>
+          <button class="pres-btn-control" onclick="stepChatbotNext()">Next Tier ⏭</button>
+          <button class="pres-btn-control subtle" onclick="resetChatbotTiers()">⟲ Reset</button>
+        </div>
+      </div>
+
+      <!-- Scenario Selector Bar (Big, Projector-Ready Tactile Pills) -->
+      <div class="pres-prompts-bar">
+        <span class="pres-prompts-lbl">PROMPT SCENARIO:</span>
+        <button class="pres-prompt-pill active" id="cPromptFriend" onclick="selectChatbotScenario('friend')">
+          <span class="pill-ico">✦</span> "My friend is arriving tomorrow at 6 PM" (Pass Flow)
+        </button>
+        <button class="pres-prompt-pill" id="cPromptScene" onclick="selectChatbotScenario('scene')">
+          <span class="pill-ico">✦</span> "Leaving home for work" (Macro Scene Flow)
+        </button>
+        <button class="pres-prompt-pill danger" id="cPromptAttack" onclick="selectChatbotScenario('attack')">
+          <span class="pill-ico">⚠️</span> "Unlock Unit 1204 front door" (Cross-Tenant Security Probe)
+        </button>
+      </div>
+
+      <!-- 4-Tier Enterprise Defense Pipeline (Big, Clear Projector Cards) -->
+      <div class="pres-pipeline-grid">
+        <!-- Tier 1 -->
+        <div class="pres-tier-card" id="cTier1">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 01 / 04</span>
+            <span class="tier-status-badge" id="cb1Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Input Defense &amp; PDPA Masking</div>
+          <div class="tier-desc">NeMo prompt-injection filters scan for jailbreaks; Sri Lanka PDPA engine redacts resident PII before model ingest.</div>
+          
+          <div class="tier-live-box">
+            <div class="live-label">RAW PROMPT INGEST</div>
+            <div class="live-val-mono" id="cb1RawPrompt">"My friend is arriving tomorrow at 6 PM"</div>
+            <div class="live-status-row">
+              <span class="live-pill green" id="cb1InjectionStatus">✓ INJECTION: SAFE</span>
+              <span class="live-pill blue" id="cb1PiStatus">✓ PDPA PII: MASKED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="cPulse1"></div></div>
+
+        <!-- Tier 2 -->
+        <div class="pres-tier-card" id="cTier2">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 02 / 04</span>
+            <span class="tier-status-badge" id="cb2Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Semantic Router &amp; Conglomerate Mesh</div>
+          <div class="tier-desc">Deterministic router routes strictly to target microservice. Bypasses unneeded conglomerate APIs to prevent data leaks.</div>
+          
+          <div class="tier-live-box">
+            <div class="live-label">CONGLOMERATE SKILL MESH</div>
+            <div class="skill-mesh-list">
+              <div class="mesh-item active" id="cMeshPass">
+                <span class="mesh-dot green"></span>
+                <strong>JKH Access Microservice</strong>
+                <span class="mesh-tag target">TARGET DISPATCH</span>
+              </div>
+              <div class="mesh-item muted" id="cMeshRetail">
+                <span class="mesh-dot gray"></span>
+                <span>Keells Super Delivery</span>
+                <span class="mesh-tag">BYPASSED</span>
+              </div>
+              <div class="mesh-item muted" id="cMeshFinance">
+                <span class="mesh-dot gray"></span>
+                <span>FriMi Banking Gateway</span>
+                <span class="mesh-tag">AIR-GAPPED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="cPulse2"></div></div>
+
+        <!-- Tier 3 -->
+        <div class="pres-tier-card" id="cTier3">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 03 / 04</span>
+            <span class="tier-status-badge" id="cb3Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Cryptographic Zero-Trust &amp; Air-Gap</div>
+          <div class="tier-desc">Raw LLM outputs NEVER touch physical relays. Cryptographic claims must match Unit 1402 tenant JWT and single-use nonces.</div>
+          
+          <div class="tier-live-box" id="cb3Box">
+            <div class="live-label">HARDWARE INTERLOCK CLAIMS</div>
+            <div class="auth-claims-grid">
+              <div><span class="lbl-xs">TENANT JWT:</span> <strong id="cb3Resident">Maya (Unit 1402)</strong></div>
+              <div><span class="lbl-xs">SCOPE CHECK:</span> <strong class="text-green" id="cb3Scope">turnstile:enter · lift:14</strong></div>
+              <div><span class="lbl-xs">TOKEN NONCE:</span> <strong class="text-mono" id="cb3Nonce">#749102 · Single-use</strong></div>
+              <div><span class="lbl-xs">RELAY STATE:</span> <strong class="text-amber" id="cb3Relay">ARMED FOR TTL 15M</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-connector"><div class="pres-conn-pulse" id="cPulse3"></div></div>
+
+        <!-- Tier 4 -->
+        <div class="pres-tier-card" id="cTier4">
+          <div class="tier-card-top">
+            <span class="tier-step-tag">TIER 04 / 04</span>
+            <span class="tier-status-badge" id="cb4Badge">IDLE</span>
+          </div>
+          <div class="tier-title">Deterministic Output &amp; Resident UI</div>
+          <div class="tier-desc">Enforces JSON schema output to eliminate hallucinations. Confirms real-time state with mobile UI and immutable audit log.</div>
+          
+          <div class="tier-live-box highlight" id="cb4Box">
+            <div class="live-label">MOBILE APP DISPATCH</div>
+            <div class="t4-result-title" id="cb4Title">✦ Guest Pass Minted Successfully</div>
+            <div class="t4-result-desc" id="cb4Desc">Generated 15-min cryptographic pass for Union Place Turnstile 1 and Elevator Bank A to Floor 14.</div>
+            <div class="t4-badge-row">
+              <span class="live-pill green" id="cb4ResultBadge">✓ SECURE &amp; ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info / Judge Takeaways -->
+      <div class="pres-footer-banner">
+        <div class="pfb-content">
+          <strong>Key Hackathon Judge Takeaway:</strong> Generative models are NEVER permitted to actuate physical relays directly. If an unauthorized prompt attempts cross-unit control (e.g. Unit 1204), Tier 3 cryptographic token validation instantly rejects the action, maintaining complete air-gap protection.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Essential WebGL & Application Scripts -->
+  <script src="three.min.js"></script>
+  <script src="OrbitControls.js"></script>
+  <script src="twinCanvas.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

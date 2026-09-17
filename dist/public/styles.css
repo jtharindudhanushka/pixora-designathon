@@ -4324,3 +4324,44 @@ input:checked + .ios-slider:before { transform: translateX(14px); }
 #pageChatbotSim.hidden {
   display: none !important;
 }
+
+
+/* Hide any residual frozen canvas overlay guide */
+.canvas-overlay-guide {
+  display: none !important;
+}
+
+/* Ensure Camera Toolbar only shows the 4 clean architectural presets */
+.camera-toolbar {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.cam-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cam-btn:hover {
+  color: #0F172A;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.cam-btn.active {
+  background: #0F172A;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
